@@ -49,4 +49,4 @@ jobs:
       with:
         name: switchblade-daily-log
         path: 'output/*.html'
-        retention-days: 30
+        retention-days: 5
