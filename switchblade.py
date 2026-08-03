@@ -1,5 +1,5 @@
 # ====================================================
-# SWITCHBLADE v47.56 - HEADLESS EDITION (HTML LOGGER)
+# SWITCHBLADE v47.57 - HEADLESS EDITION (HTML LOGGER)
 # ====================================================
 
 import matplotlib
@@ -29,9 +29,7 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 # ==========================================
 # CONFIGURATION
 # ==========================================
-# Change to "Backtest Mode" if you want the visual chart generated
-#mode = "Execution Mode"  
-mode = "Backtest Mode" 
+mode = "Backtest Mode"  # Defaulted to Backtest Mode for GitHub Actions
 state_dir = "./state"
 backtest_start_date = "2012-01-18" 
 use_multiprocessing = True
@@ -420,13 +418,23 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
             if t in data_master.columns.levels[0]:
                 df = data_master[t].dropna(subset=['Close'])
                 if not df.empty:
+                    # FIX: Skip stocks that did not exist at the backtest start date
+                    if df.index[0] > (data_start_pd + pd.Timedelta(days=30)):
+                        continue
+                        
                     df_slice = df[df.index >= data_start_pd]
                     if len(df_slice) >= min_required_bars:
                         cerebro.adddata(bt.feeds.PandasData(dataname=df, name=t, fromdate=data_start_pd.to_pydatetime()))
                         added_tickers.add(t); added_count += 1
 
-        print(f"   [Runner] {config['name']}: {added_count} stocks loaded.")
-        if added_count == 0: return None
+        if config['universe'] == "TQQQ_ONLY":
+            print(f"   [Runner] {config['name']}: Target ETF (TQQQ) pre-loaded successfully.")
+        else:
+            print(f"   [Runner] {config['name']}: {added_count} candidate stocks loaded.")
+
+        if added_count == 0 and config['universe'] not in ["TQQQ_ONLY"]:
+            print(f"   [Runner] {config['name']}: No candidate stocks loaded. Aborting strategy.")
+            return None
 
         cerebro.addstrategy(SwitchbladeStrategy, **config, tickers_sp500=t_sp500, tickers_xlg=t_xlg, start_date=target_start_pd.date())
         results = cerebro.run()
