@@ -30,7 +30,8 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 # CONFIGURATION
 # ==========================================
 # Change to "Backtest Mode" if you want the visual chart generated
-mode = "Execution Mode"  
+#mode = "Execution Mode"  
+mode = "Backtest Mode" 
 state_dir = "./state"
 backtest_start_date = "2012-01-18" 
 use_multiprocessing = True
