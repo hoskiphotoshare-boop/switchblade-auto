@@ -368,5 +368,37 @@ def run_execution():
         print(f"   Mode: {st['current_mode']} ({st['graduated_state']})")
         print(f"   Holdings: {list(st.get('holdings', {}).keys())}\n")
 
+class HTMLConsoleLogger:
+    def __init__(self, filepath):
+        self.terminal = sys.stdout
+        self.filepath = filepath
+        os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
+        with open(self.filepath, "w") as f:
+            f.write("<html><head><style>body { background-color: #121212; color: #00FF00; font-family: 'Courier New', monospace; padding: 15px; white-space: pre-wrap; font-size: 14px; }</style></head><body>\n")
+            f.write(f"<h3>SWITCHBLADE RUN LOG: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</h3>\n")
+
+    def write(self, message):
+        self.terminal.write(message)
+        safe_msg = message.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        with open(self.filepath, "a", encoding="utf-8") as f:
+            f.write(safe_msg)
+            
+    def flush(self):
+        self.terminal.flush()
+
+    def close(self):
+        with open(self.filepath, "a") as f:
+            f.write("\n</body></html>")
+
 if __name__ == "__main__":
-    run_execution()
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    html_log_path = f"output/Switchblade_Log_{timestamp}.html"
+    
+    logger = HTMLConsoleLogger(html_log_path)
+    sys.stdout = logger
+
+    try:
+        run_execution()
+    finally:
+        logger.close()
+        sys.stdout = logger.terminal
