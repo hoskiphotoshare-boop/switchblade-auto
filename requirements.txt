@@ -1,0 +1,8 @@
+backtrader
+yfinance
+pandas
+requests
+lxml
+matplotlib
+numpy
+pytz
