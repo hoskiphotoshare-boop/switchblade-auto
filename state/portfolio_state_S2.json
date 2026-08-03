@@ -1,0 +1,13 @@
+{
+    "current_mode": "TQQQ",
+    "graduated_state": "FIRMLY_BULLISH",
+    "pending_mode": null,
+    "pending_state": null,
+    "confirm_counter": 0,
+    "timer": 0,
+    "last_rebal_date": "2026-08-03",
+    "last_run_date": "2026-08-03",
+    "holdings": {
+        "TQQQ": "100.00%"
+    }
+}

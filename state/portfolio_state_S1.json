@@ -1,0 +1,22 @@
+{
+    "current_mode": "ALL_STOCKS",
+    "graduated_state": "FIRMLY_BULLISH",
+    "pending_mode": null,
+    "pending_state": null,
+    "confirm_counter": 0,
+    "timer": 0,
+    "last_rebal_date": "2026-08-03",
+    "last_run_date": "2026-08-03",
+    "holdings": {
+        "MXL": "10.00%",
+        "CORT": "10.00%",
+        "DELL": "10.00%",
+        "NSP": "10.00%",
+        "LQDA": "10.00%",
+        "PENG": "10.00%",
+        "DDOG": "10.00%",
+        "AMD": "10.00%",
+        "PANW": "10.00%",
+        "HPE": "10.00%"
+    }
+}
