@@ -3,7 +3,7 @@ name: Daily Switchblade Execution
 on:
   schedule:
     # Runs at 21:00 UTC (4:00 PM EST / 5:00 PM EDT) every Monday through Friday
-    - cron: '0 21 * * 1-5'
+    - cron: '0 20 40 * 1-5'
   workflow_dispatch: # Allows manual trigger from the GitHub interface
 
 jobs:
