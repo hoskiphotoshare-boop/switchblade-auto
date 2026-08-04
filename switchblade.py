@@ -1,5 +1,5 @@
 # =========================================================================
-# SWITCHBLADE v47.62 - HEADLESS GITHUB EDITION (ULTIMATE FIX)
+# SWITCHBLADE v47.73 - HEADLESS GITHUB EDITION (SEQUOIA ENGINE SYNC)
 # =========================================================================
 
 import matplotlib
@@ -29,9 +29,12 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 # ==========================================
 # CONFIGURATION
 # ==========================================
-mode = "Backtest Mode"  # Defaulted to Backtest Mode for GitHub Actions testing
+mode = "Backtest Mode"  # Defaulted to Backtest Mode for GitHub Actions
 state_dir = "./state"
+data_source = "Force Fresh Download"
+cache_filename = "switchblade_data.csv"
 backtest_start_date = "2012-01-18" 
+max_stocks_per_univ = 3000
 use_multiprocessing = True
 
 GLOBAL_NITRO_ETFS = "SPXL, SPXS, TQQQ, SQQQ, UDOW, SDOW, TNA, TZA, MIDU, EDC, EDZ, YINN, YANG, EURL, INDL, TECL, TECS, SOXL, SOXS, FNGU, FNGD, WEBL, WEBS, FAS, FAZ, ERX, ERY, CURE, LABU, LABD, DRN, DRV, UTSL, DUSL, RETL, UGL, GLL, AGQ, ZSL, UCO, SCO, BOIL, KOLD, TMF, TMV, UST, PST, BITU, ETHU, UVXY"
@@ -85,6 +88,8 @@ if s1: strategies.append(s1)
 s2 = pack_strat(S2_ENABLE, S2_NAME, S2_UNIVERSE, S2_CUSTOM_LIST, S2_SMA, S2_REENTRY, S2_REBAL_DAYS, S2_TOP_STOCKS, S2_CONFIRM_DAYS, S2_GUARD_MODE, S2_ALLOW_NITRO, S2_MOM_LONG, S2_MOM_SHORT)
 if s2: strategies.append(s2)
 
+print(f">>> CONFIGURATION LOADED: {len(strategies)} Strategies Ready.")
+
 def get_tickers(universe):
     headers = {"User-Agent": "Mozilla/5.0"}
     try:
@@ -107,40 +112,64 @@ def get_tickers(universe):
         print(f"Error fetching ticker list: {e}")
         return []
 
-def batch_download(tickers, start_date, end_date, chunk_size=100):
-    all_data_list = []
-    safe_end_date = end_date + datetime.timedelta(days=1) if isinstance(end_date, datetime.date) else end_date
+def patch_latest_live_prices(data_df, tickers):
+    """Bypasses Yahoo's EOD 12-hour server lag by splicing live 1-minute data onto the timeline."""
+    print("   -> [HOTFIX] Splicing live 1-minute data to correct Yahoo daily lag...")
+    all_live = []
+    chunk_size = 100
     chunks = [tickers[i:i + chunk_size] for i in range(0, len(tickers), chunk_size)]
-    print(f" Downloading {len(tickers)} tickers in chunks...")
     for i, chunk in enumerate(chunks):
         try:
-            batch = yf.download(chunk, start=start_date, end=safe_end_date, group_by='ticker', progress=False, auto_adjust=True, threads=True)
-            if not batch.empty: all_data_list.append(batch)
-            time.sleep(0.3)
-        except Exception as e:
-            print(f" Batch {i+1} Failed: {e}")
-    return pd.concat(all_data_list, axis=1) if all_data_list else None
+            batch = yf.download(chunk, period="1d", interval="1m", group_by='ticker', progress=False, threads=False)
+            if not batch.empty:
+                if len(chunk) == 1 and not isinstance(batch.columns, pd.MultiIndex):
+                    batch.columns = pd.MultiIndex.from_product([chunk, batch.columns])
+                last_row = batch.ffill().iloc[[-1]]
+                all_live.append(last_row)
+            time.sleep(0.1)
+        except Exception:
+            pass
 
-def load_and_prep_data():
-    t_sp500 = get_tickers("SP500"); t_ndx = get_tickers("NDX"); t_sp1000 = get_tickers("SP1000")
-    t_xlg = t_sp500[:60] if t_sp500 else []
-    guards = ["IWM", "QQQ", "SPY", "XLG", "GLD", "TLT", "IEF", "BIL"]
-    all_nitro_etfs = parse_list(GLOBAL_NITRO_ETFS)
-    all_tickers = list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg + guards + all_nitro_etfs))
-    print(f" Master Universe Size: {len(all_tickers)} Tickers")
-    
-    if mode == "Backtest Mode":
-        start_date = datetime.datetime.strptime(backtest_start_date, "%Y-%m-%d").date() - datetime.timedelta(days=365)
-    else:
-        start_date = datetime.date.today() - datetime.timedelta(days=450)
+    if all_live:
+        live_df = pd.concat(all_live, axis=1)
+        idx = pd.to_datetime(live_df.index)
+        if getattr(idx, 'tz', None) is not None:
+            idx = idx.tz_convert('America/New_York')
+        live_df.index = idx.tz_localize(None).normalize()
+
+        live_date = live_df.index[0]
         
-    data = batch_download(all_tickers, start_date, datetime.date.today())
-    if data is not None:
-        data.index = pd.to_datetime(data.index, utc=True).normalize().tz_localize(None)
-        data = data[~data.index.duplicated(keep='last')]
-        data = data.loc[:, ~data.columns.duplicated()]
-        data = data.sort_index()
-    return data, t_sp500, t_sp1000, t_ndx, t_xlg
+        data_df = data_df[data_df.index < live_date]
+        data_df = pd.concat([data_df, live_df])
+        data_df = data_df.groupby(data_df.index).last()
+        data_df = data_df.loc[:, ~data_df.columns.duplicated()].sort_index()
+        print(f"   -> Successfully locked in live closing prices for {live_date.date()}")
+        return data_df
+    return data_df
+
+def batch_download(tickers, start_date, end_date=None, chunk_size=100):
+    all_data_list = []
+    chunks = [tickers[i:i + chunk_size] for i in range(0, len(tickers), chunk_size)]
+    print(f"   -> Downloading {len(tickers)} tickers in chunks...")
+    for i, chunk in enumerate(chunks):
+        try:
+            if end_date:
+                safe_end_date = end_date + datetime.timedelta(days=1) if isinstance(end_date, datetime.date) else end_date
+                batch = yf.download(chunk, start=start_date, end=safe_end_date, group_by='ticker', progress=False, auto_adjust=True, threads=False)
+            else:
+                batch = yf.download(chunk, start=start_date, group_by='ticker', progress=False, auto_adjust=True, threads=False)
+                
+            if not batch.empty: 
+                idx = pd.to_datetime(batch.index)
+                if getattr(idx, 'tz', None) is not None:
+                    idx = idx.tz_convert('America/New_York')
+                batch.index = idx.tz_localize(None).normalize()
+                batch = batch.groupby(batch.index).last()
+                all_data_list.append(batch)
+            time.sleep(0.5)
+        except Exception as e:
+            print(f"      Batch {i+1} Failed: {e}")
+    return pd.concat(all_data_list, axis=1) if all_data_list else None
 
 class SwitchbladeStrategy(bt.Strategy):
     params = (
@@ -204,7 +233,7 @@ class SwitchbladeStrategy(bt.Strategy):
         self.total_switches = 0; self.total_orders = 0; self.last_year = None; self.val_history = []
 
     def start(self):
-        print(f"[{self.params.name}] Indicators Calculated. Warming up...")
+        print(f"[{self.params.name}] Indicators Calculated. Warming up (waiting for {self.params.start_date})...")
 
     def notify_order(self, order):
         if self.params.start_date and self.datetime.date(0) < self.params.start_date: return
@@ -249,7 +278,6 @@ class SwitchbladeStrategy(bt.Strategy):
         else: assets = ['BIL']
         self.log(f"{self.graduated_state}, {mode} -> {action}: {assets}")
 
-    # FIX: Bypasses Backtrader's internal pause for missing IPO data
     def prenext(self):
         self.next()
 
@@ -320,6 +348,7 @@ class SwitchbladeStrategy(bt.Strategy):
                 self.print_holdings(raw_mode, context="Switch")
         else:
             if self.params.guard_mode == "GRADUATED" and potential_state != self.graduated_state:
+                 self.log(f"[STATE SHIFT] {self.graduated_state} -> {potential_state} (Silent Update)")
                  self.graduated_state = potential_state
             self.confirm_counter = 0; self.pending_mode = None; self.pending_state = None
 
@@ -340,7 +369,6 @@ class SwitchbladeStrategy(bt.Strategy):
 
             target_assets = [self.getdatabyname(x) for x in target_names]
 
-            # FIX: Using strings instead of Data Feeds avoids the LineOwnOperation crash
             for d, pos in self.getpositions().items():
                 if pos.size != 0 and d._name not in target_names: self.order_target_percent(d, target=0.0)
                 
@@ -381,6 +409,102 @@ class SwitchbladeStrategy(bt.Strategy):
         self.log(f"Final Holdings  : {active_positions}")
         self.log("="*50 + "\n")
 
+def load_and_prep_data_superset():
+    print("   [Data] Preparing data environment...")
+    active_path = cache_filename
+
+    t_sp500 = get_tickers("SP500"); t_ndx = get_tickers("NDX"); t_sp1000 = get_tickers("SP1000")
+    t_xlg = t_sp500[:60] if t_sp500 else []
+    t_sp1000 = t_sp1000[:max_stocks_per_univ]; t_sp500 = t_sp500[:max_stocks_per_univ]; t_ndx = t_ndx[:max_stocks_per_univ]
+
+    guards = ["IWM", "QQQ", "SPY", "XLG", "GLD", "TLT", "IEF", "BIL"]
+    all_nitro_etfs = parse_list(GLOBAL_NITRO_ETFS)
+    all_tickers = list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg + guards + all_nitro_etfs))
+    print(f"   [System] Master Universe Size: {len(all_tickers)} Tickers")
+
+    data = None
+    force_refresh = (data_source == "Force Fresh Download")
+
+    if not force_refresh and os.path.exists(active_path):
+        print(f"2. CACHE FOUND: Executing Smart Hybrid Update...")
+        try:
+            data = pd.read_csv(active_path, header=[0, 1], index_col=0, parse_dates=True, low_memory=False)
+            data = data.loc[:, ~data.columns.duplicated()]
+
+            if not data.empty:
+                if len(data) > 3:
+                    data = data.iloc[:-3]
+
+                idx = pd.to_datetime(data.index)
+                if getattr(idx, 'tz', None) is not None:
+                    idx = idx.tz_convert('America/New_York')
+                data.index = idx.tz_localize(None).normalize()
+                
+                anchor_date = data.index[0].date()
+                last_date = data.index[-1].date()
+                today = pd.Timestamp.now('America/New_York').date()
+
+                existing_cols = list(data.columns.levels[0])
+                valid_existing = []; missing_tickers = []
+
+                for t in all_tickers:
+                    if t in existing_cols:
+                        valid_days = data[t]['Close'].dropna().shape[0]
+                        if valid_days > 5: valid_existing.append(t)
+                        else: missing_tickers.append(t)
+                    else: missing_tickers.append(t)
+
+                existing_to_update = valid_existing
+
+                if last_date < today:
+                    actual_start = last_date + datetime.timedelta(days=1)
+                    print(f"   [Delta Update] Fetching {actual_start} to LATEST for {len(existing_to_update)} existing tickers...")
+                    delta_data = batch_download(existing_to_update, actual_start, end_date=None)
+
+                    if delta_data is not None and not delta_data.empty:
+                        data = pd.concat([data, delta_data])
+                        data = data.groupby(data.index).last()
+                        data = data.loc[:, ~data.columns.duplicated()].sort_index()
+
+                if missing_tickers:
+                    print(f"\n   [Smart Update] DETECTED {len(missing_tickers)} NEW OR BROKEN TICKERS.")
+                    missing_data = batch_download(missing_tickers, anchor_date, end_date=None)
+                    if missing_data is not None and not missing_data.empty:
+                        data = data.drop(columns=[t for t in missing_tickers if t in data.columns.levels[0]], level=0, errors='ignore')
+                        data = pd.concat([data, missing_data], axis=1)
+                        data.index = pd.to_datetime(data.index).normalize().tz_localize(None)
+                        data = data.groupby(data.index).last()
+                        data = data.loc[:, ~data.columns.duplicated()].sort_index()
+                        
+                data = patch_latest_live_prices(data, all_tickers)
+                data.ffill(inplace=True)
+                data.to_csv(active_path)
+
+        except Exception as e:
+            print(f"   [Cache Error] {e}. Falling back to fresh download.")
+            data = None
+
+    if data is None or force_refresh:
+        print("   -> Starting FRESH BATCH DOWNLOAD...")
+        target_start = datetime.datetime.strptime(backtest_start_date, "%Y-%m-%d").date()
+        required_start = target_start - datetime.timedelta(days=365)
+        data = batch_download(all_tickers, required_start, end_date=None)
+        
+        if data is not None:
+            idx = pd.to_datetime(data.index)
+            if getattr(idx, 'tz', None) is not None:
+                idx = idx.tz_convert('America/New_York')
+            data.index = idx.tz_localize(None).normalize()
+            data = data.groupby(data.index).last()
+            data = data.loc[:, ~data.columns.duplicated()]
+            data = data.sort_index()
+            
+            data = patch_latest_live_prices(data, all_tickers)
+            data.ffill(inplace=True)
+            data.to_csv(active_path)
+
+    return data, t_sp500, t_sp1000, t_ndx, t_xlg
+
 def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, backtest_start_date):
     try:
         print(f"   [Runner] Starting: {config['name']}")
@@ -418,7 +542,6 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
             if t in data_master.columns.levels[0]:
                 df = data_master[t].dropna(subset=['Close'])
                 if not df.empty:
-                    # FIX: Allow stocks that IPO'd anytime, as long as they have enough history to be analyzed eventually
                     if len(df) >= min_required_bars:
                         cerebro.adddata(bt.feeds.PandasData(dataname=df, name=t, fromdate=data_start_pd.to_pydatetime()))
                         added_tickers.add(t); added_count += 1
@@ -458,7 +581,7 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
         print(f"   [Runner] Finished: {config['name']} (Total Ret: {ret:,.2f}%)")
         return {
             'Strategy': config['name'], 'Return %': ret, 'MaxDD %': dd, 'CurrDD %': curr_dd,
-            'Sharpe': sharpe, 'Sortino': sortino, 'Calmar': calmar, 
+            'Sharpe': sharpe, 'Sortino': sortino, 'Calmar': Calmar, 
             'Trades': strat.total_orders, 'Switches': strat.total_switches, 'History': history_df
         }
     except Exception as e:
@@ -469,7 +592,7 @@ def run_batch_backtest():
     global use_multiprocessing
     if 'use_multiprocessing' not in globals(): use_multiprocessing = False
 
-    data_master, t_sp500, t_sp1000, t_ndx, t_xlg = load_and_prep_data()
+    data_master, t_sp500, t_sp1000, t_ndx, t_xlg = load_and_prep_data_superset()
     if data_master is None: return
 
     summary_stats = []
@@ -573,37 +696,42 @@ def run_batch_backtest():
             sys.stdout.inject_html(f'<br><br><img src="data:image/png;base64,{img_base64}" style="max-width:100%; border: 2px solid #333;"><br>')
 
 def run_execution():
-    print("\n" + "="*50 + "\n >>> SWITCHBLADE HEADLESS EXECUTION <<<\n" + "="*50)
-    os.makedirs(state_dir, exist_ok=True)
-    
+    print(f"\n" + "="*50 + "\n   >>> EXECUTION MODE: V47.73 (BACKTEST SYNCHRONIZED) <<<\n" + "="*50)
+
     def json_serial(obj):
         if isinstance(obj, (datetime.date, datetime.datetime)): return obj.isoformat()
         raise TypeError(f"Type {type(obj)} not serializable")
 
-    data_master, t_sp500, t_sp1000, t_ndx, t_xlg = load_and_prep_data()
+    print("   [Data] Loading market data...")
+    data_master, t_sp500, t_sp1000, t_ndx, t_xlg = load_and_prep_data_superset()
+
     if data_master is None:
-        print(" [Error] Data download failed. Aborting.")
+        print("   [Error] Data load failed. Aborting.")
         return
+
+    full_live_path = state_dir
+    execution_reports = []
+
+    if not os.path.exists(full_live_path):
+        os.makedirs(full_live_path, exist_ok=True)
 
     def get_sma_series(ticker, period):
         return data_master[ticker]['Close'].rolling(window=period).mean() if ticker in data_master.columns.levels[0] else None
-
-    execution_reports = []
 
     for i, config in enumerate(strategies):
         strat_id = i + 1; s_name = config['name']
         univ_setting = str(config.get('universe', 'STANDARD')).strip().upper()
         custom_tickers = [x.strip().upper() for x in config.get('custom_list', [])]
         mom_long = config.get('momentum_long', 126); mom_short = config.get('momentum_short', 21)
-        state_file = f"{state_dir}/portfolio_state_S{strat_id}.json"
+        state_file = f"{full_live_path}/portfolio_state_S{strat_id}.json"
 
-        print(f"\n >>> STRATEGY {strat_id}: {s_name}")
-
+        print(f"\n   >>> STRATEGY {strat_id}: {s_name}")
         state = {"current_mode": "INIT", "graduated_state": "FIRMLY_BEARISH", "pending_mode": None, "pending_state": None, "confirm_counter": 0, "timer": 0, "last_rebal_date": "1900-01-01", "last_run_date": "1900-01-01", "holdings": {}}
+        
         if os.path.exists(state_file):
             try:
                 with open(state_file, 'r') as f: state = json.load(f)
-            except: print(" Could not read state file. Resetting.")
+            except: print("       [Warning] State file corrupt. Resetting.")
 
         last_run_pd = pd.to_datetime(state.get('last_run_date', "1900-01-01")).normalize()
         all_dates = data_master.index.unique().sort_values()
@@ -662,7 +790,7 @@ def run_execution():
                     if raw_mode == state.get('pending_mode'): state['confirm_counter'] += 1
                     else: state['pending_mode'] = raw_mode; state['pending_state'] = potential_state; state['confirm_counter'] = 1
                     if state['confirm_counter'] >= config['confirmation_days']:
-                        print(f" [SIGNAL] State Confirmed: {state['current_mode']} -> {raw_mode}")
+                        print(f"       [SIGNAL] State Confirmed: {state['current_mode']} -> {raw_mode}")
                         state['graduated_state'] = state['pending_state']; state['current_mode'] = raw_mode; state['timer'] = config['rebalance_days']; state['confirm_counter'] = 0; state['pending_mode'] = None; state['pending_state'] = None
                 else:
                     if config['guard_mode'] == "GRADUATED" and potential_state != current_grad_state: state['graduated_state'] = potential_state
@@ -686,7 +814,7 @@ def run_execution():
             if not curr_holdings or curr_holdings == ['TQQQ']: force_rebalance = True
 
         if force_rebalance:
-            print(f" >>> EXECUTING REBALANCE ({state['current_mode']})...")
+            print(f"       >>> EXECUTING REBALANCE ({state['current_mode']})...")
             target_assets = []
             if state['current_mode'] == "ALL_STOCKS":
                  univ = custom_tickers if univ_setting == "CUSTOM" else list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg)) if not config['allow_3x_in_stock_picks'] else list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg + parse_list(GLOBAL_NITRO_ETFS)))
@@ -718,12 +846,16 @@ def run_execution():
             elif state['current_mode'] == "MED_BOND": target_assets = ['IEF']
             else: target_assets = ['BIL']
 
-            print(f" -> TARGET ALLOCATION: {target_assets}")
+            print(f"       -> TARGET ALLOCATION: {target_assets}")
             state['timer'] = 0; state['last_rebal_date'] = datetime.date.today().isoformat()
             state['holdings'] = {t: f"{100/len(target_assets):.2f}%" for t in target_assets} if target_assets else {}
+        else: print(f"       [HOLD] No action required today.")
 
-        with open(state_file, 'w') as f: json.dump(state, f, indent=4, default=json_serial)
-        
+        try:
+            with open(state_file, 'w') as f: json.dump(state, f, indent=4, default=json_serial)
+            print(f"       [System] State Saved.")
+        except: pass
+
         guard_report = {}
         for g in guards:
             try:
@@ -743,7 +875,11 @@ def run_execution():
         print(f"   -> Current Holdings: {list(st.get('holdings', {}).keys())}")
         print(f"   -> Guard Status (vs Exit SMA / vs Re-entry SMA):")
         for g, vals in rep['guards'].items(): print(f"      {g.ljust(4)} | Px: {vals['px']:>7.2f} | Exit Dist: {vals['dist_ex']:>+7.2f}% | Entry Dist: {vals['dist_en']:>+7.2f}%")
+    print("\n" + "="*50 + "\n   EXECUTION COMPLETE\n" + "="*50)
 
+# ==========================================
+# MAIN ENTRY & HTML LOGGER
+# ==========================================
 class HTMLConsoleLogger:
     def __init__(self, filepath):
         self.terminal = sys.stdout
@@ -767,10 +903,11 @@ class HTMLConsoleLogger:
 
 if __name__ == "__main__":
     os.makedirs("output", exist_ok=True)
+    os.makedirs(state_dir, exist_ok=True)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    html_log_path = f"output/Switchblade_Log_{timestamp}.html"
+    local_log_path = f"output/Switchblade_Log_{timestamp}.html"
     
-    logger = HTMLConsoleLogger(html_log_path)
+    logger = HTMLConsoleLogger(local_log_path)
     sys.stdout = logger
 
     try:
