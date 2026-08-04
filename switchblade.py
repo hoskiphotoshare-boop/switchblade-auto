@@ -1,5 +1,5 @@
 # =========================================================================
-# SWITCHBLADE v47.74 - HEADLESS GITHUB EDITION (TYPO FIX)
+# SWITCHBLADE v47.75 - HEADLESS GITHUB EDITION (PURE SEQUOIA ENGINE)
 # =========================================================================
 
 import matplotlib
@@ -29,7 +29,7 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 # ==========================================
 # CONFIGURATION
 # ==========================================
-mode = "Backtest Mode"  # Defaulted to Backtest Mode for GitHub Actions
+mode = "Backtest Mode"  # Set to Backtest or Execution depending on your CI/CD workflow
 state_dir = "./state"
 data_source = "Force Fresh Download"
 cache_filename = "switchblade_data.csv"
@@ -108,49 +108,13 @@ def get_tickers(universe):
             mid = extract('https://en.wikipedia.org/wiki/List_of_S%26P_400_companies', ['Symbol', 'Ticker Symbol'])
             small = extract('https://en.wikipedia.org/wiki/List_of_S%26P_600_companies', ['Symbol', 'Ticker Symbol'])
             return mid + small
-    except Exception as e:
-        print(f"Error fetching ticker list: {e}")
-        return []
+    except: return []
 
-def patch_latest_live_prices(data_df, tickers):
-    """Bypasses Yahoo's EOD 12-hour server lag by splicing live 1-minute data onto the timeline."""
-    print("   -> [HOTFIX] Splicing live 1-minute data to correct Yahoo daily lag...")
-    all_live = []
-    chunk_size = 100
-    chunks = [tickers[i:i + chunk_size] for i in range(0, len(tickers), chunk_size)]
-    for i, chunk in enumerate(chunks):
-        try:
-            batch = yf.download(chunk, period="1d", interval="1m", group_by='ticker', progress=False, threads=False)
-            if not batch.empty:
-                if len(chunk) == 1 and not isinstance(batch.columns, pd.MultiIndex):
-                    batch.columns = pd.MultiIndex.from_product([chunk, batch.columns])
-                last_row = batch.ffill().iloc[[-1]]
-                all_live.append(last_row)
-            time.sleep(0.1)
-        except Exception:
-            pass
-
-    if all_live:
-        live_df = pd.concat(all_live, axis=1)
-        idx = pd.to_datetime(live_df.index)
-        if getattr(idx, 'tz', None) is not None:
-            idx = idx.tz_convert('America/New_York')
-        live_df.index = idx.tz_localize(None).normalize()
-
-        live_date = live_df.index[0]
-        
-        data_df = data_df[data_df.index < live_date]
-        data_df = pd.concat([data_df, live_df])
-        data_df = data_df.groupby(data_df.index).last()
-        data_df = data_df.loc[:, ~data_df.columns.duplicated()].sort_index()
-        print(f"   -> Successfully locked in live closing prices for {live_date.date()}")
-        return data_df
-    return data_df
-
+# SEQUOIA FIX 1: Strict threads=False and UTC Date Normalization
 def batch_download(tickers, start_date, end_date=None, chunk_size=100):
     all_data_list = []
     chunks = [tickers[i:i + chunk_size] for i in range(0, len(tickers), chunk_size)]
-    print(f"   -> Downloading {len(tickers)} tickers in chunks...")
+    print(f"   -> Downloading {len(tickers)} tickers...")
     for i, chunk in enumerate(chunks):
         try:
             if end_date:
@@ -158,12 +122,10 @@ def batch_download(tickers, start_date, end_date=None, chunk_size=100):
                 batch = yf.download(chunk, start=start_date, end=safe_end_date, group_by='ticker', progress=False, auto_adjust=True, threads=False)
             else:
                 batch = yf.download(chunk, start=start_date, group_by='ticker', progress=False, auto_adjust=True, threads=False)
-                
-            if not batch.empty: 
-                idx = pd.to_datetime(batch.index)
-                if getattr(idx, 'tz', None) is not None:
-                    idx = idx.tz_convert('America/New_York')
-                batch.index = idx.tz_localize(None).normalize()
+
+            if not batch.empty:
+                # Convert to UTC to lock in the calendar day, strip timezone, and normalize to 00:00:00
+                batch.index = pd.to_datetime(batch.index, utc=True).tz_localize(None).normalize()
                 batch = batch.groupby(batch.index).last()
                 all_data_list.append(batch)
             time.sleep(0.5)
@@ -214,7 +176,7 @@ class SwitchbladeStrategy(bt.Strategy):
         elif self.params.universe == 'CUSTOM':
             for d in self.datas:
                 if d._name in self.params.custom_list: target_universe.append(d)
-        else: 
+        else:
             for d in self.datas:
                 if any(d is asset for asset in self.base_exclude): continue
                 if d._name in self.nitro_list:
@@ -356,7 +318,7 @@ class SwitchbladeStrategy(bt.Strategy):
         if (self.timer >= self.params.rebalance_days) or force_rebalance:
             if not force_rebalance: self.print_holdings(self.current_mode, context="Monthly Rebalance")
             self.timer = 0
-            
+
             target_names = []
             if self.current_mode == "ALL_STOCKS": target_names = [x[0] for x in self.get_rankings(self.univ_map['ALL_STOCKS'], self.params.top_n_stocks)]
             elif self.current_mode == "XLG_TOP5": target_names = [x[0] for x in self.get_rankings(self.univ_map['XLG_TOP5'], 5)]
@@ -371,7 +333,7 @@ class SwitchbladeStrategy(bt.Strategy):
 
             for d, pos in self.getpositions().items():
                 if pos.size != 0 and d._name not in target_names: self.order_target_percent(d, target=0.0)
-                
+
             if not target_assets: return
             weight = (1.0 - self.params.cash_buffer) / len(target_assets)
             for d in target_assets: self.order_target_percent(d, target=weight)
@@ -409,42 +371,92 @@ class SwitchbladeStrategy(bt.Strategy):
         self.log(f"Final Holdings  : {active_positions}")
         self.log("="*50 + "\n")
 
-def load_and_prep_data():
+def load_and_prep_data_superset():
+    print("   [Data] Preparing data environment...")
+    
+    active_path = cache_filename
+
     t_sp500 = get_tickers("SP500"); t_ndx = get_tickers("NDX"); t_sp1000 = get_tickers("SP1000")
     t_xlg = t_sp500[:60] if t_sp500 else []
+    t_sp1000 = t_sp1000[:max_stocks_per_univ]; t_sp500 = t_sp500[:max_stocks_per_univ]; t_ndx = t_ndx[:max_stocks_per_univ]
+
     guards = ["IWM", "QQQ", "SPY", "XLG", "GLD", "TLT", "IEF", "BIL"]
     all_nitro_etfs = parse_list(GLOBAL_NITRO_ETFS)
     all_tickers = list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg + guards + all_nitro_etfs))
-    print(f" Master Universe Size: {len(all_tickers)} Tickers")
-    
-    if mode == "Backtest Mode":
-        start_date = datetime.datetime.strptime(backtest_start_date, "%Y-%m-%d").date() - datetime.timedelta(days=365)
-    else:
-        start_date = datetime.date.today() - datetime.timedelta(days=450)
-        
-    data = batch_download(all_tickers, start_date, end_date=None)
-    
+    print(f"   [System] Master Universe Size: {len(all_tickers)} Tickers")
+
+    data = None
+    force_refresh = (data_source == "Force Fresh Download")
+
+    if not force_refresh and os.path.exists(active_path):
+        print(f"2. CACHE FOUND: Executing Smart Hybrid Update...")
+        try:
+            data = pd.read_csv(active_path, header=[0, 1], index_col=0, parse_dates=True, low_memory=False)
+            data = data.loc[:, ~data.columns.duplicated()]
+
+            if not data.empty:
+                # SEQUOIA FIX 2: Safely parse existing cache dates
+                data.index = pd.to_datetime(data.index, utc=True).tz_localize(None).normalize()
+
+                anchor_date = data.index[0].date()
+                last_date = data.index[-1].date()
+                today = pd.Timestamp.now(tz='UTC').date()
+
+                existing_cols = list(data.columns.levels[0])
+                valid_existing = []; missing_tickers = []
+
+                for t in all_tickers:
+                    if t in existing_cols:
+                        valid_days = data[t]['Close'].dropna().shape[0]
+                        if valid_days > 5: valid_existing.append(t)
+                        else: missing_tickers.append(t)
+                    else: missing_tickers.append(t)
+
+                existing_to_update = valid_existing
+
+                if last_date < today:
+                    # Drop the potentially incomplete last row before fetching updates
+                    if len(data) > 1: data = data.iloc[:-1]
+                    last_safe_date = data.index[-1].date()
+
+                    actual_start = last_safe_date + datetime.timedelta(days=1)
+                    print(f"   [Delta Update] Fetching {actual_start} to LATEST for {len(existing_to_update)} existing tickers...")
+                    delta_data = batch_download(existing_to_update, actual_start, end_date=None)
+
+                    if delta_data is not None and not delta_data.empty:
+                        data = pd.concat([data, delta_data])
+                        data = data.groupby(data.index).last()
+                        data = data.loc[:, ~data.columns.duplicated()].sort_index()
+
+                if missing_tickers:
+                    print(f"\n   [Smart Update] DETECTED {len(missing_tickers)} NEW OR BROKEN TICKERS.")
+                    missing_data = batch_download(missing_tickers, anchor_date, end_date=None)
+                    if missing_data is not None and not missing_data.empty:
+                        data = data.drop(columns=[t for t in missing_tickers if t in data.columns.levels[0]], level=0, errors='ignore')
+                        data = pd.concat([data, missing_data], axis=1)
+                        data = data.groupby(data.index).last()
+                        data = data.loc[:, ~data.columns.duplicated()].sort_index()
+
+                data.to_csv(active_path)
+
+        except Exception as e:
+            print(f"   [Cache Error] {e}. Falling back to fresh download.")
+            data = None
+
+    if data is None or force_refresh:
+        print("   -> Starting FRESH BATCH DOWNLOAD...")
+        target_start = datetime.datetime.strptime(backtest_start_date, "%Y-%m-%d").date()
+        required_start = target_start - datetime.timedelta(days=365)
+        data = batch_download(all_tickers, required_start, end_date=None)
+        if data is not None: data.to_csv(active_path)
+
     if data is not None:
-        idx = pd.to_datetime(data.index)
-        if getattr(idx, 'tz', None) is not None:
-            idx = idx.tz_convert('America/New_York')
-        data.index = idx.tz_localize(None).normalize()
+        data.index = pd.to_datetime(data.index, utc=True).tz_localize(None).normalize()
         data = data.groupby(data.index).last()
         data = data.loc[:, ~data.columns.duplicated()]
         data = data.sort_index()
-        
-        # --- FIX: THE 1-MINUTE SPLICER INJECTION ---
-        live_df = fetch_live_1m_data(all_tickers)
-        if live_df is not None and not live_df.empty:
-            live_date = live_df.index[0]
-            data = data[data.index < live_date]
-            data = pd.concat([data, live_df])
-            data = data.groupby(data.index).last()
-            data = data.sort_index()
-        # --------------------------------------------
-        
         data.ffill(inplace=True)
-        
+
     return data, t_sp500, t_sp1000, t_ndx, t_xlg
 
 def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, backtest_start_date):
@@ -476,7 +488,7 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
             valid_lev = parse_list(GLOBAL_NITRO_ETFS) if config['allow_3x_in_stock_picks'] else []
             candidates = set(t_sp500 + t_ndx + t_sp1000 + t_xlg + valid_lev)
 
-        min_required_bars = config['momentum_long'] + 5 
+        min_required_bars = config['momentum_long'] + 5
         added_count = 0
 
         for t in candidates:
@@ -523,7 +535,7 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
         print(f"   [Runner] Finished: {config['name']} (Total Ret: {ret:,.2f}%)")
         return {
             'Strategy': config['name'], 'Return %': ret, 'MaxDD %': dd, 'CurrDD %': curr_dd,
-            'Sharpe': sharpe, 'Sortino': sortino, 'Calmar': calmar, 
+            'Sharpe': sharpe, 'Sortino': sortino, 'Calmar': calmar,
             'Trades': strat.total_orders, 'Switches': strat.total_switches, 'History': history_df
         }
     except Exception as e:
@@ -534,7 +546,7 @@ def run_batch_backtest():
     global use_multiprocessing
     if 'use_multiprocessing' not in globals(): use_multiprocessing = False
 
-    data_master, t_sp500, t_sp1000, t_ndx, t_xlg = load_and_prep_data()
+    data_master, t_sp500, t_sp1000, t_ndx, t_xlg = load_and_prep_data_superset()
     if data_master is None: return
 
     summary_stats = []
@@ -581,7 +593,7 @@ def run_batch_backtest():
 
                 summary_stats.append({
                     'Strategy': f"BENCHMARK: {b}", 'Return %': ret, 'MaxDD %': dd, 'CurrDD %': curr_dd,
-                    'Sharpe': 0.0, 'Sortino': sortino, 'Calmar': calmar, 
+                    'Sharpe': 0.0, 'Sortino': sortino, 'Calmar': calmar,
                     'Trades': 0, 'Switches': 0, 'History': pd.DataFrame({'Value': s_norm})
                 })
             except Exception as e:
@@ -642,14 +654,14 @@ def run_batch_backtest():
         print("[CRITICAL] No results were generated from any strategy.")
 
 def run_execution():
-    print(f"\n" + "="*50 + "\n   >>> EXECUTION MODE: V47.74 (BACKTEST SYNCHRONIZED) <<<\n" + "="*50)
+    print(f"\n" + "="*50 + "\n   >>> EXECUTION MODE: V47.75 (BACKTEST SYNCHRONIZED) <<<\n" + "="*50)
 
     def json_serial(obj):
         if isinstance(obj, (datetime.date, datetime.datetime)): return obj.isoformat()
         raise TypeError(f"Type {type(obj)} not serializable")
 
     print("   [Data] Loading market data...")
-    data_master, t_sp500, t_sp1000, t_ndx, t_xlg = load_and_prep_data()
+    data_master, t_sp500, t_sp1000, t_ndx, t_xlg = load_and_prep_data_superset()
 
     if data_master is None:
         print("   [Error] Data load failed. Aborting.")
@@ -673,7 +685,7 @@ def run_execution():
 
         print(f"\n   >>> STRATEGY {strat_id}: {s_name}")
         state = {"current_mode": "INIT", "graduated_state": "FIRMLY_BEARISH", "pending_mode": None, "pending_state": None, "confirm_counter": 0, "timer": 0, "last_rebal_date": "1900-01-01", "last_run_date": "1900-01-01", "holdings": {}}
-        
+
         if os.path.exists(state_file):
             try:
                 with open(state_file, 'r') as f: state = json.load(f)
@@ -827,27 +839,25 @@ def run_execution():
 # MAIN ENTRY & HTML LOGGER
 # ==========================================
 class HTMLConsoleLogger:
-    def __init__(self, local_path, final_path):
+    def __init__(self, filepath):
         self.terminal = sys.stdout
-        self.local_path = local_path
-        self.final_path = final_path
-        os.makedirs(os.path.dirname(self.local_path), exist_ok=True)
-        with open(self.local_path, "w", encoding="utf-8") as f:
+        self.filepath = filepath
+        os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
+        with open(self.filepath, "w", encoding="utf-8") as f:
             f.write("<html><head><style>body { background-color: #121212; color: #00FF00; font-family: 'Courier New', monospace; padding: 15px; white-space: pre-wrap; font-size: 14px; }</style></head><body>\n")
             f.write(f"<h3>SWITCHBLADE RUN LOG: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</h3>\n")
 
     def write(self, message):
         self.terminal.write(message)
         safe_msg = message.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        with open(self.local_path, "a", encoding="utf-8") as f: f.write(safe_msg)
+        with open(self.filepath, "a", encoding="utf-8") as f: f.write(safe_msg)
 
     def inject_html(self, html_content):
-        with open(self.local_path, "a", encoding="utf-8") as f: f.write(f"\n{html_content}\n")
+        with open(self.filepath, "a", encoding="utf-8") as f: f.write(f"\n{html_content}\n")
 
     def flush(self): self.terminal.flush()
     def close(self):
-        with open(self.local_path, "a", encoding="utf-8") as f: f.write("\n</body></html>")
-        # In GitHub Actions we don't try to copy to Google Drive
+        with open(self.filepath, "a", encoding="utf-8") as f: f.write("\n</body></html>")
 
 if __name__ == "__main__":
     if 'strategies' in globals() and strategies:
@@ -856,9 +866,8 @@ if __name__ == "__main__":
 
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         local_log_path = f"output/Switchblade_Log_{timestamp}.html"
-        final_log_path = local_log_path # No Google Drive path in headless mode
         
-        logger = HTMLConsoleLogger(local_log_path, final_log_path)
+        logger = HTMLConsoleLogger(local_log_path)
         sys.stdout = logger
 
         try:
