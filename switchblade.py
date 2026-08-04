@@ -1,9 +1,23 @@
-# =========================================================================
-# SWITCHBLADE v47.73 - HEADLESS GITHUB EDITION (SEQUOIA ENGINE SYNC)
-# =========================================================================
+# @title Switchblade V2.0
+# ==========================================================
+# SWITCHBLADE v47.74 - COLAB EDITION (CALMAR TYPO FIX)
+# ==========================================================
 
-import matplotlib
-matplotlib.use('Agg')  # Headless backend for Linux servers
+# ==========================================
+# STEP 0: MOUNT GOOGLE DRIVE
+# ==========================================
+print("0. Requesting Google Drive Access...")
+from google.colab import drive
+drive.mount('/content/gdrive')
+
+# ==========================================
+# STEP 1: INSTALL LIBRARIES (SILENT)
+# ==========================================
+print("1. Installing Financial Libraries...", end="")
+import sys
+import subprocess
+subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'backtrader', 'yfinance', 'matplotlib', 'pandas', 'requests', 'lxml'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+print(" Done.")
 
 import backtrader as bt
 import yfinance as yf
@@ -16,9 +30,9 @@ import numpy as np
 import os
 import json
 import time
+import shutil
 import warnings
 import gc
-import sys
 import base64
 from functools import partial
 import multiprocessing
@@ -27,45 +41,52 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
 # ==========================================
-# CONFIGURATION
+# STEP 2: STRATEGY CONFIGURATION
 # ==========================================
-mode = "Backtest Mode"  # Defaulted to Backtest Mode for GitHub Actions
-state_dir = "./state"
-data_source = "Force Fresh Download"
-cache_filename = "switchblade_data.csv"
-backtest_start_date = "2012-01-18" 
-max_stocks_per_univ = 3000
-use_multiprocessing = True
+
+# @markdown ---
+# @markdown ### 1. GLOBAL SETTINGS
+mode = "Backtest Mode" #@param ["Backtest Mode", "Execution Mode"]
+live_folder = "Switchblade_Live" #@param {type:"string"}
+data_source = "Force Fresh Download" #@param ["Use Existing Cache", "Force Fresh Download"]
+cache_filename = "switchblade_data.csv" #@param {type:"string"}
+backtest_start_date = "2012-01-18" #@param {type:"date"}
+max_stocks_per_univ = 3000 #@param {type:"integer"}
+use_multiprocessing = True #@param {type:"boolean"}
 
 GLOBAL_NITRO_ETFS = "SPXL, SPXS, TQQQ, SQQQ, UDOW, SDOW, TNA, TZA, MIDU, EDC, EDZ, YINN, YANG, EURL, INDL, TECL, TECS, SOXL, SOXS, FNGU, FNGD, WEBL, WEBS, FAS, FAZ, ERX, ERY, CURE, LABU, LABD, DRN, DRV, UTSL, DUSL, RETL, UGL, GLL, AGQ, ZSL, UCO, SCO, BOIL, KOLD, TMF, TMV, UST, PST, BITU, ETHU, UVXY"
 
-S1_ENABLE = True
-S1_NAME = "Standard (205/20, 5, 102/22)"
-S1_UNIVERSE = "STANDARD"
-S1_CUSTOM_LIST = ""
-S1_SMA = 205
-S1_REENTRY = 20
-S1_REBAL_DAYS = 21
-S1_TOP_STOCKS = 10
-S1_MOM_LONG = 106
-S1_MOM_SHORT = 25
-S1_CONFIRM_DAYS = 5
-S1_GUARD_MODE = "GRADUATED"
-S1_ALLOW_NITRO = False
+# @markdown ---
+# @markdown ### STRATEGY 1
+S1_ENABLE = True #@param {type:"boolean"}
+S1_NAME = "Standard (205/20, 5, 102/22)" #@param {type:"string"}
+S1_UNIVERSE = "STANDARD" #@param ["STANDARD", "TQQQ_ONLY", "CUSTOM"]
+S1_CUSTOM_LIST = "" #@param {type:"string"}
+S1_SMA = 205 #@param {type:"integer"}
+S1_REENTRY = 20 #@param {type:"integer"}
+S1_REBAL_DAYS = 21 #@param {type:"integer"}
+S1_TOP_STOCKS = 10 #@param {type:"integer"}
+S1_MOM_LONG = 106 #@param {type:"integer"}
+S1_MOM_SHORT = 25 #@param {type:"integer"}
+S1_CONFIRM_DAYS = 5 #@param {type:"integer"}
+S1_GUARD_MODE = "GRADUATED" #@param ["GRADUATED", "IWM_ONLY", "ANY_GUARD", "NONE"]
+S1_ALLOW_NITRO = False #@param {type:"boolean"}
 
-S2_ENABLE = True
-S2_NAME = "TQQQ_Only (205/20, 5, 102/22)"
-S2_UNIVERSE = "TQQQ_ONLY"
-S2_CUSTOM_LIST = GLOBAL_NITRO_ETFS
-S2_SMA = 205
-S2_REENTRY = 20
-S2_REBAL_DAYS = 21
-S2_TOP_STOCKS = 1
-S2_MOM_LONG = 106
-S2_MOM_SHORT = 25
-S2_CONFIRM_DAYS = 5
-S2_GUARD_MODE = "GRADUATED"
-S2_ALLOW_NITRO = False
+# @markdown ---
+# @markdown ### STRATEGY 2
+S2_ENABLE = True #@param {type:"boolean"}
+S2_NAME = "TQQQ_Only (205/20, 5, 102/22)" #@param {type:"string"}
+S2_UNIVERSE = "TQQQ_ONLY" #@param ["STANDARD", "TQQQ_ONLY", "CUSTOM"]
+S2_CUSTOM_LIST = "SPXL, SPXS, TQQQ, SQQQ, UDOW, SDOW, TNA, TZA, MIDU, EDC, EDZ, YINN, YANG, EURL, INDL, TECL, TECS, SOXL, SOXS, FNGU, FNGD, WEBL, WEBS, FAS, FAZ, ERX, ERY, CURE, LABU, LABD, DRN, DRV, UTSL, DUSL, RETL, UGL, GLL, AGQ, ZSL, UCO, SCO, BOIL, KOLD, TMF, TMV, UST, PST, BITU, ETHU, UVXY" #@param {type:"string"}
+S2_SMA = 205 #@param {type:"integer"}
+S2_REENTRY = 20 #@param {type:"integer"}
+S2_REBAL_DAYS = 21 #@param {type:"integer"}
+S2_TOP_STOCKS = 1 #@param {type:"integer"}
+S2_MOM_LONG = 106 #@param {type:"integer"}
+S2_MOM_SHORT = 25 #@param {type:"integer"}
+S2_CONFIRM_DAYS = 5 #@param {type:"integer"}
+S2_GUARD_MODE = "GRADUATED" #@param ["GRADUATED", "IWM_ONLY", "ANY_GUARD", "NONE"]
+S2_ALLOW_NITRO = False #@param {type:"boolean"}
 
 strategies = []
 def parse_list(s_input):
@@ -108,9 +129,7 @@ def get_tickers(universe):
             mid = extract('https://en.wikipedia.org/wiki/List_of_S%26P_400_companies', ['Symbol', 'Ticker Symbol'])
             small = extract('https://en.wikipedia.org/wiki/List_of_S%26P_600_companies', ['Symbol', 'Ticker Symbol'])
             return mid + small
-    except Exception as e:
-        print(f"Error fetching ticker list: {e}")
-        return []
+    except: return []
 
 def patch_latest_live_prices(data_df, tickers):
     """Bypasses Yahoo's EOD 12-hour server lag by splicing live 1-minute data onto the timeline."""
@@ -150,7 +169,7 @@ def patch_latest_live_prices(data_df, tickers):
 def batch_download(tickers, start_date, end_date=None, chunk_size=100):
     all_data_list = []
     chunks = [tickers[i:i + chunk_size] for i in range(0, len(tickers), chunk_size)]
-    print(f"   -> Downloading {len(tickers)} tickers in chunks...")
+    print(f"   -> Downloading {len(tickers)} tickers...")
     for i, chunk in enumerate(chunks):
         try:
             if end_date:
@@ -411,7 +430,11 @@ class SwitchbladeStrategy(bt.Strategy):
 
 def load_and_prep_data_superset():
     print("   [Data] Preparing data environment...")
-    active_path = cache_filename
+    mount_path = '/content/gdrive'
+    
+    path_primary = f'{mount_path}/MyDrive/{live_folder}/{cache_filename}'
+    path_legacy = f'{mount_path}/My Drive/{cache_filename}'
+    active_path = path_primary if os.path.exists(path_primary) else (path_legacy if os.path.exists(path_legacy) else path_primary)
 
     t_sp500 = get_tickers("SP500"); t_ndx = get_tickers("NDX"); t_sp1000 = get_tickers("SP1000")
     t_xlg = t_sp500[:60] if t_sp500 else []
@@ -581,7 +604,7 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
         print(f"   [Runner] Finished: {config['name']} (Total Ret: {ret:,.2f}%)")
         return {
             'Strategy': config['name'], 'Return %': ret, 'MaxDD %': dd, 'CurrDD %': curr_dd,
-            'Sharpe': sharpe, 'Sortino': sortino, 'Calmar': Calmar, 
+            'Sharpe': sharpe, 'Sortino': sortino, 'Calmar': calmar, 
             'Trades': strat.total_orders, 'Switches': strat.total_switches, 'History': history_df
         }
     except Exception as e:
@@ -695,8 +718,12 @@ def run_batch_backtest():
         if hasattr(sys.stdout, 'inject_html'):
             sys.stdout.inject_html(f'<br><br><img src="data:image/png;base64,{img_base64}" style="max-width:100%; border: 2px solid #333;"><br>')
 
+        plt.show()
+    else:
+        print("[CRITICAL] No results were generated from any strategy.")
+
 def run_execution():
-    print(f"\n" + "="*50 + "\n   >>> EXECUTION MODE: V47.73 (BACKTEST SYNCHRONIZED) <<<\n" + "="*50)
+    print(f"\n" + "="*50 + "\n   >>> EXECUTION MODE: V47.74 (BACKTEST SYNCHRONIZED) <<<\n" + "="*50)
 
     def json_serial(obj):
         if isinstance(obj, (datetime.date, datetime.datetime)): return obj.isoformat()
@@ -709,7 +736,9 @@ def run_execution():
         print("   [Error] Data load failed. Aborting.")
         return
 
-    full_live_path = state_dir
+    mount_path = '/content/gdrive'
+    live_folder = "Switchblade_Live"
+    full_live_path = f"{mount_path}/MyDrive/{live_folder}"
     execution_reports = []
 
     if not os.path.exists(full_live_path):
@@ -881,39 +910,50 @@ def run_execution():
 # MAIN ENTRY & HTML LOGGER
 # ==========================================
 class HTMLConsoleLogger:
-    def __init__(self, filepath):
+    def __init__(self, local_path, final_path):
         self.terminal = sys.stdout
-        self.filepath = filepath
-        os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
-        with open(self.filepath, "w", encoding="utf-8") as f:
+        self.local_path = local_path
+        self.final_path = final_path
+        with open(self.local_path, "w", encoding="utf-8") as f:
             f.write("<html><head><style>body { background-color: #121212; color: #00FF00; font-family: 'Courier New', monospace; padding: 15px; white-space: pre-wrap; font-size: 14px; }</style></head><body>\n")
             f.write(f"<h3>SWITCHBLADE RUN LOG: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</h3>\n")
 
     def write(self, message):
         self.terminal.write(message)
         safe_msg = message.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        with open(self.filepath, "a", encoding="utf-8") as f: f.write(safe_msg)
+        with open(self.local_path, "a", encoding="utf-8") as f: f.write(safe_msg)
 
     def inject_html(self, html_content):
-        with open(self.filepath, "a", encoding="utf-8") as f: f.write(f"\n{html_content}\n")
+        with open(self.local_path, "a", encoding="utf-8") as f: f.write(f"\n{html_content}\n")
 
     def flush(self): self.terminal.flush()
     def close(self):
-        with open(self.filepath, "a", encoding="utf-8") as f: f.write("\n</body></html>")
+        with open(self.local_path, "a", encoding="utf-8") as f: f.write("\n</body></html>")
+        try:
+            shutil.copy(self.local_path, self.final_path)
+            self.terminal.write(f"\n>>> HTML LOG SAVED TO GOOGLE DRIVE: {self.final_path}\n")
+        except Exception as e:
+            self.terminal.write(f"\n[Warning] Could not copy HTML log to Google Drive: {e}\n")
 
 if __name__ == "__main__":
-    os.makedirs("output", exist_ok=True)
-    os.makedirs(state_dir, exist_ok=True)
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    local_log_path = f"output/Switchblade_Log_{timestamp}.html"
-    
-    logger = HTMLConsoleLogger(local_log_path)
-    sys.stdout = logger
+    if 'strategies' in globals() and strategies:
+        # Drive already mounted at step 0
+        mount_path = '/content/gdrive'
+        live_folder_path = f"{mount_path}/MyDrive/Switchblade_Live"
+        os.makedirs(live_folder_path, exist_ok=True)
 
-    try:
-        print(f"\n>>> MODE: {mode}")
-        if mode == "Backtest Mode": run_batch_backtest()
-        else: run_execution()
-    finally:
-        logger.close()
-        sys.stdout = logger.terminal
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        final_log_path = f"{live_folder_path}/Switchblade_Log_{timestamp}.html"
+        local_log_path = f"/content/Switchblade_Log_{timestamp}.html"
+        
+        logger = HTMLConsoleLogger(local_log_path, final_log_path)
+        sys.stdout = logger
+
+        try:
+            print(f"\n>>> MODE: {mode}")
+            if mode == "Backtest Mode": run_batch_backtest()
+            else: run_execution()
+        finally:
+            logger.close()
+            sys.stdout = logger.terminal
+    else: print("\n>>> PLEASE RUN CONFIGURATION CELL (STEP 2) FIRST.")
