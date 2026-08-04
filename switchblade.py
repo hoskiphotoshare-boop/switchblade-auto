@@ -1,9 +1,9 @@
 # =========================================================================
-# SWITCHBLADE v47.59 - HEADLESS GITHUB EDITION (DYNAMIC IPO FIX)
+# SWITCHBLADE v47.62 - HEADLESS GITHUB EDITION (ULTIMATE FIX)
 # =========================================================================
 
 import matplotlib
-matplotlib.use('Agg')  
+matplotlib.use('Agg')  # Headless backend for Linux servers
 
 import backtrader as bt
 import yfinance as yf
@@ -29,7 +29,7 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 # ==========================================
 # CONFIGURATION
 # ==========================================
-mode = "Backtest Mode"  
+mode = "Backtest Mode"  # Defaulted to Backtest Mode for GitHub Actions testing
 state_dir = "./state"
 backtest_start_date = "2012-01-18" 
 use_multiprocessing = True
@@ -197,8 +197,7 @@ class SwitchbladeStrategy(bt.Strategy):
 
         for d in self.datas:
              if d._name in self.params.tickers_sp500[:60]:
-                 if d not in self.univ_map['XLG_TOP5']:
-                     self.univ_map['XLG_TOP5'].append(d)
+                 self.univ_map['XLG_TOP5'].append(d)
 
         self.timer = 0; self.current_mode = "INIT"; self.graduated_state = "FIRMLY_BEARISH"
         self.pending_mode = None; self.pending_state = None; self.confirm_counter = 0
@@ -249,6 +248,10 @@ class SwitchbladeStrategy(bt.Strategy):
         elif mode == "MED_BOND": assets = ['IEF']
         else: assets = ['BIL']
         self.log(f"{self.graduated_state}, {mode} -> {action}: {assets}")
+
+    # FIX: Bypasses Backtrader's internal pause for missing IPO data
+    def prenext(self):
+        self.next()
 
     def next(self):
         dt = self.datetime.date(0)
@@ -324,18 +327,23 @@ class SwitchbladeStrategy(bt.Strategy):
         if (self.timer >= self.params.rebalance_days) or force_rebalance:
             if not force_rebalance: self.print_holdings(self.current_mode, context="Monthly Rebalance")
             self.timer = 0
-            target_assets = []
-            if self.current_mode == "ALL_STOCKS": target_assets = [self.getdatabyname(x[0]) for x in self.get_rankings(self.univ_map['ALL_STOCKS'], self.params.top_n_stocks)]
-            elif self.current_mode == "XLG_TOP5": target_assets = [self.getdatabyname(x[0]) for x in self.get_rankings(self.univ_map['XLG_TOP5'], 5)]
-            elif self.current_mode == "TQQQ": target_assets = [self.tqqq]
-            elif self.current_mode == "SPXL": target_assets = [self.spxl]
-            elif self.current_mode == "GOLD": target_assets = [self.gld]
-            elif self.current_mode == "LONG_BOND": target_assets = [self.tlt]
-            elif self.current_mode == "MED_BOND": target_assets = [self.ief]
-            else: target_assets = [self.bil]
+            
+            target_names = []
+            if self.current_mode == "ALL_STOCKS": target_names = [x[0] for x in self.get_rankings(self.univ_map['ALL_STOCKS'], self.params.top_n_stocks)]
+            elif self.current_mode == "XLG_TOP5": target_names = [x[0] for x in self.get_rankings(self.univ_map['XLG_TOP5'], 5)]
+            elif self.current_mode == "TQQQ": target_names = ['TQQQ']
+            elif self.current_mode == "SPXL": target_names = ['SPXL']
+            elif self.current_mode == "GOLD": target_names = ['GLD']
+            elif self.current_mode == "LONG_BOND": target_names = ['TLT']
+            elif self.current_mode == "MED_BOND": target_names = ['IEF']
+            else: target_names = ['BIL']
 
+            target_assets = [self.getdatabyname(x) for x in target_names]
+
+            # FIX: Using strings instead of Data Feeds avoids the LineOwnOperation crash
             for d, pos in self.getpositions().items():
-                if pos.size != 0 and d not in target_assets: self.order_target_percent(d, target=0.0)
+                if pos.size != 0 and d._name not in target_names: self.order_target_percent(d, target=0.0)
+                
             if not target_assets: return
             weight = (1.0 - self.params.cash_buffer) / len(target_assets)
             for d in target_assets: self.order_target_percent(d, target=weight)
@@ -410,8 +418,8 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
             if t in data_master.columns.levels[0]:
                 df = data_master[t].dropna(subset=['Close'])
                 if not df.empty:
-                    df_slice = df[df.index >= data_start_pd]
-                    if len(df_slice) >= min_required_bars:
+                    # FIX: Allow stocks that IPO'd anytime, as long as they have enough history to be analyzed eventually
+                    if len(df) >= min_required_bars:
                         cerebro.adddata(bt.feeds.PandasData(dataname=df, name=t, fromdate=data_start_pd.to_pydatetime()))
                         added_tickers.add(t); added_count += 1
 
@@ -459,6 +467,8 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
 
 def run_batch_backtest():
     global use_multiprocessing
+    if 'use_multiprocessing' not in globals(): use_multiprocessing = False
+
     data_master, t_sp500, t_sp1000, t_ndx, t_xlg = load_and_prep_data()
     if data_master is None: return
 
@@ -466,20 +476,25 @@ def run_batch_backtest():
     start_date_pd = pd.Timestamp(datetime.datetime.strptime(backtest_start_date, "%Y-%m-%d")).normalize()
 
     if use_multiprocessing and len(strategies) > 1:
+        print(f"\n   --- PARALLEL EXECUTION STARTED ({multiprocessing.cpu_count()} CORES) ---")
+        gc.collect()
         worker = partial(worker_run_strategy, data_master=data_master, t_sp500=t_sp500, t_sp1000=t_sp1000, t_ndx=t_ndx, t_xlg=t_xlg, backtest_start_date=backtest_start_date)
         try:
             ctx = multiprocessing.get_context('fork')
             with ctx.Pool(processes=len(strategies)) as pool:
                 results = pool.map(worker, strategies)
             summary_stats = [r for r in results if r]
-        except Exception:
+        except Exception as e:
+            print(f"[Error] Parallel Failed: {e}. Switching to Serial.")
             use_multiprocessing = False
 
     if not use_multiprocessing or not summary_stats:
+        print(f"\n   --- SERIAL EXECUTION STARTED ---")
         for config in strategies:
             res = worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, backtest_start_date)
             if res: summary_stats.append(res)
 
+    print("\n   -> Calculating Benchmarks...")
     for b in ['SPY', 'QQQ', 'TQQQ']:
         if b in data_master.columns.levels[0]:
             try:
@@ -504,7 +519,8 @@ def run_batch_backtest():
                     'Sharpe': 0.0, 'Sortino': sortino, 'Calmar': calmar, 
                     'Trades': 0, 'Switches': 0, 'History': pd.DataFrame({'Value': s_norm})
                 })
-            except: pass
+            except Exception as e:
+                print(f"   [Warning] Benchmark {b} failed: {e}")
 
     print("\n" + "="*50 + "\n   FINAL LEAGUE TABLE\n" + "="*50)
     if summary_stats:
