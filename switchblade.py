@@ -1,6 +1,6 @@
-# ====================================================
-# SWITCHBLADE v47.57 - HEADLESS EDITION (HTML LOGGER)
-# ====================================================
+# =========================================================================
+# SWITCHBLADE v47.58 - HEADLESS GITHUB EDITION (WITH SORTINO & CALMAR)
+# =========================================================================
 
 import matplotlib
 matplotlib.use('Agg')  # Headless backend for Linux servers
@@ -132,7 +132,6 @@ def load_and_prep_data():
     all_tickers = list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg + guards + all_nitro_etfs))
     print(f" Master Universe Size: {len(all_tickers)} Tickers")
     
-    # If in Backtest Mode, pull the full 14 years. If Execution, just the last 450 days.
     if mode == "Backtest Mode":
         start_date = datetime.datetime.strptime(backtest_start_date, "%Y-%m-%d").date() - datetime.timedelta(days=365)
     else:
@@ -418,7 +417,6 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
             if t in data_master.columns.levels[0]:
                 df = data_master[t].dropna(subset=['Close'])
                 if not df.empty:
-                    # FIX: Skip stocks that did not exist at the backtest start date
                     if df.index[0] > (data_start_pd + pd.Timedelta(days=30)):
                         continue
                         
@@ -451,10 +449,20 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
         curr_dd = strat.analyzers.drawdown.get_analysis().get('drawdown', 0.0)
         sharpe = strat.analyzers.sharpe.get_analysis().get('sharperatio', 0.0)
 
+        # Calculate Advanced Metrics (Sortino & Calmar)
+        years = (history_df.index[-1] - history_df.index[0]).days / 365.25
+        cagr = (end_val / start_val) ** (1 / years) - 1 if years > 0 else 0
+        daily_returns = history_df['Value'].pct_change().dropna()
+        downside_returns = daily_returns[daily_returns < 0]
+        downside_dev = np.sqrt(np.mean(downside_returns**2)) * np.sqrt(252) if len(downside_returns) > 0 else 0
+        sortino = (cagr / downside_dev) if downside_dev > 0 else 0
+        calmar = cagr / (dd / 100) if dd > 0 else 0
+
         print(f"   [Runner] Finished: {config['name']} (Total Ret: {ret:,.2f}%)")
         return {
             'Strategy': config['name'], 'Return %': ret, 'MaxDD %': dd, 'CurrDD %': curr_dd,
-            'Sharpe': sharpe, 'Trades': strat.total_orders, 'Switches': strat.total_switches, 'History': history_df
+            'Sharpe': sharpe, 'Sortino': sortino, 'Calmar': calmar, 
+            'Trades': strat.total_orders, 'Switches': strat.total_switches, 'History': history_df
         }
     except Exception as e:
         print(f"   [Error] {config['name']} Failed: {e}")
@@ -490,11 +498,23 @@ def run_batch_backtest():
                 if df.empty or df.iloc[0] == 0: continue
                 s_norm = (df / df.iloc[0]) * 100000
                 ret = ((df.iloc[-1] - df.iloc[0]) / df.iloc[0]) * 100
-                dd = ((s_norm - s_norm.cummax()) / s_norm.cummax()).min() * 100
-                curr_dd = ((s_norm.iloc[-1] - s_norm.cummax().iloc[-1]) / s_norm.cummax().iloc[-1]) * 100
+                dd_series = ((s_norm - s_norm.cummax()) / s_norm.cummax()) * 100
+                dd = abs(dd_series.min())
+                curr_dd = abs(dd_series.iloc[-1])
+
+                # Calculate Benchmark Advanced Metrics
+                years = (df.index[-1] - df.index[0]).days / 365.25
+                cagr = (df.iloc[-1] / df.iloc[0]) ** (1 / years) - 1 if years > 0 else 0
+                daily_returns = df.pct_change().dropna()
+                downside_returns = daily_returns[daily_returns < 0]
+                downside_dev = np.sqrt(np.mean(downside_returns**2)) * np.sqrt(252) if len(downside_returns) > 0 else 0
+                sortino = (cagr / downside_dev) if downside_dev > 0 else 0
+                calmar = cagr / (dd / 100) if dd > 0 else 0
+
                 summary_stats.append({
-                    'Strategy': f"BENCHMARK: {b}", 'Return %': ret, 'MaxDD %': abs(dd), 'CurrDD %': abs(curr_dd),
-                    'Sharpe': 0, 'Trades': 0, 'Switches': 0, 'History': pd.DataFrame({'Value': s_norm})
+                    'Strategy': f"BENCHMARK: {b}", 'Return %': ret, 'MaxDD %': dd, 'CurrDD %': curr_dd,
+                    'Sharpe': 0.0, 'Sortino': sortino, 'Calmar': calmar, 
+                    'Trades': 0, 'Switches': 0, 'History': pd.DataFrame({'Value': s_norm})
                 })
             except: pass
 
@@ -657,11 +677,19 @@ def run_execution():
 
         force_rebalance = force_rebalance_today; curr_holdings = list(state.get('holdings', {}).keys()); curr_mode = state['current_mode']
 
-        if force_rebalance or not curr_holdings:
+        if univ_setting == 'TQQQ_ONLY':
+            if curr_mode in ['ALL_STOCKS', 'XLG_TOP5']: state['current_mode'] = 'TQQQ'; force_rebalance = True
+            if curr_mode == 'TQQQ' and (not curr_holdings or any(x != 'TQQQ' for x in curr_holdings)): force_rebalance = True
+        elif univ_setting == 'CUSTOM' and curr_mode == 'ALL_STOCKS':
+            if any(x not in custom_tickers for x in curr_holdings) or not curr_holdings: force_rebalance = True
+        elif univ_setting == 'STANDARD' and curr_mode == 'ALL_STOCKS':
+            if not curr_holdings or curr_holdings == ['TQQQ']: force_rebalance = True
+
+        if force_rebalance:
             print(f" >>> EXECUTING REBALANCE ({state['current_mode']})...")
             target_assets = []
             if state['current_mode'] == "ALL_STOCKS":
-                 univ = custom_tickers if univ_setting == "CUSTOM" else list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg))
+                 univ = custom_tickers if univ_setting == "CUSTOM" else list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg)) if not config['allow_3x_in_stock_picks'] else list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg + parse_list(GLOBAL_NITRO_ETFS)))
                  ranked = []; latest_dt = all_dates[-1]
                  for t in univ:
                      if t in data_master.columns.levels[0]:
