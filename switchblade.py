@@ -1,9 +1,9 @@
 # =========================================================================
-# SWITCHBLADE v47.58 - HEADLESS GITHUB EDITION (WITH SORTINO & CALMAR)
+# SWITCHBLADE v47.59 - HEADLESS GITHUB EDITION (DYNAMIC IPO FIX)
 # =========================================================================
 
 import matplotlib
-matplotlib.use('Agg')  # Headless backend for Linux servers
+matplotlib.use('Agg')  
 
 import backtrader as bt
 import yfinance as yf
@@ -29,7 +29,7 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 # ==========================================
 # CONFIGURATION
 # ==========================================
-mode = "Backtest Mode"  # Defaulted to Backtest Mode for GitHub Actions
+mode = "Backtest Mode"  
 state_dir = "./state"
 backtest_start_date = "2012-01-18" 
 use_multiprocessing = True
@@ -85,9 +85,6 @@ if s1: strategies.append(s1)
 s2 = pack_strat(S2_ENABLE, S2_NAME, S2_UNIVERSE, S2_CUSTOM_LIST, S2_SMA, S2_REENTRY, S2_REBAL_DAYS, S2_TOP_STOCKS, S2_CONFIRM_DAYS, S2_GUARD_MODE, S2_ALLOW_NITRO, S2_MOM_LONG, S2_MOM_SHORT)
 if s2: strategies.append(s2)
 
-# ==========================================
-# DATA FETCHING UTILITIES
-# ==========================================
 def get_tickers(universe):
     headers = {"User-Agent": "Mozilla/5.0"}
     try:
@@ -145,9 +142,6 @@ def load_and_prep_data():
         data = data.sort_index()
     return data, t_sp500, t_sp1000, t_ndx, t_xlg
 
-# ==========================================
-# BACKTEST STRATEGY & RUNNER
-# ==========================================
 class SwitchbladeStrategy(bt.Strategy):
     params = (
         ('name', 'Strategy'), ('universe', 'STANDARD'), ('start_date', None), ('custom_list', []),
@@ -183,7 +177,6 @@ class SwitchbladeStrategy(bt.Strategy):
             'MED_BOND': [self.ief], 'CASH': [self.bil], 'TQQQ': [self.tqqq], 'SPXL': [self.spxl]
         }
 
-        self.inds = {}
         self.base_exclude = [self.iwm, self.qqq, self.spy, self.xlg, self.gld, self.tlt, self.ief, self.bil]
         self.nitro_list = parse_list(GLOBAL_NITRO_ETFS)
 
@@ -202,14 +195,10 @@ class SwitchbladeStrategy(bt.Strategy):
 
         self.univ_map['ALL_STOCKS'] = target_universe
 
-        for d in self.univ_map['ALL_STOCKS']:
-            self.inds[d] = {'mom_long': bt.indicators.ROC(d.close, period=self.params.momentum_long), 'mom_short': bt.indicators.ROC(d.close, period=self.params.momentum_short)}
-
         for d in self.datas:
              if d._name in self.params.tickers_sp500[:60]:
-                 self.univ_map['XLG_TOP5'].append(d)
-                 if d not in self.inds:
-                     self.inds[d] = {'mom_long': bt.indicators.ROC(d.close, period=self.params.momentum_long), 'mom_short': bt.indicators.ROC(d.close, period=self.params.momentum_short)}
+                 if d not in self.univ_map['XLG_TOP5']:
+                     self.univ_map['XLG_TOP5'].append(d)
 
         self.timer = 0; self.current_mode = "INIT"; self.graduated_state = "FIRMLY_BEARISH"
         self.pending_mode = None; self.pending_state = None; self.confirm_counter = 0
@@ -234,10 +223,14 @@ class SwitchbladeStrategy(bt.Strategy):
             if len(d) > self.params.momentum_long:
                 try:
                     if d.datetime.date(0) == curr_dt and d.close[0] > 0:
-                        score_long = self.inds[d]['mom_long'][0]
-                        score_short = self.inds[d]['mom_short'][0]
-                        blended_score = (score_long * 0.70) + (score_short * 0.30)
-                        if not np.isnan(blended_score): ranks.append((d._name, blended_score))
+                        start_long = d.close[-self.params.momentum_long]
+                        start_short = d.close[-self.params.momentum_short]
+                        end = d.close[0]
+                        if start_long > 0 and start_short > 0:
+                            roc_long = (end - start_long) / start_long
+                            roc_short = (end - start_short) / start_short
+                            blended_score = (roc_long * 0.70) + (roc_short * 0.30)
+                            ranks.append((d._name, blended_score))
                 except IndexError: continue
         ranks.sort(key=lambda x: x[1], reverse=True)
         return ranks[:top_n]
@@ -417,9 +410,6 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
             if t in data_master.columns.levels[0]:
                 df = data_master[t].dropna(subset=['Close'])
                 if not df.empty:
-                    if df.index[0] > (data_start_pd + pd.Timedelta(days=30)):
-                        continue
-                        
                     df_slice = df[df.index >= data_start_pd]
                     if len(df_slice) >= min_required_bars:
                         cerebro.adddata(bt.feeds.PandasData(dataname=df, name=t, fromdate=data_start_pd.to_pydatetime()))
@@ -449,7 +439,6 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
         curr_dd = strat.analyzers.drawdown.get_analysis().get('drawdown', 0.0)
         sharpe = strat.analyzers.sharpe.get_analysis().get('sharperatio', 0.0)
 
-        # Calculate Advanced Metrics (Sortino & Calmar)
         years = (history_df.index[-1] - history_df.index[0]).days / 365.25
         cagr = (end_val / start_val) ** (1 / years) - 1 if years > 0 else 0
         daily_returns = history_df['Value'].pct_change().dropna()
@@ -502,7 +491,6 @@ def run_batch_backtest():
                 dd = abs(dd_series.min())
                 curr_dd = abs(dd_series.iloc[-1])
 
-                # Calculate Benchmark Advanced Metrics
                 years = (df.index[-1] - df.index[0]).days / 365.25
                 cagr = (df.iloc[-1] / df.iloc[0]) ** (1 / years) - 1 if years > 0 else 0
                 daily_returns = df.pct_change().dropna()
@@ -524,7 +512,6 @@ def run_batch_backtest():
         pd.options.display.float_format = '{:,.2f}'.format
         print(df.to_string(index=False))
 
-        # --- CHART GENERATION & INJECTION ---
         fig, (ax, ax_dd) = plt.subplots(2, 1, figsize=(12, 9), gridspec_kw={'height_ratios': [3, 1.5]}, sharex=True)
         palette = ['#648FFF', '#DC267F', '#FE6100', '#785EF0', '#FFB000']
         bg_colors = {'GOLD': '#FFFACD', 'LONG_BOND': '#E0F7FA', 'MED_BOND': '#E0F7FA', 'CASH': '#F5F5F5', 'ALL_STOCKS': '#FFFFFF', 'TQQQ': '#FFFFFF', 'SPXL': '#FFFFFF', 'XLG_TOP5': '#FFFFFF', 'INIT': '#FFFFFF'}
@@ -569,9 +556,6 @@ def run_batch_backtest():
         if hasattr(sys.stdout, 'inject_html'):
             sys.stdout.inject_html(f'<br><br><img src="data:image/png;base64,{img_base64}" style="max-width:100%; border: 2px solid #333;"><br>')
 
-# ==========================================
-# EXECUTION ENGINE (DAILY SIGNAL)
-# ==========================================
 def run_execution():
     print("\n" + "="*50 + "\n >>> SWITCHBLADE HEADLESS EXECUTION <<<\n" + "="*50)
     os.makedirs(state_dir, exist_ok=True)
@@ -744,9 +728,6 @@ def run_execution():
         print(f"   -> Guard Status (vs Exit SMA / vs Re-entry SMA):")
         for g, vals in rep['guards'].items(): print(f"      {g.ljust(4)} | Px: {vals['px']:>7.2f} | Exit Dist: {vals['dist_ex']:>+7.2f}% | Entry Dist: {vals['dist_en']:>+7.2f}%")
 
-# ==========================================
-# MAIN ENTRY & HTML LOGGER
-# ==========================================
 class HTMLConsoleLogger:
     def __init__(self, filepath):
         self.terminal = sys.stdout
@@ -759,19 +740,14 @@ class HTMLConsoleLogger:
     def write(self, message):
         self.terminal.write(message)
         safe_msg = message.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        with open(self.filepath, "a", encoding="utf-8") as f:
-            f.write(safe_msg)
+        with open(self.filepath, "a", encoding="utf-8") as f: f.write(safe_msg)
 
     def inject_html(self, html_content):
-        with open(self.filepath, "a", encoding="utf-8") as f:
-            f.write(f"\n{html_content}\n")
+        with open(self.filepath, "a", encoding="utf-8") as f: f.write(f"\n{html_content}\n")
 
-    def flush(self):
-        self.terminal.flush()
-
+    def flush(self): self.terminal.flush()
     def close(self):
-        with open(self.filepath, "a", encoding="utf-8") as f:
-            f.write("\n</body></html>")
+        with open(self.filepath, "a", encoding="utf-8") as f: f.write("\n</body></html>")
 
 if __name__ == "__main__":
     os.makedirs("output", exist_ok=True)
@@ -783,10 +759,8 @@ if __name__ == "__main__":
 
     try:
         print(f"\n>>> MODE: {mode}")
-        if mode == "Backtest Mode":
-            run_batch_backtest()
-        else:
-            run_execution()
+        if mode == "Backtest Mode": run_batch_backtest()
+        else: run_execution()
     finally:
         logger.close()
         sys.stdout = logger.terminal
