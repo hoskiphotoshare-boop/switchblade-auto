@@ -1,8 +1,9 @@
 backtrader
 yfinance
 pandas
+numpy
+matplotlib
 requests
 lxml
-matplotlib
-numpy
-pytz
+beautifulsoup4
+pyarrow
