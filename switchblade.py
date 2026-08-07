@@ -1,5 +1,5 @@
 # =========================================================================
-# SWITCHBLADE v47.75 - HEADLESS GITHUB EDITION (PURE SEQUOIA ENGINE)
+# SWITCHBLADE v47.78 - HEADLESS GITHUB EDITION (PIT + PARQUET)
 # =========================================================================
 
 import matplotlib
@@ -32,7 +32,7 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 mode = "Backtest Mode"  # Set to Backtest or Execution depending on your CI/CD workflow
 state_dir = "./state"
 data_source = "Force Fresh Download"
-cache_filename = "switchblade_data.csv"
+cache_filename = "switchblade_data.parquet"
 backtest_start_date = "2012-01-18" 
 max_stocks_per_univ = 3000
 use_multiprocessing = True
@@ -90,31 +90,132 @@ if s2: strategies.append(s2)
 
 print(f">>> CONFIGURATION LOADED: {len(strategies)} Strategies Ready.")
 
-def get_tickers(universe):
-    headers = {"User-Agent": "Mozilla/5.0"}
-    try:
-        def extract(url, cols=['Symbol', 'Ticker']):
-            r = requests.get(url, headers=headers)
-            tables = pd.read_html(io.StringIO(r.text))
-            for df in tables:
-                for c in cols:
-                    if c in df.columns: 
-                        raw_list = [str(t).replace('.', '-') for t in df[c].tolist()]
-                        return [t for t in raw_list if t not in ['CWEN-A']] 
-            return []
-        if universe == "SP500": return extract('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')
-        if universe == "NDX": return extract('https://en.wikipedia.org/wiki/Nasdaq-100', ['Ticker', 'Symbol'])
-        if universe == "SP1000":
-            mid = extract('https://en.wikipedia.org/wiki/List_of_S%26P_400_companies', ['Symbol', 'Ticker Symbol'])
-            small = extract('https://en.wikipedia.org/wiki/List_of_S%26P_600_companies', ['Symbol', 'Ticker Symbol'])
-            return mid + small
-    except: return []
+# ==========================================
+# POINT-IN-TIME (PIT) UNIVERSE ENGINE
+# ==========================================
+class PITUniverseManager:
+    """
+    Scrapes Wikipedia historical additions and removals to build point-in-time constituent lists
+    for SP500, NDX, and SP1000 (SP400 + SP600), eliminating survivorship bias.
+    """
+    def __init__(self):
+        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        self.snapshots = {}
+        self.all_tickers = set()
+        print("   [PIT Engine] Scraped historical index constituent changes from Wikipedia...")
+        self._build_sp500()
+        self._build_ndx()
+        self._build_sp1000()
 
-# SEQUOIA FIX 1: Strict threads=False and UTC Date Normalization
-def batch_download(tickers, start_date, end_date=None, chunk_size=100):
+    def _clean_ticker(self, symbol):
+        if not symbol or pd.isna(symbol): return None
+        s = str(symbol).strip().upper().replace('.', '-')
+        return s if s and s not in ['CWEN-A', 'NAN', 'NONE'] else None
+
+    def _parse_wiki_changes(self, url, curr_table_idx=0, change_table_idx=1, symbol_cols=['Symbol', 'Ticker']):
+        try:
+            r = requests.get(url, headers=self.headers, timeout=10)
+            tables = pd.read_html(io.StringIO(r.text))
+            
+            curr_df = tables[curr_table_idx]
+            curr_tickers = set()
+            for col in symbol_cols:
+                if col in curr_df.columns:
+                    curr_tickers = set(filter(None, [self._clean_ticker(t) for t in curr_df[col].tolist()]))
+                    break
+
+            changes = []
+            if len(tables) > change_table_idx:
+                change_df = tables[change_table_idx]
+                if isinstance(change_df.columns, pd.MultiIndex):
+                    change_df.columns = ['_'.join(col).strip() for col in change_df.columns.values]
+
+                date_col = next((c for c in change_df.columns if 'date' in c.lower()), None)
+                add_col = next((c for c in change_df.columns if 'added' in c.lower() and ('ticker' in c.lower() or 'symbol' in c.lower())), None)
+                rem_col = next((c for c in change_df.columns if 'removed' in c.lower() and ('ticker' in c.lower() or 'symbol' in c.lower())), None)
+
+                if not add_col: add_col = next((c for c in change_df.columns if 'added' in c.lower()), None)
+                if not rem_col: rem_col = next((c for c in change_df.columns if 'removed' in c.lower()), None)
+
+                if date_col:
+                    for _, row in change_df.iterrows():
+                        try:
+                            dt = pd.to_datetime(row[date_col]).date()
+                            added = self._clean_ticker(row[add_col]) if add_col else None
+                            removed = self._clean_ticker(row[rem_col]) if rem_col else None
+                            if added or removed:
+                                changes.append({'date': dt, 'added': added, 'removed': removed})
+                        except Exception: continue
+
+            changes.sort(key=lambda x: x['date'], reverse=True)
+            timeline = [(datetime.date.today(), set(curr_tickers))]
+            master_tickers = set(curr_tickers)
+            curr_state = set(curr_tickers)
+
+            for change in changes:
+                dt = change['date']
+                added = change['added']
+                removed = change['removed']
+                if added: master_tickers.add(added)
+                if removed: master_tickers.add(removed)
+                if added and added in curr_state: curr_state.remove(added)
+                if removed: curr_state.add(removed)
+                timeline.append((dt, set(curr_state)))
+
+            return timeline, master_tickers
+        except Exception as e:
+            print(f"      [PIT Warning] Failed parsing {url}: {e}")
+            return [(datetime.date.today(), set())], set()
+
+    def _build_sp500(self):
+        timeline, tickers = self._parse_wiki_changes('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies', 0, 1)
+        self.snapshots['SP500'] = timeline; self.all_tickers.update(tickers)
+
+    def _build_ndx(self):
+        timeline, tickers = self._parse_wiki_changes('https://en.wikipedia.org/wiki/Nasdaq-100', 4, 5)
+        self.snapshots['NDX'] = timeline; self.all_tickers.update(tickers)
+
+    def _build_sp1000(self):
+        t_mid, tickers_mid = self._parse_wiki_changes('https://en.wikipedia.org/wiki/List_of_S%26P_400_companies', 0, 1)
+        t_small, tickers_small = self._parse_wiki_changes('https://en.wikipedia.org/wiki/List_of_S%26P_600_companies', 0, 1)
+        self.snapshots['SP1000_MID'] = t_mid; self.snapshots['SP1000_SMALL'] = t_small
+        self.all_tickers.update(tickers_mid); self.all_tickers.update(tickers_small)
+
+    def is_constituent(self, symbol, universe, query_date):
+        if universe not in self.snapshots and universe != "STANDARD": return True
+        keys = ['SP500', 'NDX', 'SP1000_MID', 'SP1000_SMALL'] if universe == "STANDARD" else [universe]
+        for k in keys:
+            if k not in self.snapshots: continue
+            for snap_date, constituents in self.snapshots[k]:
+                if query_date >= snap_date:
+                    if symbol in constituents: return True
+                    break
+        return False
+
+    def get_all_tickers(self): return list(self.all_tickers)
+
+pit_manager = PITUniverseManager()
+
+# ==========================================
+# PARQUET & DOWNLOAD HELPERS
+# ==========================================
+def save_parquet(df, path):
+    save_df = df.copy()
+    if isinstance(save_df.columns, pd.MultiIndex):
+        save_df.columns = [f"{col[0]}_{col[1]}" for col in save_df.columns]
+    save_df.to_parquet(path, engine='pyarrow')
+
+def load_parquet(path):
+    df = pd.read_parquet(path, engine='pyarrow')
+    if not isinstance(df.columns, pd.MultiIndex):
+        tuples = [(c.split('_', 1)[0], c.split('_', 1)[1]) if '_' in c else (c, '') for c in df.columns]
+        df.columns = pd.MultiIndex.from_tuples(tuples)
+    return df
+
+def batch_download(tickers, start_date, end_date=None, chunk_size=150):
     all_data_list = []
     chunks = [tickers[i:i + chunk_size] for i in range(0, len(tickers), chunk_size)]
-    print(f"   -> Downloading {len(tickers)} tickers...")
+    print(f"   -> Downloading {len(tickers)} tickers in batches...")
     for i, chunk in enumerate(chunks):
         try:
             if end_date:
@@ -124,11 +225,14 @@ def batch_download(tickers, start_date, end_date=None, chunk_size=100):
                 batch = yf.download(chunk, start=start_date, group_by='ticker', progress=False, auto_adjust=True, threads=False)
 
             if not batch.empty:
-                # Convert to UTC to lock in the calendar day, strip timezone, and normalize to 00:00:00
+                # yfinance drops MultiIndex if chunk len == 1. We force it back for Parquet mapping.
+                if len(chunk) == 1 and not isinstance(batch.columns, pd.MultiIndex):
+                    batch.columns = pd.MultiIndex.from_product([chunk, batch.columns])
+                    
                 batch.index = pd.to_datetime(batch.index, utc=True).tz_localize(None).normalize()
                 batch = batch.groupby(batch.index).last()
                 all_data_list.append(batch)
-            time.sleep(0.5)
+            time.sleep(0.3)
         except Exception as e:
             print(f"      Batch {i+1} Failed: {e}")
     return pd.concat(all_data_list, axis=1) if all_data_list else None
@@ -210,6 +314,10 @@ class SwitchbladeStrategy(bt.Strategy):
         ranks = []
         curr_dt = self.datetime.date(0)
         for d in universe:
+            if self.params.universe in ['STANDARD', 'SP500', 'NDX', 'SP1000']:
+                if not pit_manager.is_constituent(d._name, self.params.universe, curr_dt):
+                    continue
+
             if len(d) > self.params.momentum_long:
                 try:
                     if d.datetime.date(0) == curr_dt and d.close[0] > 0:
@@ -372,32 +480,27 @@ class SwitchbladeStrategy(bt.Strategy):
         self.log("="*50 + "\n")
 
 def load_and_prep_data_superset():
-    print("   [Data] Preparing data environment...")
+    print("   [Data] Preparing point-in-time universe Parquet data environment...")
     
     active_path = cache_filename
-
-    t_sp500 = get_tickers("SP500"); t_ndx = get_tickers("NDX"); t_sp1000 = get_tickers("SP1000")
-    t_xlg = t_sp500[:60] if t_sp500 else []
-    t_sp1000 = t_sp1000[:max_stocks_per_univ]; t_sp500 = t_sp500[:max_stocks_per_univ]; t_ndx = t_ndx[:max_stocks_per_univ]
-
     guards = ["IWM", "QQQ", "SPY", "XLG", "GLD", "TLT", "IEF", "BIL"]
     all_nitro_etfs = parse_list(GLOBAL_NITRO_ETFS)
-    all_tickers = list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg + guards + all_nitro_etfs))
+    
+    t_sp500 = pit_manager.get_all_tickers()
+    all_tickers = list(set(t_sp500 + guards + all_nitro_etfs))[:max_stocks_per_univ]
     print(f"   [System] Master Universe Size: {len(all_tickers)} Tickers")
 
     data = None
     force_refresh = (data_source == "Force Fresh Download")
 
     if not force_refresh and os.path.exists(active_path):
-        print(f"2. CACHE FOUND: Executing Smart Hybrid Update...")
+        print(f"2. PARQUET CACHE FOUND: Executing High-Speed Update...")
         try:
-            data = pd.read_csv(active_path, header=[0, 1], index_col=0, parse_dates=True, low_memory=False)
+            data = load_parquet(active_path)
             data = data.loc[:, ~data.columns.duplicated()]
 
             if not data.empty:
-                # SEQUOIA FIX 2: Safely parse existing cache dates
                 data.index = pd.to_datetime(data.index, utc=True).tz_localize(None).normalize()
-
                 anchor_date = data.index[0].date()
                 last_date = data.index[-1].date()
                 today = pd.Timestamp.now(tz='UTC').date()
@@ -415,11 +518,10 @@ def load_and_prep_data_superset():
                 existing_to_update = valid_existing
 
                 if last_date < today:
-                    # Drop the potentially incomplete last row before fetching updates
                     if len(data) > 1: data = data.iloc[:-1]
                     last_safe_date = data.index[-1].date()
-
                     actual_start = last_safe_date + datetime.timedelta(days=1)
+
                     print(f"   [Delta Update] Fetching {actual_start} to LATEST for {len(existing_to_update)} existing tickers...")
                     delta_data = batch_download(existing_to_update, actual_start, end_date=None)
 
@@ -437,7 +539,7 @@ def load_and_prep_data_superset():
                         data = data.groupby(data.index).last()
                         data = data.loc[:, ~data.columns.duplicated()].sort_index()
 
-                data.to_csv(active_path)
+                save_parquet(data, active_path)
 
         except Exception as e:
             print(f"   [Cache Error] {e}. Falling back to fresh download.")
@@ -448,7 +550,7 @@ def load_and_prep_data_superset():
         target_start = datetime.datetime.strptime(backtest_start_date, "%Y-%m-%d").date()
         required_start = target_start - datetime.timedelta(days=365)
         data = batch_download(all_tickers, required_start, end_date=None)
-        if data is not None: data.to_csv(active_path)
+        if data is not None: save_parquet(data, active_path)
 
     if data is not None:
         data.index = pd.to_datetime(data.index, utc=True).tz_localize(None).normalize()
@@ -457,7 +559,8 @@ def load_and_prep_data_superset():
         data = data.sort_index()
         data.ffill(inplace=True)
 
-    return data, t_sp500, t_sp1000, t_ndx, t_xlg
+    t_xlg = t_sp500[:60] if t_sp500 else []
+    return data, t_sp500, [], [], t_xlg
 
 def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, backtest_start_date):
     try:
@@ -486,7 +589,7 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
         elif config['universe'] == "CUSTOM": candidates.update(config['custom_list'])
         else:
             valid_lev = parse_list(GLOBAL_NITRO_ETFS) if config['allow_3x_in_stock_picks'] else []
-            candidates = set(t_sp500 + t_ndx + t_sp1000 + t_xlg + valid_lev)
+            candidates = set(pit_manager.get_all_tickers() + valid_lev)
 
         min_required_bars = config['momentum_long'] + 5
         added_count = 0
@@ -648,13 +751,13 @@ def run_batch_backtest():
 
         if hasattr(sys.stdout, 'inject_html'):
             sys.stdout.inject_html(f'<br><br><img src="data:image/png;base64,{img_base64}" style="max-width:100%; border: 2px solid #333;"><br>')
-
-        plt.show()
+        else:
+            print("   -> (Graphs omitted in non-HTML console environments)")
     else:
         print("[CRITICAL] No results were generated from any strategy.")
 
 def run_execution():
-    print(f"\n" + "="*50 + "\n   >>> EXECUTION MODE: V47.75 (BACKTEST SYNCHRONIZED) <<<\n" + "="*50)
+    print(f"\n" + "="*50 + "\n   >>> EXECUTION MODE: V47.78 (PIT SYNCHRONIZED) <<<\n" + "="*50)
 
     def json_serial(obj):
         if isinstance(obj, (datetime.date, datetime.datetime)): return obj.isoformat()
@@ -775,10 +878,11 @@ def run_execution():
             print(f"       >>> EXECUTING REBALANCE ({state['current_mode']})...")
             target_assets = []
             if state['current_mode'] == "ALL_STOCKS":
-                 univ = custom_tickers if univ_setting == "CUSTOM" else list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg)) if not config['allow_3x_in_stock_picks'] else list(set(t_sp500 + t_ndx + t_sp1000 + t_xlg + parse_list(GLOBAL_NITRO_ETFS)))
+                 univ = custom_tickers if univ_setting == "CUSTOM" else pit_manager.get_all_tickers() if not config['allow_3x_in_stock_picks'] else list(set(pit_manager.get_all_tickers() + parse_list(GLOBAL_NITRO_ETFS)))
                  ranked = []; latest_dt = all_dates[-1]
                  for t in univ:
                      if t in data_master.columns.levels[0]:
+                         if univ_setting == 'STANDARD' and not pit_manager.is_constituent(t, 'STANDARD', latest_dt.date()): continue
                          closes = data_master[t]['Close'].dropna()
                          if len(closes) > mom_long and latest_dt in closes.index:
                              idx = closes.index.get_loc(latest_dt)
