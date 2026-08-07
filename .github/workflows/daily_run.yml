@@ -2,9 +2,9 @@ name: Daily Switchblade Execution
 
 on:
   schedule:
-    # Runs at 21:00 UTC (4:00 PM EST / 5:00 PM EDT) every Monday through Friday
+    # 23:23 UTC is 4:23 PM PDT / 7:23 PM EDT
     - cron: '23 23 * * 1-5'
-  workflow_dispatch: # Allows manual trigger from the GitHub interface
+  workflow_dispatch:
 
 jobs:
   run-switchblade:
@@ -28,6 +28,15 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+
+    # NEW: Rolling Cache for the Parquet Market Data
+    - name: Cache Market Data (Parquet)
+      uses: actions/cache@v4
+      with:
+        path: switchblade_data.parquet
+        key: parquet-data-${{ github.run_id }}
+        restore-keys: |
+          parquet-data-
 
     - name: Install Dependencies
       run: |
