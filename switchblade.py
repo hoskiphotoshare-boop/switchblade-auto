@@ -33,7 +33,7 @@ mode = "Backtest Mode"  # Set to Backtest or Execution depending on your CI/CD w
 state_dir = "./state"
 data_source = "Force Fresh Download"
 cache_filename = "switchblade_data.parquet"
-backtest_start_date = "2010-04-01" 
+backtest_start_date = "2012-01-18" 
 max_stocks_per_univ = 3000
 use_multiprocessing = True
 
