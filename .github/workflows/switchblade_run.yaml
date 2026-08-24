@@ -1,10 +1,12 @@
 name: Switchblade V2.0 Execution Engine
 
 on:
-  workflow_dispatch: # Allows manual triggering from the GitHub UI
+  workflow_dispatch:
   schedule:
-    # Runs at 22:00 UTC (5:00 PM EST / 6:00 PM EDT) Monday-Friday
     - cron: '0 22 * * 1-5'
+
+permissions:
+  contents: write
 
 jobs:
   run-switchblade:
@@ -28,13 +30,10 @@ jobs:
       - name: Execute Switchblade
         run: python switchblade.py
         
-      - name: Upload Logs and State Data
-        uses: actions/upload-artifact@v4
-        if: always() # Uploads artifacts even if the run fails
-        with:
-          name: switchblade-outputs
-          path: |
-            data/*.html
-            data/*.json
-            data/*.parquet
-          retention-days: 7
+      - name: Commit and Push Output Log
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/latest_run.html data/*.json
+          git commit -m "Automated Switchblade Execution Update" || echo "No changes to commit"
+          git push
