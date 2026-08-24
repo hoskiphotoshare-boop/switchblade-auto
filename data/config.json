@@ -4,20 +4,20 @@
         "name": "Standard Strat",
         "universe": "STANDARD",
         "custom_list": "",
-        "sma_period": 205,
-        "reentry_period": 20,
+        "sma_period": 213,
+        "reentry_period": 10,
         "confirm_days": 5,
-        "mom_long": 178,
-        "mom_short": 82
+        "mom_long": 230,
+        "mom_short": 84
     },
     "S2": {
         "name": "TQQQ Strat",
         "universe": "TQQQ_ONLY",
         "custom_list": "SPXL, TQQQ",
-        "sma_period": 215,
-        "reentry_period": 24,
+        "sma_period": 205,
+        "reentry_period": 20,
         "confirm_days": 5,
-        "mom_long": 215,
-        "mom_short": 24
+        "mom_long": 102,
+        "mom_short": 22
     }
 }
