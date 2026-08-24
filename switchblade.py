@@ -218,11 +218,6 @@ def batch_download(tickers, start_date, end_date=None, chunk_size=150):
                 if len(chunk) == 1 and not isinstance(batch.columns, pd.MultiIndex):
                     batch.columns = pd.MultiIndex.from_product([chunk, batch.columns])
                 
-                # --- Strip bloat to save RAM during the headless run ---
-                if isinstance(batch.columns, pd.MultiIndex):
-                    cols_to_keep = [col for col in batch.columns if col[1] in ['Close', 'Volume']]
-                    batch = batch[cols_to_keep]
-
                 batch.index = pd.to_datetime(batch.index, utc=True).tz_localize(None).normalize()
                 batch = batch.groupby(batch.index).last()
                 all_data_list.append(batch)
@@ -315,11 +310,13 @@ class SwitchbladeStrategy(bt.Strategy):
         self.log(f"{self.graduated_state}, {mode} -> {action}: {assets}")
 
     def prenext(self): self.next()
+
     def next(self):
         dt = self.datetime.date(0)
         if self.params.start_date and dt < self.params.start_date: return
         self.val_history.append({'Date': dt, 'Value': self.broker.getvalue(), 'Mode': self.current_mode})
         if self.last_year != dt.year: self.last_year = dt.year; print(f"    -> [{self.params.name}] Processing Year: {dt.year}...")
+        
         bull_iwm = self.iwm.close[0] > self.get_sma('IWM')
         bull_qqq = self.qqq.close[0] > self.get_sma('QQQ')
         bull_spy = self.spy.close[0] > self.get_sma('SPY')
@@ -334,23 +331,24 @@ class SwitchbladeStrategy(bt.Strategy):
             elif self.graduated_state == "CAUTIOUSLY_OPTIMISTIC": potential_state = "FIRMLY_BULLISH" if all_bull else ("FIRMLY_BEARISH" if not any_bull else "CAUTIOUSLY_OPTIMISTIC")
             elif self.graduated_state == "FIRMLY_BULLISH" and not all_bull: potential_state = "SLIGHTLY_BEARISH"
             elif self.graduated_state == "SLIGHTLY_BEARISH": potential_state = "FIRMLY_BULLISH" if all_bull else ("FIRMLY_BEARISH" if not any_bull else "SLIGHTLY_BEARISH")
-
+            
             if potential_state in ["FIRMLY_BEARISH", "SLIGHTLY_BEARISH"]:
                 tg, tt, te = (self.smas['GLD']['entry'][0], self.smas['TLT']['entry'][0], self.smas['IEF']['entry'][0]) if self.current_mode in ["GOLD", "LONG_BOND", "MED_BOND", "CASH", "INIT"] else (self.smas['GLD']['exit'][0], self.smas['TLT']['exit'][0], self.smas['IEF']['exit'][0])
                 if self.gld.close[0] > tg: raw_mode = "GOLD"
                 elif self.tlt.close[0] > tt: raw_mode = "LONG_BOND"
                 elif self.ief.close[0] > te: raw_mode = "MED_BOND"
             else:
-                # FIX: TQQQ_ONLY universe must always route to TQQQ in bullish regimes
+                # FIX: Explicit universe check prevents TQQQ from misrouting to ALL_STOCKS
                 if self.params.universe == 'TQQQ_ONLY': raw_mode = "TQQQ"
                 elif bull_iwm: raw_mode = "ALL_STOCKS"
                 elif bull_qqq: raw_mode = "TQQQ"
                 elif bull_spy: raw_mode = "SPXL"
                 elif bull_xlg: raw_mode = "XLG_TOP5"
-
         else:
             risk_on = bull_iwm if self.params.guard_mode == "IWM_ONLY" else all_bull
-            if risk_on: raw_mode = "ALL_STOCKS"
+            if risk_on: 
+                if self.params.universe == 'TQQQ_ONLY': raw_mode = "TQQQ"
+                else: raw_mode = "ALL_STOCKS"
             elif self.gld.close[0] > self.get_sma('GLD'): raw_mode = "GOLD"
             elif self.tlt.close[0] > self.get_sma('TLT'): raw_mode = "LONG_BOND"
             elif self.ief.close[0] > self.get_sma('IEF'): raw_mode = "MED_BOND"
@@ -380,6 +378,7 @@ class SwitchbladeStrategy(bt.Strategy):
             if target_assets:
                 weight = (1.0 - self.params.cash_buffer) / len(target_assets)
                 for d in target_assets: self.order_target_percent(d, target=weight)
+
 
     def stop(self):
         self.log("\n" + "="*50)
@@ -435,7 +434,7 @@ def load_and_prep_data_superset():
         data.index = pd.to_datetime(data.index, utc=True).tz_localize(None).normalize()
         data = data.groupby(data.index).last().loc[:, ~data.columns.duplicated()].sort_index()
         
-        # FIX: Forward-fill and backward-fill gaps, and drop rows where benchmark closing prices are missing
+        # FIX: Fill missing data gaps and drop completely dead tickers to prevent NaN propagation
         data = data.ffill().bfill()
         if 'SPY' in data.columns.levels[0]:
             data = data.dropna(subset=[('SPY', 'Close')])
