@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switchblade Control Panel</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 350px 1fr; gap: 20px; }
+        .panel { background-color: #1e1e1e; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border: 1px solid #333; }
+        h2 { margin-top: 0; color: #00FF00; font-size: 1.2rem; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        label { display: block; margin-top: 10px; font-size: 0.9rem; color: #aaa; }
+        input, select { width: 100%; padding: 8px; margin-top: 5px; background: #2d2d2d; border: 1px solid #444; color: white; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; margin-top: 15px; background-color: #007acc; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        button:hover { background-color: #005f9e; }
+        .btn-run { background-color: #28a745; }
+        .btn-run:hover { background-color: #218838; }
+        iframe { width: 100%; height: 800px; border: none; border-radius: 8px; background: #000; }
+        .status { margin-top: 10px; font-size: 0.85rem; color: #ffcc00; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Left Sidebar: Controls -->
+    <div class="controls">
+        <div class="panel">
+            <h2>GitHub Authentication</h2>
+            <label>Repo Owner / Name (e.g., user/switchblade)</label>
+            <input type="text" id="repo" placeholder="username/repository">
+            <label>Personal Access Token (PAT)</label>
+            <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxx">
+            <button onclick="loadConfig()">1. Load Current Config</button>
+        </div>
+
+        <div class="panel" style="margin-top: 20px;">
+            <h2>Engine Mode & Schedule</h2>
+            <label>Run Mode</label>
+            <select id="engine_mode">
+                <option value="Backtest Mode">Backtest Mode (Charts & Stats)</option>
+                <option value="Execution Mode">Execution Mode (Daily Holdings)</option>
+            </select>
+            <label>Cron Expression (UTC Time)</label>
+            <input type="text" id="cron" placeholder="0 22 * * 1-5">
+        </div>
+
+        <div class="panel" style="margin-top: 20px;">
+            <h2>Strategy 1 (S1)</h2>
+            <label>Universe Mode</label>
+            <select id="s1_universe">
+                <option value="STANDARD">STANDARD</option>
+                <option value="TQQQ_ONLY">TQQQ_ONLY</option>
+            </select>
+            <label>SMA Period / Re-entry Period</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="s1_sma" placeholder="205">
+                <input type="number" id="s1_reentry" placeholder="20">
+            </div>
+            <label>Mom Long / Mom Short</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="s1_mom_long" placeholder="178">
+                <input type="number" id="s1_mom_short" placeholder="82">
+            </div>
+            <label>Confirm Days</label>
+            <input type="number" id="s1_confirm" placeholder="5">
+        </div>
+
+        <div class="panel" style="margin-top: 20px;">
+            <h2>Strategy 2 (S2)</h2>
+            <label>Universe Mode</label>
+            <select id="s2_universe">
+                <option value="STANDARD">STANDARD</option>
+                <option value="TQQQ_ONLY" selected>TQQQ_ONLY</option>
+            </select>
+            <label>SMA Period / Re-entry Period</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="s2_sma" placeholder="215">
+                <input type="number" id="s2_reentry" placeholder="24">
+            </div>
+            <label>Mom Long / Mom Short</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="s2_mom_long" placeholder="215">
+                <input type="number" id="s2_mom_short" placeholder="24">
+            </div>
+            <label>Confirm Days</label>
+            <input type="number" id="s2_confirm" placeholder="5">
+        </div>
+
+        <div class="panel" style="margin-top: 20px;">
+            <button onclick="saveConfig()">2. Save Parameters to GitHub</button>
+            <button class="btn-run" onclick="triggerRun()">3. RUN SWITCHBLADE NOW</button>
+            <div id="statusMsg" class="status"></div>
+        </div>
+    </div>
+
+    <!-- Right Side: Display output HTML log -->
+    <div class="viewer">
+        <div class="panel" style="height: 100%; padding: 0;">
+            <div style="padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between;">
+                <h2 style="margin: 0; border: none; padding: 0;">Latest Execution Log</h2>
+                <button onclick="refreshLog()" style="width: auto; margin: 0; padding: 5px 15px;">Refresh Log</button>
+            </div>
+            <iframe id="logFrame" src="latest_run.html"></iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        if(localStorage.getItem("sb_repo")) document.getElementById('repo').value = localStorage.getItem("sb_repo");
+        if(localStorage.getItem("sb_token")) document.getElementById('token').value = localStorage.getItem("sb_token");
+    });
+
+    function getHeaders() {
+        const token = document.getElementById('token').value;
+        localStorage.setItem("sb_token", token);
+        localStorage.setItem("sb_repo", document.getElementById('repo').value);
+        return {
+            "Accept": "application/vnd.github+json",
+            "Authorization": `Bearer ${token}`,
+            "X-GitHub-Api-Version": "2022-11-28"
+        };
+    }
+
+    let configSha = "";
+    let yamlSha = "";
+    let yamlContent = "";
+
+    async function loadConfig() {
+        const repo = document.getElementById('repo').value;
+        setStatus("Fetching configuration from GitHub...");
+        
+        try {
+            let res = await fetch(`https://api.github.com/repos/${repo}/contents/data/config.json`, { headers: getHeaders() });
+            let data = await res.json();
+            configSha = data.sha;
+            let cfg = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+
+            document.getElementById('engine_mode').value = cfg.mode || "Backtest Mode";
+
+            document.getElementById('s1_universe').value = cfg.S1.universe;
+            document.getElementById('s1_sma').value = cfg.S1.sma_period;
+            document.getElementById('s1_reentry').value = cfg.S1.reentry_period;
+            document.getElementById('s1_mom_long').value = cfg.S1.mom_long;
+            document.getElementById('s1_mom_short').value = cfg.S1.mom_short;
+            document.getElementById('s1_confirm').value = cfg.S1.confirm_days;
+
+            document.getElementById('s2_universe').value = cfg.S2.universe;
+            document.getElementById('s2_sma').value = cfg.S2.sma_period;
+            document.getElementById('s2_reentry').value = cfg.S2.reentry_period;
+            document.getElementById('s2_mom_long').value = cfg.S2.mom_long;
+            document.getElementById('s2_mom_short').value = cfg.S2.mom_short;
+            document.getElementById('s2_confirm').value = cfg.S2.confirm_days;
+
+            let yamlRes = await fetch(`https://api.github.com/repos/${repo}/contents/.github/workflows/switchblade_run.yml`, { headers: getHeaders() });
+            let yamlData = await yamlRes.json();
+            yamlSha = yamlData.sha;
+            yamlContent = decodeURIComponent(escape(atob(yamlData.content)));
+            
+            let cronMatch = yamlContent.match(/cron:\s*'([^']+)'/);
+            if(cronMatch) document.getElementById('cron').value = cronMatch[1];
+
+            setStatus("Configuration loaded successfully!", "#00FF00");
+        } catch (err) {
+            setStatus("Error loading config. Check PAT and Repo Name.", "red");
+        }
+    }
+
+    async function saveConfig() {
+        const repo = document.getElementById('repo').value;
+        setStatus("Saving configuration...");
+        
+        try {
+            const newCfg = {
+                mode: document.getElementById('engine_mode').value,
+                S1: {
+                    name: "Standard Strat", universe: document.getElementById('s1_universe').value, custom_list: "",
+                    sma_period: parseInt(document.getElementById('s1_sma').value), reentry_period: parseInt(document.getElementById('s1_reentry').value),
+                    confirm_days: parseInt(document.getElementById('s1_confirm').value), mom_long: parseInt(document.getElementById('s1_mom_long').value), mom_short: parseInt(document.getElementById('s1_mom_short').value)
+                },
+                S2: {
+                    name: "TQQQ Strat", universe: document.getElementById('s2_universe').value, custom_list: "SPXL, TQQQ",
+                    sma_period: parseInt(document.getElementById('s2_sma').value), reentry_period: parseInt(document.getElementById('s2_reentry').value),
+                    confirm_days: parseInt(document.getElementById('s2_confirm').value), mom_long: parseInt(document.getElementById('s2_mom_long').value), mom_short: parseInt(document.getElementById('s2_mom_short').value)
+                }
+            };
+
+            const jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(newCfg, null, 4))));
+            await fetch(`https://api.github.com/repos/${repo}/contents/data/config.json`, {
+                method: "PUT", headers: getHeaders(),
+                body: JSON.stringify({ message: "UI: Update parameters", content: jsonB64, sha: configSha })
+            });
+
+            const newCron = document.getElementById('cron').value;
+            const newYamlContent = yamlContent.replace(/cron:\s*'[^']+'/, `cron: '${newCron}'`);
+            const yamlB64 = btoa(unescape(encodeURIComponent(newYamlContent)));
+            await fetch(`https://api.github.com/repos/${repo}/contents/.github/workflows/switchblade_run.yml`, {
+                method: "PUT", headers: getHeaders(),
+                body: JSON.stringify({ message: "UI: Update cron schedule", content: yamlB64, sha: yamlSha })
+            });
+
+            setStatus("Parameters and Schedule Saved Successfully!", "#00FF00");
+            setTimeout(loadConfig, 2000);
+        } catch (err) {
+            setStatus("Error saving configuration.", "red");
+        }
+    }
+
+    async function triggerRun() {
+        const repo = document.getElementById('repo').value;
+        setStatus("Sending run command to GitHub Actions...");
+        try {
+            const res = await fetch(`https://api.github.com/repos/${repo}/actions/workflows/switchblade_run.yml/dispatches`, {
+                method: "POST", headers: getHeaders(),
+                body: JSON.stringify({ ref: "main" })
+            });
+            if(res.ok) setStatus("Execution Triggered! Wait ~2 minutes, then click Refresh Log.", "#00FF00");
+            else setStatus("Failed to trigger run.", "red");
+        } catch (err) { setStatus("Error triggering run.", "red"); }
+    }
+
+    function refreshLog() {
+        document.getElementById('logFrame').src = "latest_run.html?t=" + new Date().getTime();
+    }
+
+    function setStatus(msg, color="#ffcc00") {
+        const el = document.getElementById('statusMsg');
+        el.innerText = msg;
+        el.style.color = color;
+    }
+</script>
+
+</body>
+</html>
