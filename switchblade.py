@@ -1,14 +1,17 @@
 # ==========================================================
-# SWITCHBLADE v47.80 - GITHUB ACTIONS EDITION
+# SWITCHBLADE v47.80 - GITHUB ACTIONS EDITION (NO CACHE)
 # ==========================================================
 import sys
+import matplotlib
+matplotlib.use('Agg') # MUST BE BEFORE pyplot import for headless rendering
+import matplotlib.pyplot as plt
+
 import backtrader as bt
 import yfinance as yf
 import datetime
 import pandas as pd
 import requests
 import io
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 import json
@@ -144,63 +147,65 @@ def verify_yfinance_integrity(tickers=["QQQ", "SPY"], threshold=0.01):
         for t in tickers: prices[t]['1-Min'] = intraday[t]['Close'].dropna().iloc[-1]
 
         abort = False
+        print("-" * 75)
         for t in tickers:
             p_list = list(prices[t].values())
             p_max, p_min = max(p_list), min(p_list)
             diff_pct = (p_max - p_min) / p_min
+            print(f"      {t}: Bulk=${prices[t]['Bulk']:<7.2f} | Single=${prices[t]['Single']:<7.2f} | 1m=${prices[t]['1-Min']:<7.2f} | Max Diff={diff_pct*100:.2f}%")
             if diff_pct > threshold: abort = True
+        print("-" * 75)
+
         if abort: sys.exit("\n    [CRITICAL ERROR] yfinance endpoints are out of sync by >1%!")
+        else: print("    -> [PASS] Integrity check clear. Prices are perfectly synchronized.\n")
     except Exception as e:
-        print(f"    -> [WARNING] Integrity check encountered a network error: {e}")
+        print(f"    -> [WARNING] Integrity check encountered a network error: {e}\n    -> Continuing with caution...\n")
 
 verify_yfinance_integrity()
 
 # ==========================================
-# STRATEGY CONFIGURATION (HEADLESS)
+# STRATEGY CONFIGURATION (JSON DRIVEN)
 # ==========================================
-mode = "Execution Mode" # Switch to "Backtest Mode" if running locally for charts
-data_source = "Use Existing Cache"
-cache_filename = "switchblade_data.parquet"
 backtest_start_date = "2012-01-18"
 max_stocks_per_univ = 4000
 use_multiprocessing = True
 
 GLOBAL_NITRO_ETFS = "SPXL, SPXS, TQQQ, SQQQ, UDOW, SDOW, TNA, TZA, MIDU, EDC, EDZ, YINN, YANG, EURL, INDL, TECL, TECS, SOXL, SOXS, FNGU, FNGD, WEBL, WEBS, FAS, FAZ, ERX, ERY, CURE, LABU, LABD, DRN, DRV, UTSL, DUSL, RETL, UGL, GLL, AGQ, ZSL, UCO, SCO, BOIL, KOLD, TMF, TMV, UST, PST, BITU, ETHU, UVXY"
 
+# Load parameters from config.json
+config_path = os.path.join(DATA_DIR, "config.json")
+try:
+    with open(config_path, "r") as f:
+        cfg = json.load(f)
+        mode = cfg.get("mode", "Backtest Mode") # Fallback to Backtest Mode
+except Exception as e:
+    sys.exit(f"[CRITICAL ERROR] Could not load config.json: {e}")
+
+print(f">>> MODE: {mode}")
+
 strategies = []
 def parse_list(s_input): return [x.strip().upper() for x in s_input.split(',') if x.strip()] if s_input else []
-def pack_strat(enable, name, univ, cust, sma, ren, reb, top, conf, grd, nitro, mom_long, mom_short):
-    if enable:
-        return {'name': name, 'universe': univ, 'custom_list': parse_list(cust), 'sma_period': sma, 'reentry_sma_period': ren, 'rebalance_days': reb, 'top_n_stocks': top, 'top_n_3x': 5, 'confirmation_days': conf, 'guard_mode': grd, 'allow_3x_in_stock_picks': nitro, 'momentum_long': mom_long, 'momentum_short': mom_short}
-    return None
+def pack_strat(s_cfg):
+    return {
+        'name': s_cfg['name'], 'universe': s_cfg['universe'], 'custom_list': parse_list(s_cfg['custom_list']),
+        'sma_period': s_cfg['sma_period'], 'reentry_sma_period': s_cfg['reentry_period'], 
+        'rebalance_days': 21, 'top_n_stocks': 10, 'top_n_3x': 5, 
+        'confirmation_days': s_cfg['confirm_days'], 'guard_mode': 'GRADUATED', 
+        'allow_3x_in_stock_picks': False, 'momentum_long': s_cfg['mom_long'], 'momentum_short': s_cfg['mom_short']
+    }
 
-# Strategy 1
-s1 = pack_strat(True, "Standard (sma 205/20, momo 178/82)", "STANDARD", "", 205, 20, 21, 10, 5, "GRADUATED", False, 178, 82)
-if s1: strategies.append(s1)
+if "S1" in cfg: strategies.append(pack_strat(cfg["S1"]))
+if "S2" in cfg: strategies.append(pack_strat(cfg["S2"]))
 
-# Strategy 2
-s2 = pack_strat(True, "TQQQ_ONLY (sma 205/20)", "TQQQ_ONLY", "SPXL, TQQQ", 205, 20, 21, 10, 5, "GRADUATED", False, 215, 24)
-if s2: strategies.append(s2)
+print(f">>> CONFIGURATION LOADED: {len(strategies)} Strategies Ready.\n")
 
 # ==========================================
-# PARQUET & DOWNLOAD HELPERS
+# DOWNLOAD HELPERS (NO PARQUET CACHING)
 # ==========================================
-def save_parquet(df, path):
-    save_df = df.copy()
-    if isinstance(save_df.columns, pd.MultiIndex):
-        save_df.columns = [f"{col[0]}_{col[1]}" for col in save_df.columns]
-    save_df.to_parquet(path, engine='pyarrow')
-
-def load_parquet(path):
-    df = pd.read_parquet(path, engine='pyarrow')
-    if not isinstance(df.columns, pd.MultiIndex):
-        tuples = [(c.split('_', 1)[0], c.split('_', 1)[1]) if '_' in c else (c, '') for c in df.columns]
-        df.columns = pd.MultiIndex.from_tuples(tuples)
-    return df
-
 def batch_download(tickers, start_date, end_date=None, chunk_size=150):
     all_data_list = []
     chunks = [tickers[i:i + chunk_size] for i in range(0, len(tickers), chunk_size)]
+    print(f"    -> Downloading {len(tickers)} tickers in batches...")
     for i, chunk in enumerate(chunks):
         try:
             if end_date:
@@ -212,6 +217,12 @@ def batch_download(tickers, start_date, end_date=None, chunk_size=150):
             if not batch.empty:
                 if len(chunk) == 1 and not isinstance(batch.columns, pd.MultiIndex):
                     batch.columns = pd.MultiIndex.from_product([chunk, batch.columns])
+                
+                # --- Strip bloat to save RAM during the headless run ---
+                if isinstance(batch.columns, pd.MultiIndex):
+                    cols_to_keep = [col for col in batch.columns if col[1] in ['Close', 'Volume']]
+                    batch = batch[cols_to_keep]
+
                 batch.index = pd.to_datetime(batch.index, utc=True).tz_localize(None).normalize()
                 batch = batch.groupby(batch.index).last()
                 all_data_list.append(batch)
@@ -308,7 +319,7 @@ class SwitchbladeStrategy(bt.Strategy):
         dt = self.datetime.date(0)
         if self.params.start_date and dt < self.params.start_date: return
         self.val_history.append({'Date': dt, 'Value': self.broker.getvalue(), 'Mode': self.current_mode})
-        if self.last_year != dt.year: self.last_year = dt.year
+        if self.last_year != dt.year: self.last_year = dt.year; print(f"    -> [{self.params.name}] Processing Year: {dt.year}...")
         bull_iwm = self.iwm.close[0] > self.get_sma('IWM')
         bull_qqq = self.qqq.close[0] > self.get_sma('QQQ')
         bull_spy = self.spy.close[0] > self.get_sma('SPY')
@@ -380,68 +391,41 @@ class SwitchbladeStrategy(bt.Strategy):
         except Exception: pass
         self.log(f"Current Mode    : {self.current_mode}")
         self.log(f"Graduated State : {self.graduated_state}")
+        self.log(f"Pending Mode    : {self.pending_mode}")
+        self.log(f"Confirm Counter : {self.confirm_counter} / {self.params.confirmation_days}")
+        self.log(f"Rebalance Timer : {self.timer} / {self.params.rebalance_days}")
         self.log(f"Current Drawdown: {curr_dd_str}")
+        self.log("-" * 50)
+        self.log("GUARD DOG STATUS (Final Day):")
+        for name, data in self.guards.items():
+            try:
+                px = data.close[0]; sma_ex = self.smas[name]['exit'][0]; sma_en = self.smas[name]['entry'][0]
+                dist_ex = ((px - sma_ex) / sma_ex) * 100 if sma_ex else 0
+                dist_en = ((px - sma_en) / sma_en) * 100 if sma_en else 0
+                self.log(f"  {name.ljust(4)}: Px: {px:6.2f} | Exit Dist: {dist_ex:>+6.2f}% | Entry Dist: {dist_en:>+6.2f}%")
+            except: pass
+        self.log("-" * 50)
+        active_positions = [d._name for d, pos in self.getpositions().items() if pos.size != 0]
+        self.log(f"Final Holdings  : {active_positions}")
         self.log("="*50 + "\n")
 
 def load_and_prep_data_superset():
-    active_path = os.path.join(DATA_DIR, cache_filename)
     guards = ["IWM", "QQQ", "SPY", "XLG", "GLD", "TLT", "IEF", "BIL"]
     all_nitro_etfs = parse_list(GLOBAL_NITRO_ETFS)
     t_sp500 = pit_manager.get_all_tickers()
     all_tickers = list(set(t_sp500 + guards + all_nitro_etfs))[:max_stocks_per_univ]
     
-    data = None
-    force_refresh = (data_source == "Force Fresh Download")
+    print(f"   [System] Master Universe Size: {len(all_tickers)} Tickers")
+    print("   -> Starting FRESH BATCH DOWNLOAD...")
 
-    if not force_refresh and os.path.exists(active_path):
-        try:
-            data = load_parquet(active_path)
-            data = data.loc[:, ~data.columns.duplicated()]
-            if not data.empty:
-                data.index = pd.to_datetime(data.index, utc=True).tz_localize(None).normalize()
-                anchor_date = data.index[0].date()
-                last_date = data.index[-1].date()
-                ny_time = pd.Timestamp.now(tz='US/Eastern')
-                today = ny_time.date()
-                if ny_time.weekday() == 5: today -= datetime.timedelta(days=1)
-                elif ny_time.weekday() == 6: today -= datetime.timedelta(days=2)
-                elif ny_time.time() < datetime.time(9, 30):
-                    if ny_time.weekday() == 0: today -= datetime.timedelta(days=3)
-                    else: today -= datetime.timedelta(days=1)
-
-                existing_cols = list(data.columns.get_level_values(0).unique())
-                valid_existing = []; missing_tickers = []
-                for t in all_tickers:
-                    if t in existing_cols:
-                        try:
-                            if 'Close' in data[t].columns and data[t]['Close'].dropna().shape[0] > 5: valid_existing.append(t)
-                            else: missing_tickers.append(t)
-                        except: missing_tickers.append(t)
-                    else: missing_tickers.append(t)
-
-                if last_date < today:
-                    if len(data) > 1: data = data.iloc[:-1]
-                    last_safe_date = data.index[-1].date()
-                    actual_start = last_safe_date + datetime.timedelta(days=1)
-                    delta_data = batch_download(valid_existing, actual_start, end_date=None)
-                    if delta_data is not None and not delta_data.empty:
-                        data = pd.concat([data, delta_data])
-                        data = data.groupby(data.index).last().loc[:, ~data.columns.duplicated()].sort_index()
-
-                if missing_tickers:
-                    missing_data = batch_download(missing_tickers, anchor_date, end_date=None)
-                    if missing_data is not None and not missing_data.empty:
-                        data = data.drop(columns=[t for t in missing_tickers if t in data.columns.get_level_values(0)], level=0, errors='ignore')
-                        data = pd.concat([data, missing_data], axis=1).groupby(data.index).last().loc[:, ~data.columns.duplicated()].sort_index()
-                save_parquet(data, active_path)
-        except Exception as e:
-            data = None
-
-    if data is None or force_refresh:
+    if mode == "Backtest Mode":
         target_start = datetime.datetime.strptime(backtest_start_date, "%Y-%m-%d").date()
         required_start = target_start - datetime.timedelta(days=365)
-        data = batch_download(all_tickers, required_start, end_date=None)
-        if data is not None: save_parquet(data, active_path)
+    else:
+        # Execution mode only needs enough bars for the longest SMA + MOM
+        required_start = datetime.date.today() - datetime.timedelta(days=400)
+
+    data = batch_download(all_tickers, required_start, end_date=None)
 
     if data is not None:
         data.index = pd.to_datetime(data.index, utc=True).tz_localize(None).normalize()
@@ -453,6 +437,7 @@ def load_and_prep_data_superset():
 
 def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, backtest_start_date):
     try:
+        print(f"   [Runner] Starting: {config['name']}")
         cerebro = bt.Cerebro()
         cerebro.broker.setcash(100000)
         cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe', riskfreerate=0.0)
@@ -483,6 +468,7 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
             candidates = set(pit_manager.get_all_tickers() + valid_lev)
 
         min_required_bars = config['momentum_long'] + 5
+        added_count = 0
         for t in candidates:
             if t in added_tickers or t in guards: continue
             if t in available_tickers:
@@ -492,7 +478,11 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
                         df = df.dropna(subset=['Close'])
                         if not df.empty and len(df) >= min_required_bars:
                             cerebro.adddata(bt.feeds.PandasData(dataname=df, name=t, fromdate=data_start_pd.to_pydatetime()))
+                            added_count += 1
                 except KeyError: pass
+        
+        if config['universe'] == 'TQQQ_ONLY': print(f"   [Runner] {config['name']}: Target ETF (TQQQ) pre-loaded successfully.")
+        else: print(f"   [Runner] {config['name']}: {added_count} candidate stocks loaded.")
 
         cerebro.addstrategy(SwitchbladeStrategy, **config, tickers_sp500=t_sp500, tickers_xlg=t_xlg, start_date=target_start_pd.date())
         results = cerebro.run()
@@ -504,7 +494,23 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
         start_val = 100000; end_val = history_df['Value'].iloc[-1]
         ret = ((end_val - start_val) / start_val) * 100
         dd = strat.analyzers.drawdown.get_analysis()['max']['drawdown']
-        return {'Strategy': config['name'], 'Return %': ret, 'MaxDD %': dd, 'Trades': strat.total_orders, 'History': history_df}
+        curr_dd = strat.analyzers.drawdown.get_analysis().get('drawdown', 0.0)
+        sharpe = strat.analyzers.sharpe.get_analysis().get('sharperatio', 0.0)
+        
+        years = (history_df.index[-1] - history_df.index[0]).days / 365.25
+        cagr = (end_val / start_val) ** (1 / years) - 1 if years > 0 else 0
+        daily_returns = history_df['Value'].pct_change().dropna()
+        downside_returns = daily_returns[daily_returns < 0]
+        downside_dev = np.sqrt(np.mean(downside_returns**2)) * np.sqrt(252) if len(downside_returns) > 0 else 0
+        sortino = (cagr / downside_dev) if downside_dev > 0 else 0
+        calmar = cagr / (dd / 100) if dd > 0 else 0
+
+        print(f"   [Runner] Finished: {config['name']} (Total Ret: {ret:,.2f}%)")
+        return {
+            'Strategy': config['name'], 'Return %': ret, 'MaxDD %': dd, 'CurrDD %': curr_dd,
+            'Sharpe': sharpe, 'Sortino': sortino, 'Calmar': calmar,
+            'Trades': strat.total_orders, 'Switches': strat.total_switches, 'History': history_df
+        }
     except Exception as e: return None
 
 def run_batch_backtest():
@@ -516,6 +522,7 @@ def run_batch_backtest():
 
     worker = partial(worker_run_strategy, data_master=data_master, t_sp500=t_sp500, t_sp1000=t_sp1000, t_ndx=t_ndx, t_xlg=t_xlg, backtest_start_date=backtest_start_date)
     if use_multiprocessing and len(strategies) > 1:
+        print(f"\n   --- PARALLEL EXECUTION STARTED ({multiprocessing.cpu_count()} CORES) ---")
         try:
             ctx = multiprocessing.get_context('fork')
             with ctx.Pool(processes=len(strategies)) as pool: results = pool.map(worker, strategies)
@@ -529,18 +536,77 @@ def run_batch_backtest():
             res = worker(config)
             if res: summary_stats.append(res)
 
+    print("\n   -> Calculating Benchmarks...")
+    available_tickers = data_master.columns.get_level_values(0).unique()
+    for b in ['SPY', 'QQQ', 'TQQQ']:
+        if b in available_tickers:
+            try:
+                df = data_master[b]
+                if 'Close' in df.columns:
+                    df = df['Close'].dropna()
+                    df = df[df.index >= start_date_pd]
+                    if df.empty or df.iloc[0] == 0: continue
+                    s_norm = (df / df.iloc[0]) * 100000
+                    ret = ((df.iloc[-1] - df.iloc[0]) / df.iloc[0]) * 100
+                    dd_series = ((s_norm - s_norm.cummax()) / s_norm.cummax()) * 100
+                    dd = abs(dd_series.min())
+                    curr_dd = abs(dd_series.iloc[-1])
+                    years = (df.index[-1] - df.index[0]).days / 365.25
+                    cagr = (df.iloc[-1] / df.iloc[0]) ** (1 / years) - 1 if years > 0 else 0
+                    daily_returns = df.pct_change().dropna()
+                    downside_returns = daily_returns[daily_returns < 0]
+                    downside_dev = np.sqrt(np.mean(downside_returns**2)) * np.sqrt(252) if len(downside_returns) > 0 else 0
+                    sortino = (cagr / downside_dev) if downside_dev > 0 else 0
+                    calmar = cagr / (dd / 100) if dd > 0 else 0
+                    summary_stats.append({
+                        'Strategy': f"BENCHMARK: {b}", 'Return %': ret, 'MaxDD %': dd, 'CurrDD %': curr_dd,
+                        'Sharpe': 0.0, 'Sortino': sortino, 'Calmar': calmar,
+                        'Trades': 0, 'Switches': 0, 'History': pd.DataFrame({'Value': s_norm})
+                    })
+            except Exception as e: pass
+
+    print("\n" + "="*50 + "\n   FINAL LEAGUE TABLE\n" + "="*50)
     if summary_stats:
         df = pd.DataFrame(summary_stats).drop(columns=['History']).sort_values(by='Return %', ascending=False)
+        pd.options.display.float_format = '{:,.2f}'.format
         print(df.to_string(index=False))
         
-        # Headless Plotting (No plt.show())
-        fig, ax = plt.subplots(figsize=(10, 6))
+        # Headless Plotting - Advanced 2 Panel Chart
+        fig, (ax, ax_dd) = plt.subplots(2, 1, figsize=(12, 9), gridspec_kw={'height_ratios': [3, 1.5]}, sharex=True)
+        palette = ['#648FFF', '#DC267F', '#FE6100', '#785EF0', '#FFB000']
+        bg_colors = {'GOLD': '#FFFACD', 'LONG_BOND': '#E0F7FA', 'MED_BOND': '#E0F7FA', 'CASH': '#F5F5F5', 'ALL_STOCKS': '#FFFFFF', 'TQQQ': '#FFFFFF', 'SPXL': '#FFFFFF', 'XLG_TOP5': '#FFFFFF', 'INIT': '#FFFFFF'}
+
+        best_strat = next((s for s in summary_stats if "BENCHMARK" not in s['Strategy']), None)
+        all_starts = [s['History'].index[0] for s in summary_stats if not s['History'].empty]
+        anchor_date = max(all_starts) if all_starts else start_date_pd
+
+        if best_strat and 'Mode' in best_strat['History'].columns:
+            hist = best_strat['History']
+            hist = hist[hist.index >= anchor_date]
+            hist['group'] = (hist['Mode'] != hist['Mode'].shift()).cumsum()
+            for g, data in hist.groupby('group'):
+                ax.axvspan(data.index[0], data.index[-1], color=bg_colors.get(data['Mode'].iloc[0], '#FFFFFF'), alpha=0.5, lw=0)
+
+        color_idx = 0
         for res in summary_stats:
-            hist = res['History']
-            if not hist.empty:
-                norm = (hist['Value'] / hist['Value'].iloc[0]) * 100
-                ax.plot(norm.index, norm.values, label=res['Strategy'])
-        ax.set_yscale('log'); ax.legend(); ax.grid(True)
+            df = res['History']
+            if df.empty: continue
+            df_slice = df[df.index >= anchor_date]
+            if df_slice.empty or df_slice['Value'].iloc[0] == 0: continue
+            norm = (df_slice['Value'] / df_slice['Value'].iloc[0]) * 100
+            lbl = res['Strategy']; is_bench = "BENCHMARK" in lbl
+            clr = '#000000' if "SPY" in lbl else ('#555555' if "QQQ" in lbl else '#333333') if is_bench else palette[color_idx % len(palette)]
+            lw = 1.5 if is_bench else 2.5; ls = ':' if is_bench else '-'; alpha = 0.6 if is_bench else 1.0
+            if not is_bench: color_idx += 1
+
+            ax.plot(norm.index, norm.values, label=lbl, color=clr, linewidth=lw, alpha=alpha, linestyle=ls)
+            dd_series = (df_slice['Value'] / df_slice['Value'].cummax() - 1) * 100
+            ax_dd.plot(dd_series.index, dd_series.values, color=clr, linewidth=lw*0.8, alpha=alpha, linestyle=ls)
+            ax_dd.fill_between(dd_series.index, dd_series.values, 0, color=clr, alpha=0.1 if not is_bench else 0.05)
+
+        ax.set_title(f"Performance (Rebased to 100 at {anchor_date.date()})"); ax.set_yscale('log'); ax.grid(True, which="both", ls="-", alpha=0.15); ax.legend(loc='upper left')
+        ax_dd.set_title("Drawdown Profile", fontsize=10); ax_dd.set_ylabel("Drawdown %"); ax_dd.grid(True, which="both", ls="-", alpha=0.15)
+        plt.tight_layout()
         
         img_buf = io.BytesIO()
         fig.savefig(img_buf, format='png', facecolor='white', bbox_inches='tight')
@@ -548,7 +614,7 @@ def run_batch_backtest():
         img_base64 = base64.b64encode(img_buf.read()).decode('utf-8')
         
         if hasattr(sys.stdout, 'inject_html'):
-            sys.stdout.inject_html(f'<br><img src="data:image/png;base64,{img_base64}" style="max-width:100%;"><br>')
+            sys.stdout.inject_html(f'<br><img src="data:image/png;base64,{img_base64}" style="max-width:100%; border: 2px solid #333;"><br>')
 
 def run_execution():
     def json_serial(obj):
@@ -724,6 +790,7 @@ class HTMLConsoleLogger:
         self.terminal.write(message)
         safe_msg = message.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         with open(self.filepath, "a", encoding="utf-8") as f: f.write(safe_msg)
+        self.flush()
 
     def inject_html(self, html_content):
         with open(self.filepath, "a", encoding="utf-8") as f: f.write(f"\n{html_content}\n")
@@ -733,11 +800,12 @@ class HTMLConsoleLogger:
         with open(self.filepath, "a", encoding="utf-8") as f: f.write("\n</body></html>")
 
 if __name__ == "__main__":
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = os.path.join(DATA_DIR, f"Switchblade_Log_{timestamp}.html")
+    os.makedirs("./docs", exist_ok=True)
+    log_file = "./docs/latest_run.html"
     
     logger = HTMLConsoleLogger(log_file)
     sys.stdout = logger
+    sys.stderr = logger  # Captures all yfinance delisted/404 errors so they appear in HTML
 
     try:
         if mode == "Backtest Mode": run_batch_backtest()
@@ -745,3 +813,4 @@ if __name__ == "__main__":
     finally:
         logger.close()
         sys.stdout = logger.terminal
+        sys.stderr = sys.__stderr__
