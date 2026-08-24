@@ -1,9 +1,8 @@
-backtrader
-yfinance
-pandas
-numpy
-matplotlib
-requests
-lxml
-beautifulsoup4
-pyarrow
+backtrader==1.9.78.123
+yfinance>=0.2.37
+matplotlib>=3.7.1
+pandas>=2.0.0
+requests>=2.31.0
+lxml>=4.9.2
+beautifulsoup4>=4.12.2
+pyarrow>=14.0.1
