@@ -1,0 +1,23 @@
+{
+    "mode": "Backtest Mode",
+    "S1": {
+        "name": "Standard Strat",
+        "universe": "STANDARD",
+        "custom_list": "",
+        "sma_period": 205,
+        "reentry_period": 20,
+        "confirm_days": 5,
+        "mom_long": 178,
+        "mom_short": 82
+    },
+    "S2": {
+        "name": "TQQQ Strat",
+        "universe": "TQQQ_ONLY",
+        "custom_list": "SPXL, TQQQ",
+        "sma_period": 215,
+        "reentry_period": 24,
+        "confirm_days": 5,
+        "mom_long": 215,
+        "mom_short": 24
+    }
+}
