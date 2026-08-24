@@ -334,16 +334,20 @@ class SwitchbladeStrategy(bt.Strategy):
             elif self.graduated_state == "CAUTIOUSLY_OPTIMISTIC": potential_state = "FIRMLY_BULLISH" if all_bull else ("FIRMLY_BEARISH" if not any_bull else "CAUTIOUSLY_OPTIMISTIC")
             elif self.graduated_state == "FIRMLY_BULLISH" and not all_bull: potential_state = "SLIGHTLY_BEARISH"
             elif self.graduated_state == "SLIGHTLY_BEARISH": potential_state = "FIRMLY_BULLISH" if all_bull else ("FIRMLY_BEARISH" if not any_bull else "SLIGHTLY_BEARISH")
+
             if potential_state in ["FIRMLY_BEARISH", "SLIGHTLY_BEARISH"]:
                 tg, tt, te = (self.smas['GLD']['entry'][0], self.smas['TLT']['entry'][0], self.smas['IEF']['entry'][0]) if self.current_mode in ["GOLD", "LONG_BOND", "MED_BOND", "CASH", "INIT"] else (self.smas['GLD']['exit'][0], self.smas['TLT']['exit'][0], self.smas['IEF']['exit'][0])
                 if self.gld.close[0] > tg: raw_mode = "GOLD"
                 elif self.tlt.close[0] > tt: raw_mode = "LONG_BOND"
                 elif self.ief.close[0] > te: raw_mode = "MED_BOND"
             else:
-                if bull_iwm: raw_mode = "ALL_STOCKS"
+                # FIX: TQQQ_ONLY universe must always route to TQQQ in bullish regimes
+                if self.params.universe == 'TQQQ_ONLY': raw_mode = "TQQQ"
+                elif bull_iwm: raw_mode = "ALL_STOCKS"
                 elif bull_qqq: raw_mode = "TQQQ"
                 elif bull_spy: raw_mode = "SPXL"
                 elif bull_xlg: raw_mode = "XLG_TOP5"
+
         else:
             risk_on = bull_iwm if self.params.guard_mode == "IWM_ONLY" else all_bull
             if risk_on: raw_mode = "ALL_STOCKS"
@@ -430,10 +434,15 @@ def load_and_prep_data_superset():
     if data is not None:
         data.index = pd.to_datetime(data.index, utc=True).tz_localize(None).normalize()
         data = data.groupby(data.index).last().loc[:, ~data.columns.duplicated()].sort_index()
-        data.ffill(inplace=True)
+        
+        # FIX: Forward-fill and backward-fill gaps, and drop rows where benchmark closing prices are missing
+        data = data.ffill().bfill()
+        if 'SPY' in data.columns.levels[0]:
+            data = data.dropna(subset=[('SPY', 'Close')])
 
     t_xlg = t_sp500[:60] if t_sp500 else []
     return data, t_sp500, [], [], t_xlg
+
 
 def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, backtest_start_date):
     try:
@@ -452,12 +461,10 @@ def worker_run_strategy(config, data_master, t_sp500, t_sp1000, t_ndx, t_xlg, ba
         for g in guards + required_targets:
             if g in available_tickers:
                 try:
-                    df = data_master[g]
-                    if 'Close' in df.columns:
-                        df = df.dropna(subset=['Close'])
-                        if not df.empty:
-                            cerebro.adddata(bt.feeds.PandasData(dataname=df, name=g, fromdate=data_start_pd.to_pydatetime()))
-                            added_tickers.add(g)
+                    df = data_master[g].dropna(subset=['Close'])
+                    if not df.empty and (df['Close'] > 0).all():
+                        cerebro.adddata(bt.feeds.PandasData(dataname=df, name=g, fromdate=data_start_pd.to_pydatetime()))
+                        added_tickers.add(g)
                 except KeyError: pass
 
         candidates = set()
