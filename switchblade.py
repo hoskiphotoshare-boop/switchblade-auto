@@ -221,7 +221,6 @@ def batch_download(tickers, start_date, end_date=None, chunk_size=150):
     return pd.concat(all_data_list, axis=1) if all_data_list else None
 
 class SwitchbladeStrategy(bt.Strategy):
-    # Strategy logic remains identical to your script
     params = (
         ('name', 'Strategy'), ('universe', 'STANDARD'), ('start_date', None), ('custom_list', []),
         ('momentum_long', 126), ('momentum_short', 21), ('rebalance_days', 21), ('top_n_stocks', 10),
@@ -560,6 +559,8 @@ def run_execution():
     if data_master is None: return
 
     available_tickers = data_master.columns.get_level_values(0).unique()
+    all_dates = data_master.index.unique().sort_values()
+
     def get_sma_series(ticker, period):
         if ticker in available_tickers:
             try:
@@ -570,15 +571,19 @@ def run_execution():
     execution_reports = []
     for i, config in enumerate(strategies):
         strat_id = i + 1; s_name = config['name']
+        univ_setting = str(config.get('universe', 'STANDARD')).strip().upper()
+        custom_tickers = config.get('custom_list', [])
+        mom_long = config.get('momentum_long', 126); mom_short = config.get('momentum_short', 21)
+        
         state_file = os.path.join(DATA_DIR, f"portfolio_state_S{strat_id}.json")
         state = {"current_mode": "INIT", "graduated_state": "FIRMLY_BEARISH", "pending_mode": None, "pending_state": None, "confirm_counter": 0, "timer": 0, "holdings": {}}
+        
         if os.path.exists(state_file):
             try:
                 with open(state_file, 'r') as f: state = json.load(f)
             except: pass
 
         last_run_pd = pd.to_datetime(state.get('last_run_date', "1900-01-01")).normalize()
-        all_dates = data_master.index.unique().sort_values()
         missed_days = all_dates[all_dates > last_run_pd]
         
         sma_entry = config['reentry_sma_period']; sma_exit = config['sma_period']
@@ -590,6 +595,9 @@ def run_execution():
             if g in available_tickers: price_series[g] = data_master[g]['Close']
 
         dates_to_process = missed_days if len(missed_days) > 0 else [all_dates[-1]]
+        processing_today_only = (len(missed_days) == 0)
+        force_rebalance_today = False
+
         for current_date in dates_to_process:
             date_str = current_date.strftime('%Y-%m-%d')
             is_defensive = state['current_mode'] in ["GOLD", "LONG_BOND", "MED_BOND", "CASH", "INIT"]
@@ -617,17 +625,81 @@ def run_execution():
             else:
                 if config['universe'] == 'TQQQ_ONLY': raw_mode = "TQQQ"
                 elif check_bull('IWM'): raw_mode = "ALL_STOCKS"
+                elif check_bull('QQQ'): raw_mode = "TQQQ"
+                elif check_bull('SPY'): raw_mode = "SPXL"
+                elif check_bull('XLG'): raw_mode = "XLG_TOP5"
 
-            if raw_mode != state['current_mode']:
-                if raw_mode == state.get('pending_mode'): state['confirm_counter'] += 1
-                else: state['pending_mode'] = raw_mode; state['pending_state'] = pot_state; state['confirm_counter'] = 1
-                if state['confirm_counter'] >= config['confirmation_days']:
-                    state['graduated_state'] = state['pending_state']; state['current_mode'] = raw_mode
-                    state['timer'] = config['rebalance_days']; state['confirm_counter'] = 0
-            else:
-                state['confirm_counter'] = 0
-            
+            if not processing_today_only:
+                if raw_mode != state['current_mode']:
+                    if raw_mode == state.get('pending_mode'): state['confirm_counter'] += 1
+                    else: state['pending_mode'] = raw_mode; state['pending_state'] = pot_state; state['confirm_counter'] = 1
+                    if state['confirm_counter'] >= config['confirmation_days']:
+                        state['graduated_state'] = state['pending_state']; state['current_mode'] = raw_mode
+                        state['timer'] = config['rebalance_days']; state['confirm_counter'] = 0
+                else:
+                    state['confirm_counter'] = 0
+                    if config['guard_mode'] == "GRADUATED" and pot_state != state['graduated_state']:
+                        state['graduated_state'] = pot_state
+                
+                state['timer'] += 1
+                if state['timer'] >= config['rebalance_days']:
+                    state['timer'] = 0
+                    if current_date == dates_to_process[-1]: force_rebalance_today = True
+
             state['last_run_date'] = date_str
+
+        # --- REBALANCE ENGINE ---
+        force_rebalance = force_rebalance_today
+        curr_holdings = list(state.get('holdings', {}).keys())
+        curr_mode = state['current_mode']
+
+        if univ_setting == 'TQQQ_ONLY':
+            if curr_mode in ['ALL_STOCKS', 'XLG_TOP5']: state['current_mode'] = 'TQQQ'; force_rebalance = True
+            if curr_mode == 'TQQQ' and (not curr_holdings or any(x != 'TQQQ' for x in curr_holdings)): force_rebalance = True
+        elif univ_setting == 'STANDARD' and curr_mode == 'ALL_STOCKS':
+            if not curr_holdings or curr_holdings == ['TQQQ']: force_rebalance = True
+
+        if force_rebalance:
+            target_assets = []
+            if state['current_mode'] == "ALL_STOCKS":
+                univ = pit_manager.get_all_tickers()
+                ranked = []; latest_dt = all_dates[-1]
+                for t in univ:
+                    if t in available_tickers:
+                        try:
+                            df_t = data_master[t]
+                            if 'Close' in df_t.columns:
+                                closes = df_t['Close'].dropna()
+                                curr_price = closes.loc[latest_dt] if latest_dt in closes.index else 0
+                                
+                                # Volume check
+                                if 'Volume' in df_t.columns and latest_dt in df_t['Volume'].index:
+                                    idx_vol = df_t['Volume'].index.get_loc(latest_dt)
+                                    if idx_vol >= 20:
+                                        if df_t['Volume'].iloc[idx_vol-20:idx_vol].mean() < 100000:
+                                            continue 
+                                            
+                                if univ_setting == 'STANDARD' and not pit_manager.is_constituent(t, 'STANDARD', latest_dt.date(), current_price=curr_price): continue
+                                
+                                if len(closes) > mom_long and latest_dt in closes.index:
+                                    idx = closes.index.get_loc(latest_dt)
+                                    if idx >= mom_long:
+                                        start_long = closes.iloc[idx - mom_long]; start_short = closes.iloc[idx - mom_short] if idx >= mom_short else start_long; end = closes.iloc[idx]
+                                        if start_long > 0 and start_short > 0:
+                                            blended_roc = (((end - start_long) / start_long) * 0.70) + (((end - start_short) / start_short) * 0.30)
+                                            ranked.append((t, blended_roc))
+                        except Exception: pass
+                ranked.sort(key=lambda x: x[1], reverse=True)
+                target_assets = [x[0] for x in ranked[:config['top_n_stocks']]]
+            elif state['current_mode'] == "TQQQ": target_assets = ['TQQQ']
+            elif state['current_mode'] == "SPXL": target_assets = ['SPXL']
+            elif state['current_mode'] == "GOLD": target_assets = ['GLD']
+            elif state['current_mode'] == "LONG_BOND": target_assets = ['TLT']
+            elif state['current_mode'] == "MED_BOND": target_assets = ['IEF']
+            else: target_assets = ['BIL']
+
+            state['timer'] = 0
+            state['holdings'] = {t: f"{100/len(target_assets):.2f}%" for t in target_assets} if target_assets else {}
 
         with open(state_file, 'w') as f: json.dump(state, f, indent=4, default=json_serial)
         execution_reports.append({'name': s_name, 'state': state})
