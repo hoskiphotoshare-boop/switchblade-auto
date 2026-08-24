@@ -30,10 +30,12 @@ jobs:
       - name: Execute Switchblade
         run: python switchblade.py
         
+
       - name: Commit and Push Output Log
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/latest_run.html data/*.json
           git commit -m "Automated Switchblade Execution Update" || echo "No changes to commit"
+          git pull --rebase origin main
           git push
