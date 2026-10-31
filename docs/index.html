@@ -47,10 +47,9 @@
             <label>Run Mode</label>
             <select id="engine_mode">
                 <option value="Backtest Mode">Backtest Mode (Charts & Stats)</option>
-                <option value="Execution Mode">Execution Mode (Daily Holdings)</option>
             </select>
-            <label>Cron Expression (UTC Time)</label>
-            <input type="text" id="cron" placeholder="0 22 * * 1-5">
+            <label>Schedule (Auto EDT/EST)</label>
+            <input type="text" id="cron" value="4:17 PM ET (17 20 & 17 21 * * 1-5)" readonly>
         </div>
 
         <div class="panel" style="margin-top: 20px;">
@@ -161,14 +160,6 @@
             document.getElementById('s2_mom_short').value = cfg.S2.mom_short;
             document.getElementById('s2_confirm').value = cfg.S2.confirm_days;
 
-            let yamlRes = await fetch(`https://api.github.com/repos/${repo}/contents/.github/workflows/switchblade_run.yml`, { headers: getHeaders() });
-            let yamlData = await yamlRes.json();
-            yamlSha = yamlData.sha;
-            yamlContent = decodeURIComponent(escape(atob(yamlData.content)));
-            
-            let cronMatch = yamlContent.match(/cron:\s*'([^']+)'/);
-            if(cronMatch) document.getElementById('cron').value = cronMatch[1];
-
             setStatus("Configuration loaded successfully!", "#00FF00");
         } catch (err) {
             setStatus("Error loading config. Check PAT and Repo Name.", "red");
@@ -200,15 +191,7 @@
                 body: JSON.stringify({ message: "UI: Update parameters", content: jsonB64, sha: configSha })
             });
 
-            const newCron = document.getElementById('cron').value;
-            const newYamlContent = yamlContent.replace(/cron:\s*'[^']+'/, `cron: '${newCron}'`);
-            const yamlB64 = btoa(unescape(encodeURIComponent(newYamlContent)));
-            await fetch(`https://api.github.com/repos/${repo}/contents/.github/workflows/switchblade_run.yml`, {
-                method: "PUT", headers: getHeaders(),
-                body: JSON.stringify({ message: "UI: Update cron schedule", content: yamlB64, sha: yamlSha })
-            });
-
-            setStatus("Parameters and Schedule Saved Successfully!", "#00FF00");
+            setStatus("Parameters Saved Successfully!", "#00FF00");
             setTimeout(loadConfig, 2000);
         } catch (err) {
             setStatus("Error saving configuration.", "red");
