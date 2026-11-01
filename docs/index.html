@@ -6,7 +6,7 @@
     <title>Switchblade V3.0 | Quantitative Strategy & Execution Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -21,10 +21,11 @@
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
             --accent-emerald: #10b981;
-            --accent-emerald-glow: rgba(16, 185, 129, 0.2);
+            --accent-emerald-glow: rgba(16, 185, 129, 0.25);
             --accent-blue: #3b82f6;
-            --accent-blue-glow: rgba(59, 130, 246, 0.2);
+            --accent-blue-glow: rgba(59, 130, 246, 0.25);
             --accent-purple: #8b5cf6;
+            --accent-purple-glow: rgba(139, 92, 246, 0.25);
             --accent-amber: #f59e0b;
             --accent-rose: #f43f5e;
             --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -34,7 +35,7 @@
             --radius-lg: 14px;
             --radius-xl: 18px;
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-md: 0 4px 14px rgba(0,0,0,0.4);
             --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
             --bottom-nav-height: 64px;
         }
@@ -51,6 +52,7 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
         /* Top Header */
@@ -58,7 +60,7 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            background: rgba(14, 22, 38, 0.85);
+            background: rgba(14, 22, 38, 0.88);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
@@ -76,8 +78,8 @@
         }
 
         .brand-icon {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             background: linear-gradient(135deg, var(--accent-emerald), var(--accent-blue));
             border-radius: var(--radius-md);
             display: flex;
@@ -117,12 +119,26 @@
         }
 
         .brand-text .subtext {
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             color: var(--text-muted);
-            margin-top: 1px;
+            margin-top: 2px;
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-emerald);
+            box-shadow: 0 0 8px var(--accent-emerald);
+            display: inline-block;
+        }
+
+        .status-dot.amber {
+            background-color: var(--accent-amber);
+            box-shadow: 0 0 8px var(--accent-amber);
         }
 
         .header-actions {
@@ -184,29 +200,19 @@
         .btn-outline:hover {
             color: var(--text-primary);
             border-color: var(--border-highlight);
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn-outline.active {
+            color: #fff;
+            border-color: var(--accent-emerald);
+            background: rgba(16, 185, 129, 0.12);
         }
 
         .btn-sm {
             height: 32px;
             padding: 4px 12px;
             font-size: 0.78rem;
-        }
-
-        .btn-icon {
-            padding: 0;
-            width: 38px;
-            height: 38px;
-            border-radius: var(--radius-md);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--accent-emerald);
-            box-shadow: 0 0 8px var(--accent-emerald);
-            display: inline-block;
         }
 
         /* Desktop Tabs Bar */
@@ -255,19 +261,7 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-        }
-
-        /* Split View Layout for Desktop */
-        .workspace-grid {
-            display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 20px;
-            align-items: start;
-        }
-
-        .workspace-grid.full-width {
-            grid-template-columns: 1fr;
+            gap: 24px;
         }
 
         /* Panels & Cards */
@@ -275,7 +269,7 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 20px;
+            padding: 22px;
             box-shadow: var(--shadow-sm);
             transition: border-color 0.2s;
         }
@@ -291,11 +285,13 @@
             margin-bottom: 16px;
             padding-bottom: 12px;
             border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .card-title {
             margin: 0;
-            font-size: 0.95rem;
+            font-size: 0.98rem;
             font-weight: 600;
             color: var(--text-primary);
             display: flex;
@@ -311,15 +307,499 @@
             background: rgba(59, 130, 246, 0.15);
             color: var(--accent-blue);
             border: 1px solid rgba(59, 130, 246, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
-        /* Form elements */
-        .form-group {
+        .card-badge.bullish {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .card-badge.defensive {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        /* Quick Jump Bar */
+        .quick-jump-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0 10px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .quick-jump-bar::-webkit-scrollbar { display: none; }
+
+        .jump-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .jump-pill:hover, .jump-pill:active {
+            color: #fff;
+            background: var(--bg-surface-elevated);
+            border-color: var(--accent-blue);
+        }
+
+        /* Executive Strategy Holdings Cards Grid */
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 18px;
+        }
+
+        .strat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .strat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-emerald), transparent);
+        }
+
+        .strat-card.tqqq::before {
+            background: linear-gradient(90deg, var(--accent-blue), transparent);
+        }
+
+        .strat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .strat-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .strat-metrics-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-md);
+            padding: 10px 12px;
             margin-bottom: 14px;
         }
 
-        .form-group:last-child {
-            margin-bottom: 0;
+        .metric-cell {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 2px;
+        }
+
+        .metric-value {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .metric-value.positive { color: var(--accent-emerald); }
+        .metric-value.negative { color: var(--accent-rose); }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 14px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .progress-bar-track {
+            height: 6px;
+            background: var(--bg-surface);
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--accent-emerald), #059669);
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+
+        .progress-bar-fill.tqqq {
+            background: linear-gradient(90deg, var(--accent-blue), #2563eb);
+        }
+
+        /* Holdings Chips */
+        .holdings-section-title {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .holdings-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .ticker-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-highlight);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ticker-pill:hover {
+            border-color: var(--accent-emerald);
+            transform: translateY(-2px);
+            background: var(--bg-card-hover);
+        }
+
+        .ticker-pill.hedge {
+            border-color: rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.1);
+            color: #fbbf24;
+        }
+
+        .ticker-pill .pill-sub {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* League Table Styles */
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            position: relative;
+        }
+
+        .table-responsive-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-responsive-wrapper::-webkit-scrollbar-thumb {
+            background: var(--border-highlight);
+            border-radius: 4px;
+        }
+
+        table.fintech-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        table.fintech-table th {
+            background: var(--bg-surface-elevated);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table.fintech-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        table.fintech-table th:first-child,
+        table.fintech-table td:first-child {
+            text-align: left;
+            position: sticky;
+            left: 0;
+            background: var(--bg-surface);
+            z-index: 2;
+        }
+
+        table.fintech-table th:first-child {
+            background: var(--bg-surface-elevated);
+        }
+
+        table.fintech-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        table.fintech-table tr.highlight-s1 td {
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        table.fintech-table tr.highlight-s2 td {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .table-badge-return {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .table-badge-dd {
+            color: var(--accent-rose);
+            font-weight: 600;
+        }
+
+        /* Charts Presentation */
+        .chart-tabs-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chart-toggle-group {
+            display: flex;
+            background: var(--bg-surface);
+            padding: 3px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+
+        .chart-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chart-toggle-btn.active {
+            background: var(--bg-card);
+            color: #fff;
+            box-shadow: var(--shadow-sm);
+            font-weight: 600;
+        }
+
+        .chart-card-display {
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            cursor: zoom-in;
+            border: 1px solid var(--border-highlight);
+        }
+
+        .chart-card-display img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .chart-zoom-overlay {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(14, 22, 38, 0.9);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.72rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            pointer-events: none;
+        }
+
+        /* Lightbox Modal */
+        #chartLightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #chartLightbox img {
+            max-width: 96vw;
+            max-height: 85vh;
+            border-radius: var(--radius-md);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            object-fit: contain;
+        }
+
+        .lightbox-close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Guard Dogs Radar */
+        .radar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .radar-cell {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .radar-ticker {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #fff;
+            font-family: var(--font-mono);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .radar-px {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin: 2px 0 6px 0;
+            font-family: var(--font-mono);
+        }
+
+        .radar-dist {
+            font-size: 0.74rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Accordion */
+        details.dump-accordion {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin-top: 12px;
+        }
+
+        details.dump-accordion summary {
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            user-select: none;
+        }
+
+        details.dump-accordion pre {
+            margin: 12px 0 0 0;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: #34d399;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 14px;
         }
 
         label {
@@ -328,12 +808,6 @@
             font-weight: 500;
             color: var(--text-secondary);
             margin-bottom: 6px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
         }
 
         input[type="text"],
@@ -371,149 +845,7 @@
             gap: 10px;
         }
 
-        /* Summary Stat Cards */
-        .summary-banner {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 14px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 14px 16px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--accent-emerald), transparent);
-        }
-
-        .stat-card.tqqq::before {
-            background: linear-gradient(90deg, var(--accent-blue), transparent);
-        }
-
-        .stat-card.regime::before {
-            background: linear-gradient(90deg, var(--accent-purple), transparent);
-        }
-
-        .stat-card-title {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .stat-card-val {
-            font-size: 1.4rem;
-            font-weight: 700;
-            font-family: var(--font-mono);
-            color: #fff;
-            margin: 6px 0 2px 0;
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-        }
-
-        .stat-card-val.positive { color: var(--accent-emerald); }
-        .stat-card-val.negative { color: var(--accent-rose); }
-
-        .stat-card-sub {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Holdings Chips */
-        .holdings-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 6px;
-        }
-
-        .ticker-pill {
-            display: inline-flex;
-            align-items: center;
-            background: var(--bg-surface-elevated);
-            border: 1px solid var(--border-highlight);
-            color: #fff;
-            padding: 4px 10px;
-            border-radius: var(--radius-sm);
-            font-size: 0.8rem;
-            font-family: var(--font-mono);
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            transition: all 0.15s;
-        }
-
-        .ticker-pill:hover {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
-            transform: translateY(-1px);
-        }
-
-        /* Viewer Container & Iframe */
-        .viewer-container {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .viewer-toolbar {
-            padding: 12px 18px;
-            background: var(--bg-surface);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .toolbar-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .iframe-wrapper {
-            position: relative;
-            width: 100%;
-            height: 750px;
-            background: #000;
-            overflow: hidden;
-        }
-
-        iframe#logFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-
-        /* Floating Run Countdown Bar */
+        /* Execution Progress */
         #runProgressBar {
             display: none;
             margin-top: 10px;
@@ -521,7 +853,6 @@
             border-radius: var(--radius-sm);
             overflow: hidden;
             height: 6px;
-            position: relative;
         }
 
         #runProgressFill {
@@ -531,7 +862,7 @@
             transition: width 1s linear;
         }
 
-        /* Notification Toast */
+        /* Toast */
         #toast {
             position: fixed;
             bottom: 24px;
@@ -556,7 +887,7 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* Mobile Bottom Navigation Bar */
+        /* Mobile Bottom Nav */
         .mobile-nav-bar {
             display: none;
             position: fixed;
@@ -571,7 +902,7 @@
             z-index: 60;
             justify-content: space-around;
             align-items: center;
-            padding: 0 10px;
+            padding: 0 4px;
         }
 
         .mobile-nav-item {
@@ -579,16 +910,15 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 3px;
             background: transparent;
             border: none;
             color: var(--text-secondary);
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             font-weight: 500;
-            padding: 6px 12px;
-            border-radius: var(--radius-md);
+            padding: 6px 8px;
             cursor: pointer;
-            width: 70px;
+            flex: 1;
             transition: color 0.15s;
         }
 
@@ -607,54 +937,21 @@
             stroke: var(--accent-emerald);
         }
 
-        /* Quick Action Floating Bar for Mobile */
-        .mobile-action-bar {
-            display: none;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
         /* Responsive Breakpoints */
         @media (max-width: 980px) {
-            .workspace-grid {
-                grid-template-columns: 1fr;
-            }
-            .nav-tabs-desktop {
-                display: none;
-            }
-            .mobile-nav-bar {
-                display: flex;
-            }
-            .mobile-action-bar {
-                display: flex;
-            }
-            body {
-                padding-bottom: calc(var(--bottom-nav-height) + 16px);
-            }
-            .iframe-wrapper {
-                height: 580px;
-            }
-            main.app-main {
-                padding: 14px;
-                gap: 14px;
-            }
-            header.top-header {
-                padding: 10px 14px;
-            }
-            #toast {
-                bottom: calc(var(--bottom-nav-height) + 16px);
-                right: 14px;
-                left: 14px;
-            }
-            .hide-mobile {
-                display: none !important;
-            }
+            .nav-tabs-desktop { display: none; }
+            .mobile-nav-bar { display: flex; }
+            body { padding-bottom: calc(var(--bottom-nav-height) + 16px); }
+            main.app-main { padding: 14px; gap: 18px; }
+            header.top-header { padding: 10px 14px; }
+            .strategy-grid { grid-template-columns: 1fr; }
+            .strat-metrics-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .hide-mobile { display: none !important; }
+            #toast { bottom: calc(var(--bottom-nav-height) + 14px); right: 14px; left: 14px; }
         }
 
         @media (min-width: 981px) {
-            .hide-desktop {
-                display: none !important;
-            }
+            .hide-desktop { display: none !important; }
         }
     </style>
 </head>
@@ -664,64 +961,59 @@
     <header class="top-header">
         <div class="brand-group">
             <div class="brand-icon">
-                <svg viewBox="0 0 24 24">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-                </svg>
+                <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
             </div>
             <div class="brand-text">
                 <h1>SWITCHBLADE <span class="badge-v3">V3.0 Pipeline</span></h1>
                 <div class="subtext">
                     <span class="status-dot"></span>
-                    <span>Auto 4:17 PM ET (EDT/EST)</span>
+                    <span id="headerScheduleText">Auto 4:17 PM ET (EDT/EST)</span>
                 </div>
             </div>
         </div>
 
         <!-- Desktop Segmented Tab Navigation -->
         <nav class="nav-tabs-desktop" id="desktopNav">
-            <button class="nav-tab-btn active" onclick="switchTab('dashboard')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <button class="nav-tab-btn active" onclick="switchMainTab('dashboard')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                 Dashboard
             </button>
-            <button class="nav-tab-btn" onclick="switchTab('strategies')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"></path></svg>
-                Strategies
+            <button class="nav-tab-btn" onclick="scrollToSection('section-league')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+                League Table
             </button>
-            <button class="nav-tab-btn" onclick="switchTab('terminal')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            <button class="nav-tab-btn" onclick="scrollToSection('section-charts')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                Charts
+            </button>
+            <button class="nav-tab-btn" onclick="scrollToSection('section-guards')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                State & Guards
+            </button>
+            <button class="nav-tab-btn" onclick="switchMainTab('strategies')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                Config
+            </button>
+            <button class="nav-tab-btn" onclick="switchMainTab('terminal')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
                 Raw Terminal
-            </button>
-            <button class="nav-tab-btn" onclick="switchTab('settings')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                GitHub Access
             </button>
         </nav>
 
         <div class="header-actions">
-            <button class="btn btn-secondary btn-sm" onclick="refreshLog()" title="Reload latest backtest results">
+            <button class="btn btn-secondary btn-sm" onclick="refreshLog()" title="Reload execution log">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
                 <span class="hide-mobile">Refresh</span>
             </button>
-            <button class="btn btn-primary btn-sm" id="btnTriggerTop" onclick="triggerRun()">
+            <button class="btn btn-primary btn-sm" onclick="triggerRun()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                 <span>Run Now</span>
             </button>
         </div>
     </header>
 
-    <!-- Main Content Area -->
+    <!-- Main Container -->
     <main class="app-main">
-
-        <!-- Mobile Quick Action Banner -->
-        <div class="mobile-action-bar">
-            <button class="btn btn-primary" style="flex: 1;" onclick="triggerRun()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                Trigger Execution
-            </button>
-            <button class="btn btn-secondary" onclick="refreshLog()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-            </button>
-        </div>
 
         <!-- Live Execution Countdown Banner (Shown after trigger) -->
         <div id="countdownBanner" class="card" style="display: none; padding: 14px 18px; border-color: var(--accent-emerald);">
@@ -735,112 +1027,354 @@
                 </div>
                 <button class="btn btn-outline btn-sm" onclick="dismissCountdown()">Dismiss</button>
             </div>
-            <div id="runProgressBar" style="display: block; margin-top: 10px;">
-                <div id="runProgressFill" style="width: 0%;"></div>
+            <div id="runProgressBar" style="display: block;">
+                <div id="runProgressFill"></div>
             </div>
         </div>
 
-        <!-- TAB 1: EXECUTIVE DASHBOARD (Default on Desktop & Mobile) -->
-        <div id="tab-dashboard" class="tab-content">
-            
-            <!-- Summary Stats Banner -->
-            <div class="summary-banner" id="summaryBanner">
-                <div class="stat-card">
-                    <div class="stat-card-title">
-                        <span>Standard Strat (S1)</span>
-                        <span class="card-badge" id="s1StateBadge">BULLISH</span>
+        <!-- TAB: DASHBOARD (MAIN EXECUTIVE VIEW) -->
+        <div id="tab-dashboard" class="tab-pane">
+
+            <!-- Mobile Quick Jump Bar -->
+            <div class="quick-jump-bar">
+                <a class="jump-pill" onclick="scrollToSection('section-holdings')">💼 Holdings</a>
+                <a class="jump-pill" onclick="scrollToSection('section-league')">🏆 League Table</a>
+                <a class="jump-pill" onclick="scrollToSection('section-charts')">📈 Performance Charts</a>
+                <a class="jump-pill" onclick="scrollToSection('section-guards')">🛡️ State & Guard Dogs</a>
+            </div>
+
+            <!-- SECTION 1: ACTIVE HOLDINGS & EXECUTIVE CARDS -->
+            <div id="section-holdings" class="strategy-grid">
+                
+                <!-- S1: Standard Strategy Card -->
+                <div class="strat-card" id="card-s1">
+                    <div>
+                        <div class="strat-header">
+                            <div>
+                                <span class="card-badge bullish" id="s1UniverseBadge">STANDARD</span>
+                                <div class="strat-name" style="margin-top: 4px;">Standard Strat (S1)</div>
+                            </div>
+                            <span class="card-badge bullish" id="s1RegimeBadge">FIRMLY BULLISH</span>
+                        </div>
+
+                        <!-- Metrics Grid -->
+                        <div class="strat-metrics-row">
+                            <div class="metric-cell">
+                                <span class="metric-label">Return</span>
+                                <span class="metric-value positive" id="s1Return">+38,739%</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="metric-label">Max DD</span>
+                                <span class="metric-value negative" id="s1MaxDD">38.4%</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="metric-label">Sharpe</span>
+                                <span class="metric-value" id="s1Sharpe">1.24</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="metric-label">Curr DD</span>
+                                <span class="metric-value" id="s1CurrDD">28.9%</span>
+                            </div>
+                        </div>
+
+                        <!-- Rebalance Timer Progress -->
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <span>Rebalance Timer: <strong id="s1TimerText" style="color: #fff;">17 / 21 Days</strong></span>
+                                <span id="s1TimerPct">81%</span>
+                            </div>
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill" id="s1TimerFill" style="width: 81%;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-card-val positive" id="s1ReturnVal">+45,216%</div>
-                    <div class="stat-card-sub">
-                        <span>MaxDD: <strong id="s1MaxDDVal">38.4%</strong></span>
-                        <span>•</span>
-                        <span>Sharpe: <strong id="s1SharpeVal">1.28</strong></span>
+
+                    <!-- Active Holdings Pills Box -->
+                    <div>
+                        <div class="holdings-section-title">
+                            <span>Active S1 Holdings (<span id="s1HoldingCount">10</span> Tickers)</span>
+                            <span style="font-size: 0.68rem; color: var(--text-muted);" id="s1RunDate">Recent</span>
+                        </div>
+                        <div class="holdings-container" id="s1HoldingsList">
+                            <span class="ticker-pill">MU</span>
+                            <span class="ticker-pill">LITE</span>
+                            <span class="ticker-pill">ICHR</span>
+                            <span class="ticker-pill">MRNA</span>
+                            <span class="ticker-pill">SNDK</span>
+                            <span class="ticker-pill">MXL</span>
+                            <span class="ticker-pill">DELL</span>
+                            <span class="ticker-pill">PENG</span>
+                            <span class="ticker-pill">HPE</span>
+                            <span class="ticker-pill">RNG</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="stat-card tqqq">
-                    <div class="stat-card-title">
-                        <span>TQQQ Strat (S2)</span>
-                        <span class="card-badge" style="background: rgba(59, 130, 246, 0.15); color: var(--accent-blue);" id="s2StateBadge">DEFENSIVE</span>
+                <!-- S2: TQQQ Strategy Card -->
+                <div class="strat-card tqqq" id="card-s2">
+                    <div>
+                        <div class="strat-header">
+                            <div>
+                                <span class="card-badge" style="background: rgba(59, 130, 246, 0.15); color: var(--accent-blue);" id="s2UniverseBadge">TQQQ_ONLY</span>
+                                <div class="strat-name" style="margin-top: 4px;">TQQQ Strat (S2)</div>
+                            </div>
+                            <span class="card-badge defensive" id="s2RegimeBadge">SLIGHTLY BEARISH</span>
+                        </div>
+
+                        <!-- Metrics Grid -->
+                        <div class="strat-metrics-row">
+                            <div class="metric-cell">
+                                <span class="metric-label">Return</span>
+                                <span class="metric-value positive" id="s2Return">+40,401%</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="metric-label">Max DD</span>
+                                <span class="metric-value negative" id="s2MaxDD">44.9%</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="metric-label">Sharpe</span>
+                                <span class="metric-value" id="s2Sharpe">1.10</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="metric-label">Curr DD</span>
+                                <span class="metric-value" id="s2CurrDD">16.4%</span>
+                            </div>
+                        </div>
+
+                        <!-- Rebalance Timer Progress -->
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <span>Rebalance Timer: <strong id="s2TimerText" style="color: #fff;">3 / 21 Days</strong></span>
+                                <span id="s2TimerPct">14%</span>
+                            </div>
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill tqqq" id="s2TimerFill" style="width: 14%;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-card-val" style="color: var(--accent-blue);" id="s2ReturnVal">+40,401%</div>
-                    <div class="stat-card-sub">
-                        <span>MaxDD: <strong id="s2MaxDDVal">44.9%</strong></span>
-                        <span>•</span>
-                        <span>Sharpe: <strong id="s2SharpeVal">1.10</strong></span>
+
+                    <!-- Active Holdings Pills Box -->
+                    <div>
+                        <div class="holdings-section-title">
+                            <span>Active TQQQ Holdings (<span id="s2HoldingCount">1</span> Ticker)</span>
+                            <span style="font-size: 0.68rem; color: var(--accent-amber);" id="s2ModeSub">Mode: LONG_BOND</span>
+                        </div>
+                        <div class="holdings-container" id="s2HoldingsList">
+                            <span class="ticker-pill hedge">TLT <span class="pill-sub">20+ Yr Treasury Hedge</span></span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="stat-card regime">
-                    <div class="stat-card-title">
-                        <span>Active S1 Holdings</span>
-                        <span style="font-size: 0.72rem; color: var(--text-muted);" id="lastRunDateText">Last Run: Recent</span>
+            </div>
+
+            <!-- SECTION 2: FINAL LEAGUE TABLE -->
+            <div class="card" id="section-league" style="margin-top: 18px;">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+                            Final League Table
+                        </h2>
+                        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+                            Risk-Adjusted Performance Ranking vs Benchmark Indices (2012 - Present)
+                        </div>
                     </div>
-                    <div class="holdings-container" id="holdingsPills">
-                        <span class="ticker-pill">MU</span>
-                        <span class="ticker-pill">LITE</span>
-                        <span class="ticker-pill">ICHR</span>
-                        <span class="ticker-pill">MRNA</span>
-                        <span class="ticker-pill">SNDK</span>
-                        <span class="ticker-pill">MXL</span>
-                        <span class="ticker-pill">DELL</span>
+                    <span class="card-badge" id="leagueRowCount">5 Competitors</span>
+                </div>
+
+                <div class="table-responsive-wrapper">
+                    <table class="fintech-table" id="leagueTable">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left;">Rank & Strategy</th>
+                                <th>Total Return</th>
+                                <th>Max Drawdown</th>
+                                <th>Current DD</th>
+                                <th>Sharpe</th>
+                                <th>Sortino</th>
+                                <th>Calmar</th>
+                                <th>Switches</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leagueTableBody">
+                            <!-- Populated dynamically by JS -->
+                            <tr class="highlight-s2">
+                                <td style="text-align: left; font-weight: 600; color: #fff;">🥇 TQQQ Strat</td>
+                                <td><span class="table-badge-return">+40,400.78%</span></td>
+                                <td><span class="table-badge-dd">44.87%</span></td>
+                                <td>16.44%</td>
+                                <td>1.10</td>
+                                <td>1.05</td>
+                                <td>1.12</td>
+                                <td>77</td>
+                            </tr>
+                            <tr class="highlight-s1">
+                                <td style="text-align: left; font-weight: 600; color: #fff;">🥈 Standard Strat</td>
+                                <td><span class="table-badge-return">+38,739.27%</span></td>
+                                <td><span class="table-badge-dd">38.43%</span></td>
+                                <td>28.87%</td>
+                                <td>1.24</td>
+                                <td>1.42</td>
+                                <td>1.29</td>
+                                <td>84</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; color: var(--text-secondary);">BENCHMARK: TQQQ</td>
+                                <td><span class="table-badge-return">+15,219.16%</span></td>
+                                <td><span class="table-badge-dd">81.66%</span></td>
+                                <td>28.60%</td>
+                                <td>0.00</td>
+                                <td>0.63</td>
+                                <td>0.50</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; color: var(--text-secondary);">BENCHMARK: QQQ</td>
+                                <td><span class="table-badge-return">+1,215.46%</span></td>
+                                <td><span class="table-badge-dd">35.12%</span></td>
+                                <td>9.11%</td>
+                                <td>0.00</td>
+                                <td>0.88</td>
+                                <td>0.54</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; color: var(--text-secondary);">BENCHMARK: SPY</td>
+                                <td><span class="table-badge-return">+645.68%</span></td>
+                                <td><span class="table-badge-dd">33.72%</span></td>
+                                <td>3.00%</td>
+                                <td>0.00</td>
+                                <td>0.84</td>
+                                <td>0.43</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECTION 3: PERFORMANCE CHARTS -->
+            <div class="card" id="section-charts" style="margin-top: 18px;">
+                <div class="chart-tabs-header">
+                    <div>
+                        <h2 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                            Visual Performance Profiles & Drawdowns
+                        </h2>
+                        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+                            Tap chart to expand full screen with pinch-to-zoom support
+                        </div>
+                    </div>
+
+                    <!-- Chart Toggle Controls -->
+                    <div class="chart-toggle-group">
+                        <button class="chart-toggle-btn active" id="btnZoomChart" onclick="toggleChartView('zoom')">
+                            🔍 200-Day Zoom Lens
+                        </button>
+                        <button class="chart-toggle-btn" id="btnAllChart" onclick="toggleChartView('all')">
+                            📅 All-Time Backtest
+                        </button>
+                        <button class="chart-toggle-btn" id="btnBothChart" onclick="toggleChartView('both')">
+                            📑 Both / Stacked
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chart 1: 200-Day Zoom Lens -->
+                <div id="wrapperChartZoom" style="margin-bottom: 16px;">
+                    <div style="font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>Recent Market Stance (Last 200 Days | Tactical Regime Transitions)</span>
+                        <span style="font-size: 0.72rem; color: var(--accent-emerald);">Tap to Zoom</span>
+                    </div>
+                    <div class="chart-card-display" onclick="openLightbox('imgChartZoom')">
+                        <img id="imgChartZoom" src="" alt="200-Day Zoom Lens Chart">
+                        <div class="chart-zoom-overlay">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                            Full Resolution
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart 2: All-Time Backtest -->
+                <div id="wrapperChartAll" style="display: none;">
+                    <div style="font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>All-Time Performance Profile & Maximum Drawdown Envelope (2012 - Present)</span>
+                        <span style="font-size: 0.72rem; color: var(--accent-blue);">Tap to Zoom</span>
+                    </div>
+                    <div class="chart-card-display" onclick="openLightbox('imgChartAll')">
+                        <img id="imgChartAll" src="" alt="All-Time Backtest Chart">
+                        <div class="chart-zoom-overlay">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                            Full Resolution
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Main Interactive Log & Charts Viewer -->
-            <div class="viewer-container" style="margin-top: 16px;">
-                <div class="viewer-toolbar">
-                    <div class="toolbar-group">
-                        <span style="font-size: 0.88rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                            Execution Report & Backtest Lens
-                        </span>
+            <!-- SECTION 4: STRATEGY STATE & GUARD DOGS RADAR -->
+            <div class="card" id="section-guards" style="margin-top: 18px;">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            Strategy Execution State & Guard Dogs Radar
+                        </h2>
+                        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+                            Final Day Diagnostics, Moving Average Distances, and Rotation Triggers
+                        </div>
                     </div>
-                    <div class="toolbar-group">
-                        <button class="btn btn-outline btn-sm" onclick="jumpToSection('charts')" title="Jump directly to embedded matplotlib performance charts">
-                            📈 Charts
+
+                    <!-- Strategy Selection Tabs for Guard Dogs -->
+                    <div class="chart-toggle-group">
+                        <button class="chart-toggle-btn active" id="btnGuardS1" onclick="selectGuardStrat('s1')">
+                            Standard Strat
                         </button>
-                        <button class="btn btn-outline btn-sm" onclick="jumpToSection('table')" title="Jump to Final League Table">
-                            🏆 League Table
-                        </button>
-                        <button class="btn btn-outline btn-sm" onclick="toggleFullscreen()" title="Toggle Fullscreen">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
-                            <span class="hide-mobile">Fullscreen</span>
+                        <button class="chart-toggle-btn" id="btnGuardS2" onclick="selectGuardStrat('s2')">
+                            TQQQ Strat
                         </button>
                     </div>
                 </div>
 
-                <div class="iframe-wrapper" id="iframeWrapper">
-                    <iframe id="logFrame" src="latest_run.html"></iframe>
+                <!-- State Snapshot Pill Row -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 14px;">
+                    <div style="background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Current Mode</div>
+                        <div style="font-size: 1.05rem; font-weight: 700; color: #fff; font-family: var(--font-mono); margin-top: 2px;" id="guardCurrentMode">ALL_STOCKS</div>
+                    </div>
+                    <div style="background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Graduated State</div>
+                        <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-emerald); font-family: var(--font-mono); margin-top: 2px;" id="guardGradState">FIRMLY_BULLISH</div>
+                    </div>
+                    <div style="background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Confirm Counter</div>
+                        <div style="font-size: 1.05rem; font-weight: 700; color: #fff; font-family: var(--font-mono); margin-top: 2px;" id="guardConfirmCount">0 / 5 Days</div>
+                    </div>
+                    <div style="background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Current Drawdown</div>
+                        <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-rose); font-family: var(--font-mono); margin-top: 2px;" id="guardCurrentDD">28.87%</div>
+                    </div>
                 </div>
+
+                <!-- Guard Dogs Radar Grid -->
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">
+                    Guard Dogs Distance from Exit & Entry SMAs:
+                </div>
+                <div class="radar-grid" id="radarGrid">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <!-- Accordion: Verbatim Final State Dump -->
+                <details class="dump-accordion">
+                    <summary>Verbatim Console Output for <span id="verbatimStratName">Standard Strat</span></summary>
+                    <pre id="verbatimDumpText">Loading state dump...</pre>
+                </details>
             </div>
+
         </div>
 
-        <!-- TAB 2: TERMINAL LOG (Focused Raw View) -->
-        <div id="tab-terminal" class="tab-content" style="display: none;">
-            <div class="card" style="padding: 0; overflow: hidden;">
-                <div class="viewer-toolbar">
-                    <div class="toolbar-group">
-                        <span style="font-size: 0.88rem; font-weight: 600; font-family: var(--font-mono); color: var(--accent-emerald);">
-                            $ stdout & stderr stream
-                        </span>
-                    </div>
-                    <div class="toolbar-group">
-                        <button class="btn btn-secondary btn-sm" onclick="refreshLog()">
-                            🔄 Reload Log
-                        </button>
-                    </div>
-                </div>
-                <div style="height: 75vh; width: 100%;">
-                    <iframe id="terminalFrame" src="latest_run.html" style="width: 100%; height: 100%; border: none;"></iframe>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 3: STRATEGIES CONFIGURATION -->
-        <div id="tab-strategies" class="tab-content" style="display: none;">
-            <div class="workspace-grid" style="grid-template-columns: 1fr;">
+        <!-- TAB: STRATEGIES CONFIGURATION -->
+        <div id="tab-strategies" class="tab-pane" style="display: none;">
+            <div style="display: flex; flex-direction: column; gap: 16px; max-width: 900px; margin: 0 auto;">
                 
                 <!-- Engine & Schedule Overview -->
                 <div class="card">
@@ -865,7 +1399,7 @@
                     </div>
                 </div>
 
-                <!-- Strategy 1: Standard Multi-Asset Momentum -->
+                <!-- Strategy 1: Standard Momentum -->
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
@@ -964,14 +1498,13 @@
                             ⚡ Optuna Presets
                         </button>
                     </div>
-                    <div id="statusMsg" style="font-size: 0.85rem; color: var(--accent-amber); margin-top: 4px;"></div>
                 </div>
 
             </div>
         </div>
 
-        <!-- TAB 4: GITHUB SETTINGS -->
-        <div id="tab-settings" class="tab-content" style="display: none;">
+        <!-- TAB: GITHUB SETTINGS -->
+        <div id="tab-settings" class="tab-pane" style="display: none;">
             <div class="card" style="max-width: 680px; margin: 0 auto;">
                 <div class="card-header">
                     <h2 class="card-title">
@@ -988,7 +1521,7 @@
 
                 <div class="form-group">
                     <label>Personal Access Token (Classic PAT or Fine-Grained Token)</label>
-                    <div class="input-wrapper">
+                    <div style="position: relative; display: flex; align-items: center;">
                         <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="padding-right: 44px;">
                         <button type="button" class="btn btn-outline btn-sm" onclick="toggleTokenVisibility()" style="position: absolute; right: 4px; height: 32px; border: none;" title="Show/Hide Token">
                             <span id="eyeIcon">👁️</span>
@@ -1010,25 +1543,55 @@
             </div>
         </div>
 
+        <!-- TAB: RAW TERMINAL STREAM -->
+        <div id="tab-terminal" class="tab-pane" style="display: none;">
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div style="padding: 12px 18px; background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 0.88rem; font-weight: 600; font-family: var(--font-mono); color: var(--accent-emerald);">
+                        $ stdout & stderr stream
+                    </span>
+                    <button class="btn btn-secondary btn-sm" onclick="refreshLog()">
+                        🔄 Reload Raw Stream
+                    </button>
+                </div>
+                <div style="height: 75vh; width: 100%;">
+                    <iframe id="terminalFrame" src="latest_run.html" style="width: 100%; height: 100%; border: none;"></iframe>
+                </div>
+            </div>
+        </div>
+
     </main>
+
+    <!-- Lightbox Modal for Pinch-to-Zoom Chart View -->
+    <div id="chartLightbox" onclick="closeLightbox()">
+        <button class="lightbox-close-btn" onclick="closeLightbox()">&times;</button>
+        <img id="lightboxImg" src="" alt="Enlarged Chart" onclick="event.stopPropagation()">
+        <div style="margin-top: 14px; font-size: 0.8rem; color: var(--text-secondary);">
+            Pinch to zoom or scroll to inspect detailed indicators
+        </div>
+    </div>
 
     <!-- Mobile Bottom Navigation Bar -->
     <nav class="mobile-nav-bar" id="mobileNavBar">
-        <button class="mobile-nav-item active" onclick="switchTab('dashboard')">
+        <button class="mobile-nav-item active" onclick="switchMainTab('dashboard'); scrollToSection('section-holdings');">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Overview</span>
         </button>
-        <button class="mobile-nav-item" onclick="switchTab('terminal')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-            <span>Log</span>
+        <button class="mobile-nav-item" onclick="switchMainTab('dashboard'); scrollToSection('section-league');">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+            <span>League</span>
         </button>
-        <button class="mobile-nav-item" onclick="switchTab('strategies')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20v-6M6 20V10M18 20V4"></path></svg>
-            <span>Strategies</span>
+        <button class="mobile-nav-item" onclick="switchMainTab('dashboard'); scrollToSection('section-charts');">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>Charts</span>
         </button>
-        <button class="mobile-nav-item" onclick="switchTab('settings')">
+        <button class="mobile-nav-item" onclick="switchMainTab('dashboard'); scrollToSection('section-guards');">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>States</span>
+        </button>
+        <button class="mobile-nav-item" onclick="switchMainTab('strategies')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            <span>GitHub</span>
+            <span>Config</span>
         </button>
     </nav>
 
@@ -1038,9 +1601,15 @@
     <script>
         let configSha = "";
         let countdownTimer = null;
+        let parsedData = {
+            s1: { guards: [], dump: "" },
+            s2: { guards: [], dump: "" },
+            images: [],
+            league: []
+        };
+        let currentGuardView = 's1';
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Restore stored credentials or set defaults
             const savedRepo = localStorage.getItem("sb_repo") || "hoskiphotoshare-boop/switchblade-auto";
             const savedToken = localStorage.getItem("sb_token") || "";
             
@@ -1053,42 +1622,342 @@
             // Parse and populate live executive summary from latest_run.html
             parseLatestRunReport();
 
-            // Try loading config if token is present
             if (savedToken && savedRepo) {
                 loadConfig(true);
             }
         });
 
-        // Tab Switching Logic
-        function switchTab(tabId) {
-            const tabs = ['dashboard', 'terminal', 'strategies', 'settings'];
+        // Main Tab Switching
+        function switchMainTab(tabId) {
+            const tabs = ['dashboard', 'strategies', 'settings', 'terminal'];
             tabs.forEach(id => {
                 const el = document.getElementById(`tab-${id}`);
                 if (el) el.style.display = (id === tabId) ? 'block' : 'none';
             });
 
             // Update Desktop Nav
+            const navMap = {
+                'dashboard': 0,
+                'strategies': 4,
+                'terminal': 5
+            };
             const desktopButtons = document.querySelectorAll('#desktopNav .nav-tab-btn');
             desktopButtons.forEach((btn, idx) => {
-                btn.classList.toggle('active', tabs[idx] === tabId);
+                btn.classList.toggle('active', navMap[tabId] === idx);
             });
+        }
 
-            // Update Mobile Bottom Nav
-            const mobileButtons = document.querySelectorAll('#mobileNavBar .mobile-nav-item');
-            mobileButtons.forEach((btn, idx) => {
-                btn.classList.toggle('active', tabs[idx] === tabId);
-            });
-
-            // If switching to terminal or dashboard, ensure iframe size is crisp
-            if (tabId === 'dashboard' || tabId === 'terminal') {
-                const frameId = tabId === 'terminal' ? 'terminalFrame' : 'logFrame';
-                const frame = document.getElementById(frameId);
-                if (frame && frame.contentWindow) {
-                    frame.contentWindow.postMessage({ type: 'resize' }, '*');
+        // Direct Smooth Scroll within the Dashboard
+        function scrollToSection(sectionId) {
+            switchMainTab('dashboard');
+            setTimeout(() => {
+                const el = document.getElementById(sectionId);
+                if (el) {
+                    const top = el.getBoundingClientRect().top + window.pageYOffset - 72;
+                    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
                 }
+            }, 50);
+        }
+
+        // Chart View Toggle (Zoom vs All vs Both)
+        function toggleChartView(mode) {
+            const wrapperZoom = document.getElementById('wrapperChartZoom');
+            const wrapperAll = document.getElementById('wrapperChartAll');
+            const btnZoom = document.getElementById('btnZoomChart');
+            const btnAll = document.getElementById('btnAllChart');
+            const btnBoth = document.getElementById('btnBothChart');
+
+            btnZoom.classList.toggle('active', mode === 'zoom');
+            btnAll.classList.toggle('active', mode === 'all');
+            btnBoth.classList.toggle('active', mode === 'both');
+
+            if (mode === 'zoom') {
+                wrapperZoom.style.display = 'block';
+                wrapperAll.style.display = 'none';
+            } else if (mode === 'all') {
+                wrapperZoom.style.display = 'none';
+                wrapperAll.style.display = 'block';
+            } else {
+                wrapperZoom.style.display = 'block';
+                wrapperAll.style.display = 'block';
             }
         }
 
+        // Lightbox Image Viewer
+        function openLightbox(imgId) {
+            const img = document.getElementById(imgId);
+            if (!img || !img.src) return;
+            const lightbox = document.getElementById('chartLightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            lightboxImg.src = img.src;
+            lightbox.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('chartLightbox');
+            lightbox.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Strategy Selector for Guard Dogs Radar
+        function selectGuardStrat(stratKey) {
+            currentGuardView = stratKey;
+            document.getElementById('btnGuardS1').classList.toggle('active', stratKey === 's1');
+            document.getElementById('btnGuardS2').classList.toggle('active', stratKey === 's2');
+            renderGuardDogsRadar();
+        }
+
+        function renderGuardDogsRadar() {
+            const data = parsedData[currentGuardView];
+            if (!data) return;
+
+            document.getElementById('guardCurrentMode').innerText = data.mode || "UNKNOWN";
+            document.getElementById('guardGradState').innerText = data.state || "UNKNOWN";
+            document.getElementById('guardConfirmCount').innerText = `${data.confirm || '0 / 5'} Days`;
+            document.getElementById('guardCurrentDD').innerText = data.dd || "N/A";
+            document.getElementById('verbatimStratName').innerText = (currentGuardView === 's1') ? "Standard Strat" : "TQQQ Strat";
+            document.getElementById('verbatimDumpText').innerText = data.dump || "No console dump recorded.";
+
+            const grid = document.getElementById('radarGrid');
+            grid.innerHTML = "";
+
+            if (!data.guards || data.guards.length === 0) {
+                grid.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; padding: 10px;">No guard dog assets found.</div>';
+                return;
+            }
+
+            data.guards.forEach(g => {
+                const exitNum = parseFloat(g.exitDist);
+                const isExitBull = exitNum > 0;
+                const exitClass = isExitBull ? 'var(--accent-emerald)' : 'var(--accent-rose)';
+
+                const cell = document.createElement('div');
+                cell.className = 'radar-cell';
+                cell.innerHTML = `
+                    <div class="radar-ticker">
+                        <span>${g.ticker}</span>
+                        <span style="font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; background: ${isExitBull ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)'}; color: ${exitClass};">
+                            ${isExitBull ? 'BULL' : 'BEAR'}
+                        </span>
+                    </div>
+                    <div class="radar-px">Px: $${g.price}</div>
+                    <div class="radar-dist">
+                        <span style="color: var(--text-muted);">Exit:</span>
+                        <span style="color: ${exitClass};">${g.exitDist}</span>
+                    </div>
+                    <div class="radar-dist" style="margin-top: 2px;">
+                        <span style="color: var(--text-muted);">Entry:</span>
+                        <span style="color: ${parseFloat(g.entryDist) > 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">${g.entryDist}</span>
+                    </div>
+                `;
+                grid.appendChild(cell);
+            });
+        }
+
+        // Live Parser for latest_run.html
+        async function parseLatestRunReport() {
+            try {
+                const res = await fetch(`latest_run.html?t=${Date.now()}`);
+                if (!res.ok) return;
+                const html = await res.text();
+
+                // 1. Run Date
+                const dateMatch = html.match(/SWITCHBLADE RUN(?:\s*LOG)?:\s*([0-9\-: ]+)/i);
+                if (dateMatch) {
+                    const dStr = dateMatch[1].trim();
+                    document.getElementById('s1RunDate').innerText = `Run: ${dStr}`;
+                }
+
+                // 2. Extract Embedded Base64 Charts
+                const imgMatches = [...html.matchAll(/<img[^>]+src=["']([^"']+)["']/g)];
+                if (imgMatches.length > 0) {
+                    // Image 0: All-Time Backtest Chart
+                    // Image 1: 200-Day Zoom Lens Chart
+                    if (imgMatches.length >= 2) {
+                        document.getElementById('imgChartAll').src = imgMatches[0][1];
+                        document.getElementById('imgChartZoom').src = imgMatches[1][1];
+                    } else {
+                        document.getElementById('imgChartZoom').src = imgMatches[0][1];
+                        document.getElementById('imgChartAll').src = imgMatches[0][1];
+                    }
+                }
+
+                // 3. Extract FINAL STATE DUMPS for S1 and S2
+                const dumpRegex = new RegExp("FINAL STATE DUMP:\\s*([^\\n\\r<]+)[\\s=\\-]+([\\s\\S]+?)(?=[\\n\\r]\\s*=|\\[Runner\\]|$)", "g");
+                let match;
+                while ((match = dumpRegex.exec(html)) !== null) {
+                    const stratName = match[1].trim();
+                    const body = match[2];
+
+                    const modeM = body.match(/Current Mode\s*:\s*([^\n\r<]+)/);
+                    const stateM = body.match(/Graduated State\s*:\s*([^\n\r<]+)/);
+                    const confirmM = body.match(/Confirm Counter\s*:\s*([^\n\r<]+)/);
+                    const rebalM = body.match(/Rebalance Timer\s*:\s*([^\n\r<]+)/);
+                    const ddM = body.match(/Current Drawdown\s*:\s*([^\n\r<]+)/);
+                    const holdingsM = body.match(/Final Holdings\s*:\s*(\[[^\]]*\])/);
+
+                    const guards = [];
+                    const guardRegex = /([A-Z]{3,4})\s*:\s*Px:\s*([\d\.]+)\s*\|\s*Exit Dist:\s*([\+\-]?[\d\.]+%)\s*\|\s*Entry Dist:\s*([\+\-]?[\d\.]+%)/g;
+                    let gMatch;
+                    while ((gMatch = guardRegex.exec(body)) !== null) {
+                        guards.push({
+                            ticker: gMatch[1],
+                            price: gMatch[2],
+                            exitDist: gMatch[3],
+                            entryDist: gMatch[4]
+                        });
+                    }
+
+                    const info = {
+                        stratName,
+                        mode: modeM ? modeM[1].trim() : "UNKNOWN",
+                        state: stateM ? stateM[1].trim() : "UNKNOWN",
+                        confirm: confirmM ? confirmM[1].trim() : "0 / 5",
+                        rebalance: rebalM ? rebalM[1].trim() : "0 / 21",
+                        dd: ddM ? ddM[1].trim() : "N/A",
+                        holdings: holdingsM ? holdingsM[1].trim() : "[]",
+                        guards,
+                        dump: match[0].trim()
+                    };
+
+                    if (stratName.includes("Standard")) {
+                        parsedData.s1 = info;
+                        populateS1Card(info);
+                    } else if (stratName.includes("TQQQ")) {
+                        parsedData.s2 = info;
+                        populateS2Card(info);
+                    }
+                }
+
+                // 4. Extract Final League Table
+                parseLeagueTable(html);
+
+                // Render default guard dogs view
+                renderGuardDogsRadar();
+
+            } catch (err) {
+                console.warn("Could not parse executive summary:", err);
+            }
+        }
+
+        function populateS1Card(info) {
+            document.getElementById('s1RegimeBadge').innerText = info.state.replace(/_/g, ' ');
+            document.getElementById('s1CurrDD').innerText = info.dd;
+
+            // Timer
+            const timerParts = info.rebalance.split('/');
+            if (timerParts.length === 2) {
+                const cur = parseInt(timerParts[0]);
+                const max = parseInt(timerParts[1]);
+                document.getElementById('s1TimerText').innerText = `${cur} / ${max} Days`;
+                const pct = Math.min(100, Math.round((cur / max) * 100));
+                document.getElementById('s1TimerPct').innerText = `${pct}%`;
+                document.getElementById('s1TimerFill').style.width = `${pct}%`;
+            }
+
+            // Holdings
+            try {
+                const list = JSON.parse(info.holdings.replace(/'/g, '"'));
+                document.getElementById('s1HoldingCount').innerText = list.length;
+                const container = document.getElementById('s1HoldingsList');
+                container.innerHTML = list.map(t => `<span class="ticker-pill">${t}</span>`).join('');
+            } catch(e) {}
+        }
+
+        function populateS2Card(info) {
+            document.getElementById('s2RegimeBadge').innerText = info.state.replace(/_/g, ' ');
+            document.getElementById('s2CurrDD').innerText = info.dd;
+            document.getElementById('s2ModeSub').innerText = `Mode: ${info.mode}`;
+
+            // Timer
+            const timerParts = info.rebalance.split('/');
+            if (timerParts.length === 2) {
+                const cur = parseInt(timerParts[0]);
+                const max = parseInt(timerParts[1]);
+                document.getElementById('s2TimerText').innerText = `${cur} / ${max} Days`;
+                const pct = Math.min(100, Math.round((cur / max) * 100));
+                document.getElementById('s2TimerPct').innerText = `${pct}%`;
+                document.getElementById('s2TimerFill').style.width = `${pct}%`;
+            }
+
+            // Holdings
+            try {
+                const list = JSON.parse(info.holdings.replace(/'/g, '"'));
+                document.getElementById('s2HoldingCount').innerText = list.length;
+                const container = document.getElementById('s2HoldingsList');
+                
+                if (list.length === 0) {
+                    container.innerHTML = '<span class="ticker-pill" style="color: var(--text-muted);">No Active Positions</span>';
+                } else {
+                    container.innerHTML = list.map(t => {
+                        const isHedge = ['TLT', 'IEF', 'GLD', 'BIL'].includes(t);
+                        const label = isHedge ? (t === 'TLT' ? '20+ Yr Treasury Hedge' : (t === 'GLD' ? 'Gold Safe Haven' : 'Defensive Hedge')) : '3x Bullish Target';
+                        return `<span class="ticker-pill ${isHedge ? 'hedge' : ''}">${t} <span class="pill-sub">${label}</span></span>`;
+                    }).join('');
+                }
+            } catch(e) {}
+        }
+
+        function parseLeagueTable(html) {
+            const tableMatch = html.match(/FINAL LEAGUE TABLE[\s\S]+?=+([\s\S]+?)(?=\n\s*\n|<br|<img|$)/i);
+            if (!tableMatch) return;
+
+            const lines = tableMatch[1].split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+            if (lines.length <= 1) return;
+
+            const tbody = document.getElementById('leagueTableBody');
+            tbody.innerHTML = "";
+
+            const rowPattern = /^\s*(.+?)\s+([\d,]+\.\d{2})\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+(\d+)\s+(\d+)\s*$/;
+            let rank = 1;
+
+            lines.slice(1).forEach(line => {
+                const match = line.match(rowPattern);
+                if (match) {
+                    const [_, name, ret, maxdd, currdd, sharpe, sortino, calmar, trades, switches] = match;
+                    
+                    const isS1 = name.includes("Standard Strat");
+                    const isS2 = name.includes("TQQQ Strat");
+                    const isBench = name.includes("BENCHMARK");
+
+                    // Update Top Metric Cards from Table
+                    if (isS1) {
+                        document.getElementById('s1Return').innerText = `+${ret}%`;
+                        document.getElementById('s1MaxDD').innerText = `${maxdd}%`;
+                        document.getElementById('s1Sharpe').innerText = sharpe;
+                    } else if (isS2) {
+                        document.getElementById('s2Return').innerText = `+${ret}%`;
+                        document.getElementById('s2MaxDD').innerText = `${maxdd}%`;
+                        document.getElementById('s2Sharpe').innerText = sharpe;
+                    }
+
+                    const medal = rank === 1 ? '🥇 ' : (rank === 2 ? '🥈 ' : (rank === 3 ? '🥉 ' : `#${rank} `));
+                    const tr = document.createElement('tr');
+                    if (isS1) tr.className = 'highlight-s1';
+                    if (isS2) tr.className = 'highlight-s2';
+
+                    tr.innerHTML = `
+                        <td style="text-align: left; font-weight: ${isBench ? '500' : '700'}; color: ${isBench ? 'var(--text-secondary)' : '#fff'};">
+                            ${medal}${name}
+                        </td>
+                        <td><span class="table-badge-return">+${ret}%</span></td>
+                        <td><span class="table-badge-dd">${maxdd}%</span></td>
+                        <td>${currdd}%</td>
+                        <td>${sharpe}</td>
+                        <td>${sortino}</td>
+                        <td>${calmar}</td>
+                        <td>${switches}</td>
+                    `;
+                    tbody.appendChild(tr);
+                    rank++;
+                }
+            });
+
+            document.getElementById('leagueRowCount').innerText = `${rank - 1} Competitors`;
+        }
+
+        // Configuration and GitHub Actions Dispatch
         function getHeaders() {
             const token = document.getElementById('token').value.trim();
             const repo = document.getElementById('repo').value.trim();
@@ -1218,7 +2087,6 @@
         }
 
         function resetOptimalDefaults() {
-            // S1 (Optimal 213/10, momo 230/84, 5)
             document.getElementById('s1_universe').value = "STANDARD";
             document.getElementById('s1_sma').value = 213;
             document.getElementById('s1_reentry').value = 10;
@@ -1226,7 +2094,6 @@
             document.getElementById('s1_mom_short').value = 84;
             document.getElementById('s1_confirm').value = 5;
 
-            // S2 (Optimal 205/20, 5)
             document.getElementById('s2_universe').value = "TQQQ_ONLY";
             document.getElementById('s2_sma').value = 205;
             document.getElementById('s2_reentry').value = 20;
@@ -1234,15 +2101,15 @@
             document.getElementById('s2_mom_short').value = 22;
             document.getElementById('s2_confirm').value = 5;
 
-            showToast("⚡ Applied Optuna-optimized parameter presets");
+            showToast("⚡ Applied Optuna-optimized presets");
         }
 
         async function triggerRun() {
             const repo = document.getElementById('repo').value.trim();
             const token = document.getElementById('token').value.trim();
             if (!token) {
-                showToast("⚠️ Please enter a GitHub PAT in the GitHub Access tab first.", "error");
-                switchTab('settings');
+                showToast("⚠️ Please enter a GitHub PAT in the Config tab first.", "error");
+                switchMainTab('settings');
                 return;
             }
 
@@ -1255,10 +2122,10 @@
                 });
 
                 if (res.ok) {
-                    showToast("🎉 Execution Triggered! Backtest is compiling on GitHub.", "success");
+                    showToast("🎉 Execution Triggered! Backtest compiling on GitHub.", "success");
                     startCountdownTimer(130);
                 } else {
-                    showToast(`❌ Failed to trigger run (HTTP ${res.status}). Check token permissions.`, "error");
+                    showToast(`❌ Failed to trigger run (HTTP ${res.status}). Check PAT permissions.`, "error");
                 }
             } catch (err) {
                 showToast("❌ Network error triggering run.", "error");
@@ -1299,112 +2166,13 @@
 
         function refreshLog() {
             const timestamp = Date.now();
-            const logFrame = document.getElementById('logFrame');
             const terminalFrame = document.getElementById('terminalFrame');
-            
-            if (logFrame) logFrame.src = `latest_run.html?t=${timestamp}`;
             if (terminalFrame) terminalFrame.src = `latest_run.html?t=${timestamp}`;
             
             parseLatestRunReport();
-            showToast("🔄 Refreshed Latest Execution Log");
+            showToast("🔄 Refreshed Execution Report");
         }
 
-        // Live Parser for the Executive Summary Cards
-        async function parseLatestRunReport() {
-            try {
-                const res = await fetch(`latest_run.html?t=${Date.now()}`);
-                if (!res.ok) return;
-                const html = await res.text();
-
-                // Extract run date
-                const dateMatch = html.match(/SWITCHBLADE RUN(?:\s*LOG)?:\s*([0-9\-: ]+)/i);
-                if (dateMatch) {
-                    document.getElementById('lastRunDateText').innerText = `Run: ${dateMatch[1]}`;
-                }
-
-                // Extract Final State Dumps
-                const dumpRegex = /FINAL STATE DUMP:\s*([^\n\r<]+)[\s=\-]+([\s\S]+?)(?=\n\s*=|\n\s*\[Runner\]|$)/g;
-                let match;
-                while ((match = dumpRegex.exec(html)) !== null) {
-                    const stratName = match[1].trim();
-                    const block = match[2];
-
-                    const modeMatch = block.match(/Current Mode\s*:\s*([^\n\r<]+)/);
-                    const stateMatch = block.match(/Graduated State\s*:\s*([^\n\r<]+)/);
-                    const holdingsMatch = block.match(/Final Holdings\s*:\s*(\[[^\]]+\])/);
-
-                    if (stratName.includes("Standard")) {
-                        if (stateMatch) document.getElementById('s1StateBadge').innerText = stateMatch[1].replace(/_/g, ' ');
-                        if (holdingsMatch) {
-                            try {
-                                const holdings = JSON.parse(holdingsMatch[1].replace(/'/g, '"'));
-                                const container = document.getElementById('holdingsPills');
-                                container.innerHTML = holdings.map(t => `<span class="ticker-pill">${t}</span>`).join('');
-                            } catch(e) {}
-                        }
-                    } else if (stratName.includes("TQQQ")) {
-                        if (stateMatch) document.getElementById('s2StateBadge').innerText = stateMatch[1].replace(/_/g, ' ');
-                    }
-                }
-
-                // Extract League Table
-                const tableMatch = html.match(/FINAL LEAGUE TABLE[\s=\-]+([\s\S]+?)(?=<br|<img|===|$)/i);
-                if (tableMatch) {
-                    const lines = tableMatch[1].trim().split('\n').map(l => l.trim()).filter(l => l.length > 0);
-                    lines.forEach(line => {
-                        const parts = line.split(/\s{2,}/);
-                        if (parts[0].includes("Standard Strat") && parts[1]) {
-                            document.getElementById('s1ReturnVal').innerText = `+${parts[1]}%`;
-                            if (parts[2]) document.getElementById('s1MaxDDVal').innerText = `${parts[2]}%`;
-                            if (parts[4]) document.getElementById('s1SharpeVal').innerText = parts[4];
-                        } else if (parts[0].includes("TQQQ Strat") && parts[1]) {
-                            document.getElementById('s2ReturnVal').innerText = `+${parts[1]}%`;
-                            if (parts[2]) document.getElementById('s2MaxDDVal').innerText = `${parts[2]}%`;
-                            if (parts[4]) document.getElementById('s2SharpeVal').innerText = parts[4];
-                        }
-                    });
-                }
-            } catch (err) {
-                console.warn("Could not parse executive summary:", err);
-            }
-        }
-
-        // Jump within iframe
-        function jumpToSection(target) {
-            const frame = document.getElementById('logFrame');
-            if (!frame || !frame.contentWindow) return;
-
-            try {
-                const doc = frame.contentDocument || frame.contentWindow.document;
-                if (target === 'charts') {
-                    const img = doc.querySelector('img');
-                    if (img) img.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else if (target === 'table') {
-                    // Find final league table text
-                    const elements = doc.body.querySelectorAll('*');
-                    for (let el of elements) {
-                        if (el.textContent && el.textContent.includes('FINAL LEAGUE TABLE')) {
-                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            break;
-                        }
-                    }
-                }
-            } catch (e) {
-                // If cross-origin or restricted, fall back
-                showToast("Scrolled inside report view");
-            }
-        }
-
-        function toggleFullscreen() {
-            const wrapper = document.getElementById('iframeWrapper');
-            if (!document.fullscreenElement) {
-                if (wrapper.requestFullscreen) wrapper.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
-        }
-
-        // Toast Helper
         function showToast(msg, type = "info") {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
