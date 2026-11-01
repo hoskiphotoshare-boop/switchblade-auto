@@ -937,7 +937,7 @@ class HTMLConsoleLogger:
         self.terminal = sys.stdout
         self.filepath = filepath
         with open(self.filepath, "w", encoding="utf-8") as f:
-            f.write("<html><head><style>body { background-color: #121212; color: #00FF00; font-family: 'Courier New', monospace; padding: 15px; white-space: pre-wrap; font-size: 14px; }</style></head><body>\n")
+            f.write("<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><style>:root{color-scheme:dark;}body{background-color:#0b0f19;color:#34d399;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;padding:16px;margin:0;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.5;}h3{color:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin-top:0;font-size:1.05rem;border-bottom:1px solid #1f293d;padding-bottom:8px;}img{max-width:100%;height:auto;border-radius:10px;border:1px solid #374151;box-shadow:0 6px 20px rgba(0,0,0,0.6);margin:16px 0;background-color:#ffffff;display:block;}</style></head><body>\n")
             f.write(f"<h3>SWITCHBLADE RUN LOG: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</h3>\n")
 
     def write(self, message):
