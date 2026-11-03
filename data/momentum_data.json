@@ -1,0 +1,414 @@
+{
+  "updated_at": "2026-11-02 21:00:00 EDT",
+  "as_of_date": "2026-10-31",
+  "guard_dogs": {
+    "set1_params": {
+      "sma": 213,
+      "reentry": 10
+    },
+    "set2_params": {
+      "sma": 205,
+      "reentry": 20
+    },
+    "bullish_count_set1": 5,
+    "bullish_count_set2": 5,
+    "total_guards": 8,
+    "market_health": "BULLISH (Risk-On)",
+    "etfs": [
+      {
+        "ticker": "SPY",
+        "name": "SPDR S&P 500 (Large-Cap)",
+        "price": 755.72,
+        "daily_return_pct": -1.77,
+        "set1": {
+          "exit_sma": 726.45,
+          "exit_dist_pct": 4.03,
+          "reentry_sma": 748.20,
+          "reentry_dist_pct": 1.01,
+          "status": "BULLISH"
+        },
+        "set2": {
+          "exit_sma": 727.97,
+          "exit_dist_pct": 3.81,
+          "reentry_sma": 745.10,
+          "reentry_dist_pct": 1.43,
+          "status": "BULLISH"
+        }
+      },
+      {
+        "ticker": "QQQ",
+        "name": "Invesco QQQ (Nasdaq-100)",
+        "price": 690.49,
+        "daily_return_pct": -3.47,
+        "set1": {
+          "exit_sma": 675.97,
+          "exit_dist_pct": 2.15,
+          "reentry_sma": 686.30,
+          "reentry_dist_pct": 0.61,
+          "status": "BULLISH"
+        },
+        "set2": {
+          "exit_sma": 678.17,
+          "exit_dist_pct": 1.82,
+          "reentry_sma": 682.50,
+          "reentry_dist_pct": 1.17,
+          "status": "BULLISH"
+        }
+      },
+      {
+        "ticker": "XLG",
+        "name": "Invesco Top 50 Mega-Cap",
+        "price": 61.47,
+        "daily_return_pct": -2.32,
+        "set1": {
+          "exit_sma": 60.61,
+          "exit_dist_pct": 1.42,
+          "reentry_sma": 61.10,
+          "reentry_dist_pct": 0.61,
+          "status": "BULLISH"
+        },
+        "set2": {
+          "exit_sma": 60.65,
+          "exit_dist_pct": 1.35,
+          "reentry_sma": 60.90,
+          "reentry_dist_pct": 0.94,
+          "status": "BULLISH"
+        }
+      },
+      {
+        "ticker": "IWM",
+        "name": "Russell 2000 (Small-Cap)",
+        "price": 279.33,
+        "daily_return_pct": -1.65,
+        "set1": {
+          "exit_sma": 277.26,
+          "exit_dist_pct": 0.75,
+          "reentry_sma": 281.40,
+          "reentry_dist_pct": -0.74,
+          "status": "BULLISH"
+        },
+        "set2": {
+          "exit_sma": 278.29,
+          "exit_dist_pct": 0.38,
+          "reentry_sma": 280.10,
+          "reentry_dist_pct": -0.27,
+          "status": "BULLISH"
+        }
+      },
+      {
+        "ticker": "BIL",
+        "name": "SPDR 1-3 Month T-Bill (Cash)",
+        "price": 91.70,
+        "daily_return_pct": 0.03,
+        "set1": {
+          "exit_sma": 91.52,
+          "exit_dist_pct": 0.19,
+          "reentry_sma": 91.68,
+          "reentry_dist_pct": 0.02,
+          "status": "BULLISH"
+        },
+        "set2": {
+          "exit_sma": 91.53,
+          "exit_dist_pct": 0.19,
+          "reentry_sma": 91.66,
+          "reentry_dist_pct": 0.04,
+          "status": "BULLISH"
+        }
+      },
+      {
+        "ticker": "TLT",
+        "name": "iShares 20+ Year Treasury",
+        "price": 81.84,
+        "daily_return_pct": 0.43,
+        "set1": {
+          "exit_sma": 84.81,
+          "exit_dist_pct": -3.50,
+          "reentry_sma": 82.20,
+          "reentry_dist_pct": -0.44,
+          "status": "BEARISH"
+        },
+        "set2": {
+          "exit_sma": 84.70,
+          "exit_dist_pct": -3.38,
+          "reentry_sma": 82.90,
+          "reentry_dist_pct": -1.28,
+          "status": "BEARISH"
+        }
+      },
+      {
+        "ticker": "IEF",
+        "name": "iShares 7-10 Year Treasury",
+        "price": 91.76,
+        "daily_return_pct": 0.56,
+        "set1": {
+          "exit_sma": 94.01,
+          "exit_dist_pct": -2.40,
+          "reentry_sma": 92.10,
+          "reentry_dist_pct": -0.37,
+          "status": "BEARISH"
+        },
+        "set2": {
+          "exit_sma": 93.92,
+          "exit_dist_pct": -2.30,
+          "reentry_sma": 92.50,
+          "reentry_dist_pct": -0.80,
+          "status": "BEARISH"
+        }
+      },
+      {
+        "ticker": "GLD",
+        "name": "SPDR Gold Shares (Metal)",
+        "price": 355.78,
+        "daily_return_pct": -3.47,
+        "set1": {
+          "exit_sma": 412.77,
+          "exit_dist_pct": -13.81,
+          "reentry_sma": 368.50,
+          "reentry_dist_pct": -3.45,
+          "status": "BEARISH"
+        },
+        "set2": {
+          "exit_sma": 413.07,
+          "exit_dist_pct": -13.87,
+          "reentry_sma": 372.10,
+          "reentry_dist_pct": -4.39,
+          "status": "BEARISH"
+        }
+      }
+    ]
+  },
+  "momentum": {
+    "params": {
+      "mom_long": 232,
+      "mom_short": 84,
+      "min_price": 5.0,
+      "min_volume": 100000,
+      "formula": "70% 232-Day ROC + 30% 84-Day ROC",
+      "total_universe_scanned": 1468
+    },
+    "top_10": [
+      {
+        "rank": 1,
+        "ticker": "APP",
+        "name": "AppLovin Corp",
+        "price": 284.50,
+        "blended_score_pct": 218.40,
+        "roc_long_pct": 268.10,
+        "roc_short_pct": 102.40,
+        "daily_return_pct": 4.15,
+        "avg_volume": 8420000
+      },
+      {
+        "rank": 2,
+        "ticker": "PLTR",
+        "name": "Palantir Technologies",
+        "price": 72.80,
+        "blended_score_pct": 184.20,
+        "roc_long_pct": 215.30,
+        "roc_short_pct": 111.60,
+        "daily_return_pct": 3.42,
+        "avg_volume": 42500000
+      },
+      {
+        "rank": 3,
+        "ticker": "RDDT",
+        "name": "Reddit Inc",
+        "price": 142.60,
+        "blended_score_pct": 172.50,
+        "roc_long_pct": 194.20,
+        "roc_short_pct": 121.90,
+        "daily_return_pct": 2.85,
+        "avg_volume": 11200000
+      },
+      {
+        "rank": 4,
+        "ticker": "HOOD",
+        "name": "Robinhood Markets",
+        "price": 38.25,
+        "blended_score_pct": 158.10,
+        "roc_long_pct": 182.40,
+        "roc_short_pct": 101.40,
+        "daily_return_pct": 1.95,
+        "avg_volume": 18500000
+      },
+      {
+        "rank": 5,
+        "ticker": "VRT",
+        "name": "Vertiv Holdings Co",
+        "price": 136.40,
+        "blended_score_pct": 142.30,
+        "roc_long_pct": 164.70,
+        "roc_short_pct": 90.10,
+        "daily_return_pct": 0.85,
+        "avg_volume": 7600000
+      },
+      {
+        "rank": 6,
+        "ticker": "SE",
+        "name": "Sea Limited",
+        "price": 108.90,
+        "blended_score_pct": 134.60,
+        "roc_long_pct": 152.80,
+        "roc_short_pct": 92.20,
+        "daily_return_pct": -0.65,
+        "avg_volume": 6900000
+      },
+      {
+        "rank": 7,
+        "ticker": "COIN",
+        "name": "Coinbase Global",
+        "price": 274.15,
+        "blended_score_pct": 129.80,
+        "roc_long_pct": 145.20,
+        "roc_short_pct": 93.90,
+        "daily_return_pct": 1.40,
+        "avg_volume": 9400000
+      },
+      {
+        "rank": 8,
+        "ticker": "ASTS",
+        "name": "AST SpaceMobile",
+        "price": 28.60,
+        "blended_score_pct": 124.50,
+        "roc_long_pct": 148.00,
+        "roc_short_pct": 69.70,
+        "daily_return_pct": -1.20,
+        "avg_volume": 14200000
+      },
+      {
+        "rank": 9,
+        "ticker": "FOUR",
+        "name": "Shift4 Payments",
+        "price": 104.30,
+        "blended_score_pct": 116.70,
+        "roc_long_pct": 132.50,
+        "roc_short_pct": 79.80,
+        "daily_return_pct": 0.45,
+        "avg_volume": 2400000
+      },
+      {
+        "rank": 10,
+        "ticker": "CAVA",
+        "name": "CAVA Group Inc",
+        "price": 146.50,
+        "blended_score_pct": 112.40,
+        "roc_long_pct": 128.60,
+        "roc_short_pct": 74.60,
+        "daily_return_pct": 1.10,
+        "avg_volume": 3100000
+      }
+    ],
+    "runner_ups": [
+      {
+        "rank": 11,
+        "ticker": "MSTR",
+        "name": "MicroStrategy Inc",
+        "price": 385.20,
+        "blended_score_pct": 109.80,
+        "roc_long_pct": 124.50,
+        "roc_short_pct": 75.50,
+        "daily_return_pct": 2.65,
+        "avg_volume": 8900000
+      },
+      {
+        "rank": 12,
+        "ticker": "KVYO",
+        "name": "Klaviyo Inc",
+        "price": 36.80,
+        "blended_score_pct": 105.30,
+        "roc_long_pct": 119.20,
+        "roc_short_pct": 72.90,
+        "daily_return_pct": 0.80,
+        "avg_volume": 4100000
+      },
+      {
+        "rank": 13,
+        "ticker": "ALAB",
+        "name": "Astera Labs Inc",
+        "price": 94.10,
+        "blended_score_pct": 98.70,
+        "roc_long_pct": 112.40,
+        "roc_short_pct": 66.70,
+        "daily_return_pct": 3.10,
+        "avg_volume": 5800000
+      },
+      {
+        "rank": 14,
+        "ticker": "IOT",
+        "name": "Samsara Inc",
+        "price": 52.40,
+        "blended_score_pct": 94.20,
+        "roc_long_pct": 106.80,
+        "roc_short_pct": 64.80,
+        "daily_return_pct": -0.40,
+        "avg_volume": 4600000
+      },
+      {
+        "rank": 15,
+        "ticker": "TOST",
+        "name": "Toast Inc",
+        "price": 33.90,
+        "blended_score_pct": 91.50,
+        "roc_long_pct": 103.50,
+        "roc_short_pct": 63.50,
+        "daily_return_pct": 1.25,
+        "avg_volume": 6800000
+      },
+      {
+        "rank": 16,
+        "ticker": "CRWD",
+        "name": "CrowdStrike Holdings",
+        "price": 358.40,
+        "blended_score_pct": 88.60,
+        "roc_long_pct": 99.80,
+        "roc_short_pct": 62.50,
+        "daily_return_pct": -1.15,
+        "avg_volume": 3800000
+      },
+      {
+        "rank": 17,
+        "ticker": "DUOL",
+        "name": "Duolingo Inc",
+        "price": 312.00,
+        "blended_score_pct": 85.90,
+        "roc_long_pct": 97.40,
+        "roc_short_pct": 59.10,
+        "daily_return_pct": 0.50,
+        "avg_volume": 1900000
+      },
+      {
+        "rank": 18,
+        "ticker": "NET",
+        "name": "Cloudflare Inc",
+        "price": 108.50,
+        "blended_score_pct": 82.40,
+        "roc_long_pct": 93.60,
+        "roc_short_pct": 56.30,
+        "daily_return_pct": 1.70,
+        "avg_volume": 4100000
+      },
+      {
+        "rank": 19,
+        "ticker": "ARM",
+        "name": "Arm Holdings",
+        "price": 148.20,
+        "blended_score_pct": 79.80,
+        "roc_long_pct": 90.20,
+        "roc_short_pct": 55.50,
+        "daily_return_pct": -0.80,
+        "avg_volume": 8200000
+      },
+      {
+        "rank": 20,
+        "ticker": "FSLR",
+        "name": "First Solar Inc",
+        "price": 218.60,
+        "blended_score_pct": 76.50,
+        "roc_long_pct": 86.80,
+        "roc_short_pct": 52.40,
+        "daily_return_pct": 0.30,
+        "avg_volume": 2700000
+      }
+    ]
+  }
+}
