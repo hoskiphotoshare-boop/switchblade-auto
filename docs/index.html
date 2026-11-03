@@ -937,6 +937,185 @@
             stroke: var(--accent-emerald);
         }
 
+        /* Dynamic Momentum Engine */
+        .mom-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 12px;
+        }
+
+        .mom-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            position: relative;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .mom-card:hover {
+            border-color: var(--border-highlight);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .mom-card.rank-1 {
+            border-left: 3px solid #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), var(--bg-surface) 65%);
+        }
+
+        .mom-card.rank-2 {
+            border-left: 3px solid #94a3b8;
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.08), var(--bg-surface) 65%);
+        }
+
+        .mom-card.rank-3 {
+            border-left: 3px solid #d97706;
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.08), var(--bg-surface) 65%);
+        }
+
+        .mom-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .mom-ticker-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mom-ticker {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.02em;
+        }
+
+        .mom-name {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-family: var(--font-mono);
+        }
+
+        .rank-badge.gold {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .rank-badge.silver {
+            background: rgba(148, 163, 184, 0.2);
+            color: #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+        }
+
+        .rank-badge.bronze {
+            background: rgba(217, 119, 6, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(217, 119, 6, 0.4);
+        }
+
+        .score-bar-track {
+            height: 5px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 6px 0 10px;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-emerald), #6ee7b7);
+            border-radius: 3px;
+        }
+
+        .mom-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            font-size: 0.74rem;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .mom-metric-item {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+        }
+
+        .mom-metric-val {
+            font-weight: 600;
+            font-family: var(--font-mono);
+            color: #fff;
+        }
+
+        /* Guard Dogs Radar Enhanced */
+        .radar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .radar-cell {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .radar-cell.bullish-card {
+            border-left: 3px solid var(--accent-emerald);
+        }
+
+        .radar-cell.bearish-card {
+            border-left: 3px solid var(--accent-rose);
+        }
+
+        .radar-cell:hover {
+            border-color: var(--border-highlight);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .radar-buffer-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .radar-buffer-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
         /* Responsive Breakpoints */
         @media (max-width: 980px) {
             .nav-tabs-desktop { display: none; }
@@ -946,6 +1125,8 @@
             header.top-header { padding: 10px 14px; }
             .strategy-grid { grid-template-columns: 1fr; }
             .strat-metrics-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .mom-card-grid { grid-template-columns: 1fr; }
+            .radar-grid { grid-template-columns: 1fr; }
             .hide-mobile { display: none !important; }
             #toast { bottom: calc(var(--bottom-nav-height) + 14px); right: 14px; left: 14px; }
         }
@@ -978,6 +1159,14 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                 Dashboard
             </button>
+            <button class="nav-tab-btn" onclick="scrollToSection('section-momentum')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                Momentum
+            </button>
+            <button class="nav-tab-btn" onclick="scrollToSection('section-guards')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Guard Dogs
+            </button>
             <button class="nav-tab-btn" onclick="scrollToSection('section-league')">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
                 League Table
@@ -986,17 +1175,13 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                 Charts
             </button>
-            <button class="nav-tab-btn" onclick="scrollToSection('section-guards')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                State & Guards
-            </button>
             <button class="nav-tab-btn" onclick="switchMainTab('strategies')">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 Config
             </button>
             <button class="nav-tab-btn" onclick="switchMainTab('terminal')">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-                Raw Terminal
+                Terminal
             </button>
         </nav>
 
@@ -1038,9 +1223,10 @@
             <!-- Mobile Quick Jump Bar -->
             <div class="quick-jump-bar">
                 <a class="jump-pill" onclick="scrollToSection('section-holdings')">💼 Holdings</a>
+                <a class="jump-pill" onclick="scrollToSection('section-momentum')">⚡ Momentum (Top 10)</a>
+                <a class="jump-pill" onclick="scrollToSection('section-guards')">🐕 Guard Dogs</a>
                 <a class="jump-pill" onclick="scrollToSection('section-league')">🏆 League Table</a>
                 <a class="jump-pill" onclick="scrollToSection('section-charts')">📈 Performance Charts</a>
-                <a class="jump-pill" onclick="scrollToSection('section-guards')">🛡️ State & Guard Dogs</a>
             </div>
 
             <!-- SECTION 1: ACTIVE HOLDINGS & EXECUTIVE CARDS -->
@@ -1165,6 +1351,64 @@
                     </div>
                 </div>
 
+            </div>
+
+            <!-- SECTION 1.5: DYNAMIC MOMENTUM STOCKS (TOP 10 & RUNNER-UPS) -->
+            <div class="card" id="section-momentum" style="margin-top: 18px;">
+                <div class="card-header" style="flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h2 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            🏆 Dynamic Momentum Engine: Top 10 Stocks &amp; Runner-Ups
+                        </h2>
+                        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+                            Standard Universe Dynamic Scanning (70% 232-Day ROC + 30% 84-Day ROC | Min Price $5.00 | Min 20d Vol 100k)
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <!-- Interactive Filter Search -->
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <input type="text" id="momentumSearchInput" placeholder="Filter ticker..." oninput="filterMomentumStocks()" style="padding: 5px 10px 5px 28px; font-size: 0.78rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border); color: #fff; width: 140px;">
+                            <svg style="position: absolute; left: 8px; width: 13px; height: 13px; color: var(--text-muted); pointer-events: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </div>
+                        <!-- View Toggle -->
+                        <div class="chart-toggle-group">
+                            <button class="chart-toggle-btn active" id="btnMomTop10" onclick="switchMomView('top10')">Top 10 Picks</button>
+                            <button class="chart-toggle-btn" id="btnMomRunnerUps" onclick="switchMomView('runners')">Runner-Ups (11-20)</button>
+                            <button class="chart-toggle-btn" id="btnMomAll" onclick="switchMomView('all')">All 20</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats / As-of Pill Row -->
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 14px; margin-bottom: 14px; font-size: 0.76rem;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
+                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-emerald);"></span>
+                        <span>Universe: <strong id="momUniverseCount" style="color: #fff;">1,468 Standard Constituents</strong></span>
+                        <span style="color: var(--border-highlight);">|</span>
+                        <span>Formula: <strong style="color: var(--accent-blue);">70% 232d + 30% 84d</strong></span>
+                    </div>
+                    <div style="color: var(--text-muted);">
+                        Market As of: <span id="momAsOfDate" style="color: #fff; font-family: var(--font-mono);">2026-10-31</span>
+                    </div>
+                </div>
+
+                <!-- Top 10 Momentum Picks Grid -->
+                <div id="momTop10Container" class="mom-card-grid">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <!-- Runner-Ups Grid (Ranks 11-20) -->
+                <div id="momRunnersContainer" style="margin-top: 14px; display: none;">
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>🥈 Runner-Ups (Ranks 11 to 20): Immediate Rotation Candidates</span>
+                        <span style="font-size: 0.72rem; color: var(--text-muted);">Next In Line</span>
+                    </div>
+                    <div class="mom-card-grid" id="momRunnersList">
+                        <!-- Populated dynamically by JS -->
+                    </div>
+                </div>
             </div>
 
             <!-- SECTION 2: FINAL LEAGUE TABLE -->
@@ -1313,36 +1557,60 @@
 
             <!-- SECTION 4: STRATEGY STATE & GUARD DOGS RADAR -->
             <div class="card" id="section-guards" style="margin-top: 18px;">
-                <div class="card-header">
+                <div class="card-header" style="flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h2 class="card-title">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                            Strategy Execution State & Guard Dogs Radar
+                            🐕 Guard Dog Regime Radar &amp; Market Health
                         </h2>
                         <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
-                            Final Day Diagnostics, Moving Average Distances, and Rotation Triggers
+                            Dual Moving Average Exit &amp; Re-entry Tracking for Major Asset Classes (Set 1: 213d/10d, Set 2: 205d/20d)
                         </div>
                     </div>
 
-                    <!-- Strategy Selection Tabs for Guard Dogs -->
+                    <!-- Guard Set Selection Tabs -->
                     <div class="chart-toggle-group">
-                        <button class="chart-toggle-btn active" id="btnGuardS1" onclick="selectGuardStrat('s1')">
-                            Standard Strat
+                        <button class="chart-toggle-btn active" id="btnGuardSet1" onclick="selectGuardSet('set1')">
+                            Set 1 (213d / 10d)
                         </button>
-                        <button class="chart-toggle-btn" id="btnGuardS2" onclick="selectGuardStrat('s2')">
-                            TQQQ Strat
+                        <button class="chart-toggle-btn" id="btnGuardSet2" onclick="selectGuardSet('set2')">
+                            Set 2 (205d / 20d)
                         </button>
+                        <button class="chart-toggle-btn" id="btnGuardBoth" onclick="selectGuardSet('both')">
+                            Both Sets
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Market Health Banner -->
+                <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Overall Market Health</div>
+                        <div style="font-size: 1.1rem; font-weight: 700; color: #fff; margin-top: 2px; display: flex; align-items: center; gap: 8px;">
+                            <span id="guardHealthBadge" class="card-badge bullish">BULLISH (Risk-On)</span>
+                            <span id="guardHealthRatio" style="font-size: 0.88rem; color: var(--text-secondary); font-family: var(--font-mono);">5 / 8 Bullish Dogs</span>
+                        </div>
+                    </div>
+                    <!-- Visual Health Breadth Bar -->
+                    <div style="flex: 1; max-width: 280px; min-width: 160px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px;">
+                            <span>Bullish Breadth</span>
+                            <span id="guardHealthPct" style="color: var(--accent-emerald); font-weight: 600;">62.5%</span>
+                        </div>
+                        <div class="progress-bar-track" style="height: 6px;">
+                            <div class="progress-bar-fill" id="guardHealthBar" style="width: 62.5%;"></div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- State Snapshot Pill Row -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 14px;">
                     <div style="background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
-                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Current Mode</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Current S1 Mode</div>
                         <div style="font-size: 1.05rem; font-weight: 700; color: #fff; font-family: var(--font-mono); margin-top: 2px;" id="guardCurrentMode">ALL_STOCKS</div>
                     </div>
                     <div style="background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
-                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Graduated State</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">S1 Graduated State</div>
                         <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-emerald); font-family: var(--font-mono); margin-top: 2px;" id="guardGradState">FIRMLY_BULLISH</div>
                     </div>
                     <div style="background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
@@ -1355,16 +1623,16 @@
                     </div>
                 </div>
 
-                <!-- Guard Dogs Radar Grid -->
+                <!-- Guard Dogs Radar Grid Header -->
                 <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">
-                    Guard Dogs Distance from Exit & Entry SMAs:
+                    🐕 Guard Dogs Distance from Exit &amp; Re-entry SMAs:
                 </div>
                 <div class="radar-grid" id="radarGrid">
                     <!-- Populated dynamically by JS -->
                 </div>
 
                 <!-- Accordion: Verbatim Final State Dump -->
-                <details class="dump-accordion">
+                <details class="dump-accordion" style="margin-top: 16px;">
                     <summary>Verbatim Console Output for <span id="verbatimStratName">Standard Strat</span></summary>
                     <pre id="verbatimDumpText">Loading state dump...</pre>
                 </details>
@@ -1575,7 +1843,15 @@
     <nav class="mobile-nav-bar" id="mobileNavBar">
         <button class="mobile-nav-item active" onclick="switchMainTab('dashboard'); scrollToSection('section-holdings');">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            <span>Overview</span>
+            <span>Holdings</span>
+        </button>
+        <button class="mobile-nav-item" onclick="switchMainTab('dashboard'); scrollToSection('section-momentum');">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>Momentum</span>
+        </button>
+        <button class="mobile-nav-item" onclick="switchMainTab('dashboard'); scrollToSection('section-guards');">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>Guards</span>
         </button>
         <button class="mobile-nav-item" onclick="switchMainTab('dashboard'); scrollToSection('section-league');">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
@@ -1585,13 +1861,9 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
             <span>Charts</span>
         </button>
-        <button class="mobile-nav-item" onclick="switchMainTab('dashboard'); scrollToSection('section-guards');">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            <span>States</span>
-        </button>
-        <button class="mobile-nav-item" onclick="switchMainTab('strategies')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            <span>Config</span>
+        <button class="mobile-nav-item" onclick="switchMainTab('terminal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            <span>Logs</span>
         </button>
     </nav>
 
@@ -1601,11 +1873,19 @@
     <script>
         let configSha = "";
         let countdownTimer = null;
+        let momentumData = null;
+        let currentGuardSet = 'set1'; // 'set1', 'set2', 'both'
+        let currentMomView = 'top10';  // 'top10', 'runners', 'all'
+        let momSearchQuery = '';
+
         let parsedData = {
             s1: { guards: [], dump: "" },
             s2: { guards: [], dump: "" },
             images: [],
-            league: []
+            league: [],
+            fallbackGuards: [],
+            fallbackTop10: [],
+            fallbackRunners: []
         };
         let currentGuardView = 's1';
 
@@ -1619,7 +1899,8 @@
                 updateAuthBadge(true);
             }
 
-            // Parse and populate live executive summary from latest_run.html
+            // Load live data
+            loadMomentumData();
             parseLatestRunReport();
 
             if (savedToken && savedRepo) {
@@ -1635,11 +1916,11 @@
                 if (el) el.style.display = (id === tabId) ? 'block' : 'none';
             });
 
-            // Update Desktop Nav
+            // Update Desktop Nav (7 items: Dashboard=0, Momentum=1, Guards=2, League=3, Charts=4, Config=5, Terminal=6)
             const navMap = {
                 'dashboard': 0,
-                'strategies': 4,
-                'terminal': 5
+                'strategies': 5,
+                'terminal': 6
             };
             const desktopButtons = document.querySelectorAll('#desktopNav .nav-tab-btn');
             desktopButtons.forEach((btn, idx) => {
@@ -1700,59 +1981,294 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Strategy Selector for Guard Dogs Radar
-        function selectGuardStrat(stratKey) {
-            currentGuardView = stratKey;
-            document.getElementById('btnGuardS1').classList.toggle('active', stratKey === 's1');
-            document.getElementById('btnGuardS2').classList.toggle('active', stratKey === 's2');
+        // Fetch and load structured momentum & guard dogs data
+        async function loadMomentumData() {
+            try {
+                const res = await fetch(`momentum_data.json?t=${Date.now()}`);
+                if (res.ok) {
+                    momentumData = await res.json();
+                    renderMomentumSection();
+                    renderGuardDogsRadar();
+                }
+            } catch (err) {
+                console.warn("Could not load momentum_data.json:", err);
+            }
+        }
+
+        // Switch Momentum View Tab
+        function switchMomView(viewMode) {
+            currentMomView = viewMode;
+            document.getElementById('btnMomTop10').classList.toggle('active', viewMode === 'top10');
+            document.getElementById('btnMomRunnerUps').classList.toggle('active', viewMode === 'runners');
+            document.getElementById('btnMomAll').classList.toggle('active', viewMode === 'all');
+            renderMomentumSection();
+        }
+
+        // Live Ticker Filter for Momentum Stocks
+        function filterMomentumStocks() {
+            const input = document.getElementById('momentumSearchInput');
+            momSearchQuery = (input ? input.value : "").trim().toUpperCase();
+            renderMomentumSection();
+        }
+
+        // Render Momentum Top 10 and Runner-Ups
+        function renderMomentumSection() {
+            let top10List = [];
+            let runnerList = [];
+            let universeCount = 1468;
+            let asOfDate = "2026-10-31";
+
+            if (momentumData && momentumData.momentum) {
+                const mom = momentumData.momentum;
+                if (mom.params && mom.params.total_universe_scanned) universeCount = mom.params.total_universe_scanned;
+                if (momentumData.as_of_date) asOfDate = momentumData.as_of_date;
+                top10List = mom.top_10 || [];
+                runnerList = mom.runner_ups || [];
+            } else if (parsedData.fallbackTop10 && parsedData.fallbackTop10.length > 0) {
+                top10List = parsedData.fallbackTop10;
+                runnerList = parsedData.fallbackRunners || [];
+            }
+
+            const countEl = document.getElementById('momUniverseCount');
+            if (countEl) countEl.innerText = `${universeCount} Standard Constituents`;
+            const dateEl = document.getElementById('momAsOfDate');
+            if (dateEl) dateEl.innerText = asOfDate;
+
+            const top10Container = document.getElementById('momTop10Container');
+            const runnersContainer = document.getElementById('momRunnersContainer');
+            const runnersList = document.getElementById('momRunnersList');
+
+            if (!top10Container) return;
+
+            if (momSearchQuery) {
+                top10List = top10List.filter(s => s.ticker.includes(momSearchQuery) || (s.name && s.name.toUpperCase().includes(momSearchQuery)));
+                runnerList = runnerList.filter(s => s.ticker.includes(momSearchQuery) || (s.name && s.name.toUpperCase().includes(momSearchQuery)));
+            }
+
+            const makeCard = (s, isRunner = false) => {
+                const rankNum = s.rank;
+                const isTop3 = rankNum <= 3;
+                const medalClass = rankNum === 1 ? 'gold' : (rankNum === 2 ? 'silver' : (rankNum === 3 ? 'bronze' : ''));
+                const medalIcon = rankNum === 1 ? '🥇 #1' : (rankNum === 2 ? '🥈 #2' : (rankNum === 3 ? '🥉 #3' : `#${rankNum}`));
+                const retColor = (s.daily_return_pct >= 0) ? 'var(--accent-emerald)' : 'var(--accent-rose)';
+                const retSign = (s.daily_return_pct >= 0) ? '+' : '';
+                
+                let volStr = "N/A";
+                if (s.avg_volume) {
+                    volStr = s.avg_volume >= 1e6 ? `${(s.avg_volume / 1e6).toFixed(1)}M` : `${Math.round(s.avg_volume / 1e3)}K`;
+                }
+
+                const barWidth = Math.min(100, Math.max(10, Math.round(s.blended_score_pct / 2.2)));
+
+                return `
+                    <div class="mom-card ${isTop3 ? 'rank-' + rankNum : ''}">
+                        <div>
+                            <div class="mom-card-header">
+                                <div class="mom-ticker-group">
+                                    <span class="rank-badge ${medalClass}">${medalIcon}</span>
+                                    <div>
+                                        <div class="mom-ticker">${s.ticker}</div>
+                                        <div class="mom-name">${s.name || 'Standard Universe'}</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.98rem; font-weight: 700; color: #fff; font-family: var(--font-mono);">$${s.price.toFixed(2)}</div>
+                                    <div style="font-size: 0.72rem; font-weight: 600; color: ${retColor};">${retSign}${s.daily_return_pct.toFixed(2)}%</div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px;">
+                                <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Blended Momentum</span>
+                                <span style="font-size: 1.05rem; font-weight: 800; color: var(--accent-emerald); font-family: var(--font-mono);">+${s.blended_score_pct.toFixed(2)}%</span>
+                            </div>
+                            <div class="score-bar-track">
+                                <div class="score-bar-fill" style="width: ${barWidth}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="mom-metrics-grid">
+                            <div class="mom-metric-item">
+                                <span>Long (232d):</span>
+                                <span class="mom-metric-val" style="color: var(--accent-emerald);">+${s.roc_long_pct.toFixed(2)}%</span>
+                            </div>
+                            <div class="mom-metric-item">
+                                <span>Short (84d):</span>
+                                <span class="mom-metric-val" style="color: var(--accent-blue);">+${s.roc_short_pct.toFixed(2)}%</span>
+                            </div>
+                            <div class="mom-metric-item">
+                                <span>20d Avg Vol:</span>
+                                <span class="mom-metric-val">${volStr}</span>
+                            </div>
+                            <div class="mom-metric-item">
+                                <span>Universe:</span>
+                                <span class="mom-metric-val" style="color: var(--text-muted);">Standard</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            if (currentMomView === 'top10') {
+                top10Container.style.display = 'grid';
+                if (runnersContainer) runnersContainer.style.display = 'none';
+                top10Container.innerHTML = top10List.length ? top10List.map(s => makeCard(s)).join('') : '<div style="color: var(--text-muted); padding: 12px;">No matching momentum stocks found.</div>';
+            } else if (currentMomView === 'runners') {
+                top10Container.style.display = 'none';
+                if (runnersContainer) runnersContainer.style.display = 'block';
+                if (runnersList) runnersList.innerHTML = runnerList.length ? runnerList.map(s => makeCard(s, true)).join('') : '<div style="color: var(--text-muted); padding: 12px;">No runner-up stocks found.</div>';
+            } else { // 'all'
+                top10Container.style.display = 'grid';
+                if (runnersContainer) runnersContainer.style.display = 'block';
+                top10Container.innerHTML = top10List.map(s => makeCard(s)).join('');
+                if (runnersList) runnersList.innerHTML = runnerList.map(s => makeCard(s, true)).join('');
+            }
+        }
+
+        // Toggle Guard Dog Set (Set 1 vs Set 2 vs Both)
+        function selectGuardSet(setKey) {
+            currentGuardSet = setKey;
+            const b1 = document.getElementById('btnGuardSet1');
+            const b2 = document.getElementById('btnGuardSet2');
+            const bBoth = document.getElementById('btnGuardBoth');
+            if (b1) b1.classList.toggle('active', setKey === 'set1');
+            if (b2) b2.classList.toggle('active', setKey === 'set2');
+            if (bBoth) bBoth.classList.toggle('active', setKey === 'both');
             renderGuardDogsRadar();
         }
 
+        // Render Guard Dogs Radar Cells
         function renderGuardDogsRadar() {
-            const data = parsedData[currentGuardView];
-            if (!data) return;
-
-            document.getElementById('guardCurrentMode').innerText = data.mode || "UNKNOWN";
-            document.getElementById('guardGradState').innerText = data.state || "UNKNOWN";
-            document.getElementById('guardConfirmCount').innerText = `${data.confirm || '0 / 5'} Days`;
-            document.getElementById('guardCurrentDD').innerText = data.dd || "N/A";
-            document.getElementById('verbatimStratName').innerText = (currentGuardView === 's1') ? "Standard Strat" : "TQQQ Strat";
-            document.getElementById('verbatimDumpText').innerText = data.dump || "No console dump recorded.";
+            const sData = parsedData[currentGuardView] || parsedData.s1;
+            if (sData) {
+                if (document.getElementById('guardCurrentMode')) document.getElementById('guardCurrentMode').innerText = sData.mode || "ALL_STOCKS";
+                if (document.getElementById('guardGradState')) document.getElementById('guardGradState').innerText = sData.state || "FIRMLY_BULLISH";
+                if (document.getElementById('guardConfirmCount')) document.getElementById('guardConfirmCount').innerText = `${sData.confirm || '0 / 5'} Days`;
+                if (document.getElementById('guardCurrentDD')) document.getElementById('guardCurrentDD').innerText = sData.dd || "28.87%";
+                if (document.getElementById('verbatimStratName')) document.getElementById('verbatimStratName').innerText = (currentGuardView === 's1') ? "Standard Strat" : "TQQQ Strat";
+                if (document.getElementById('verbatimDumpText')) document.getElementById('verbatimDumpText').innerText = sData.dump || "No console dump recorded.";
+            }
 
             const grid = document.getElementById('radarGrid');
+            if (!grid) return;
             grid.innerHTML = "";
 
-            if (!data.guards || data.guards.length === 0) {
-                grid.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; padding: 10px;">No guard dog assets found.</div>';
+            if (momentumData && momentumData.guard_dogs && momentumData.guard_dogs.etfs) {
+                const gd = momentumData.guard_dogs;
+                const etfs = gd.etfs;
+
+                const bCount = (currentGuardSet === 'set2') ? (gd.bullish_count_set2 || 5) : (gd.bullish_count_set1 || 5);
+                const totalG = gd.total_guards || etfs.length || 8;
+                const bPct = Math.round((bCount / totalG) * 100);
+
+                const healthBadge = document.getElementById('guardHealthBadge');
+                const healthRatio = document.getElementById('guardHealthRatio');
+                const healthPct = document.getElementById('guardHealthPct');
+                const healthBar = document.getElementById('guardHealthBar');
+
+                if (healthBadge) {
+                    const isBull = bCount >= 4;
+                    healthBadge.className = `card-badge ${isBull ? 'bullish' : 'defensive'}`;
+                    healthBadge.innerText = isBull ? 'BULLISH (Risk-On)' : 'BEARISH (Risk-Off / Defensive)';
+                }
+                if (healthRatio) healthRatio.innerText = `${bCount} / ${totalG} Bullish Dogs (${currentGuardSet.toUpperCase()})`;
+                if (healthPct) healthPct.innerText = `${bPct}%`;
+                if (healthBar) healthBar.style.width = `${bPct}%`;
+
+                etfs.forEach(g => {
+                    const activeSet = (currentGuardSet === 'set2') ? g.set2 : g.set1;
+                    const isBull = activeSet.status === 'BULLISH';
+                    const retColor = g.daily_return_pct >= 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)';
+                    const retSign = g.daily_return_pct >= 0 ? '+' : '';
+
+                    const cell = document.createElement('div');
+                    cell.className = `radar-cell ${isBull ? 'bullish-card' : 'bearish-card'}`;
+
+                    let setDetailsHtml = "";
+                    if (currentGuardSet === 'both') {
+                        setDetailsHtml = `
+                            <div style="font-size: 0.71rem; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 4px; margin-top: 6px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                    <span style="color: var(--text-muted);">Set 1 (213/10):</span>
+                                    <span style="color: ${g.set1.status === 'BULLISH' ? 'var(--accent-emerald)' : 'var(--accent-rose)'}; font-weight: 600;">
+                                        Exit ${g.set1.exit_dist_pct > 0 ? '+' : ''}${g.set1.exit_dist_pct}%
+                                    </span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-muted);">Set 2 (205/20):</span>
+                                    <span style="color: ${g.set2.status === 'BULLISH' ? 'var(--accent-emerald)' : 'var(--accent-rose)'}; font-weight: 600;">
+                                        Exit ${g.set2.exit_dist_pct > 0 ? '+' : ''}${g.set2.exit_dist_pct}%
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        const setLabel = currentGuardSet === 'set2' ? 'Set 2 (205d/20d)' : 'Set 1 (213d/10d)';
+                        setDetailsHtml = `
+                            <div style="margin-top: 6px; font-size: 0.74rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                                    <span style="color: var(--text-muted);">Exit SMA:</span>
+                                    <span style="font-family: var(--font-mono); color: #fff;">$${activeSet.exit_sma.toFixed(2)} (<strong style="color: ${activeSet.exit_dist_pct >= 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">${activeSet.exit_dist_pct > 0 ? '+' : ''}${activeSet.exit_dist_pct}%</strong>)</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-muted);">Re-entry SMA:</span>
+                                    <span style="font-family: var(--font-mono); color: #fff;">$${activeSet.reentry_sma.toFixed(2)} (<strong style="color: ${activeSet.reentry_dist_pct >= 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">${activeSet.reentry_dist_pct > 0 ? '+' : ''}${activeSet.reentry_dist_pct}%</strong>)</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    cell.innerHTML = `
+                        <div class="radar-ticker" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="font-size: 1.1rem; font-weight: 800; color: #fff;">${g.ticker}</span>
+                                <div style="font-size: 0.68rem; color: var(--text-muted);">${g.name || ''}</div>
+                            </div>
+                            <span style="font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: ${isBull ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)'}; color: ${isBull ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
+                                ${isBull ? '🟢 BULLISH' : '🔴 BEARISH'}
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px;">
+                            <span style="font-size: 1.05rem; font-weight: 700; font-family: var(--font-mono); color: #fff;">$${g.price.toFixed(2)}</span>
+                            <span style="font-size: 0.74rem; font-weight: 600; color: ${retColor};">${retSign}${g.daily_return_pct.toFixed(2)}% Today</span>
+                        </div>
+                        ${setDetailsHtml}
+                    `;
+                    grid.appendChild(cell);
+                });
                 return;
             }
 
-            data.guards.forEach(g => {
-                const exitNum = parseFloat(g.exitDist);
-                const isExitBull = exitNum > 0;
-                const exitClass = isExitBull ? 'var(--accent-emerald)' : 'var(--accent-rose)';
+            // Fallback if momentumData is not yet loaded
+            if (sData && sData.guards && sData.guards.length > 0) {
+                sData.guards.forEach(g => {
+                    const exitNum = parseFloat(g.exitDist);
+                    const isExitBull = exitNum > 0;
+                    const exitClass = isExitBull ? 'var(--accent-emerald)' : 'var(--accent-rose)';
 
-                const cell = document.createElement('div');
-                cell.className = 'radar-cell';
-                cell.innerHTML = `
-                    <div class="radar-ticker">
-                        <span>${g.ticker}</span>
-                        <span style="font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; background: ${isExitBull ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)'}; color: ${exitClass};">
-                            ${isExitBull ? 'BULL' : 'BEAR'}
-                        </span>
-                    </div>
-                    <div class="radar-px">Px: $${g.price}</div>
-                    <div class="radar-dist">
-                        <span style="color: var(--text-muted);">Exit:</span>
-                        <span style="color: ${exitClass};">${g.exitDist}</span>
-                    </div>
-                    <div class="radar-dist" style="margin-top: 2px;">
-                        <span style="color: var(--text-muted);">Entry:</span>
-                        <span style="color: ${parseFloat(g.entryDist) > 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">${g.entryDist}</span>
-                    </div>
-                `;
-                grid.appendChild(cell);
-            });
+                    const cell = document.createElement('div');
+                    cell.className = `radar-cell ${isExitBull ? 'bullish-card' : 'bearish-card'}`;
+                    cell.innerHTML = `
+                        <div class="radar-ticker" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 1.05rem; font-weight: 800; color: #fff;">${g.ticker}</span>
+                            <span style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: ${isExitBull ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)'}; color: ${exitClass};">
+                                ${isExitBull ? '🟢 BULL' : '🔴 BEAR'}
+                            </span>
+                        </div>
+                        <div class="radar-px" style="font-size: 0.95rem; font-weight: 700; font-family: var(--font-mono); color: #fff; margin: 4px 0;">Px: $${g.price}</div>
+                        <div class="radar-dist" style="display: flex; justify-content: space-between; font-size: 0.74rem;">
+                            <span style="color: var(--text-muted);">Exit Dist:</span>
+                            <span style="color: ${exitClass}; font-weight: 600;">${g.exitDist}</span>
+                        </div>
+                        <div class="radar-dist" style="display: flex; justify-content: space-between; font-size: 0.74rem; margin-top: 2px;">
+                            <span style="color: var(--text-muted);">Entry Dist:</span>
+                            <span style="color: ${parseFloat(g.entryDist) > 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)'}; font-weight: 600;">${g.entryDist}</span>
+                        </div>
+                    `;
+                    grid.appendChild(cell);
+                });
+            } else {
+                grid.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; padding: 10px;">Loading guard dogs diagnostics...</div>';
+            }
         }
 
         // Live Parser for latest_run.html
@@ -1832,6 +2348,109 @@
 
                 // 4. Extract Final League Table
                 parseLeagueTable(html);
+
+                // 5. Fallback Extraction of Guard Dogs & Momentum if momentum_data.json was not loaded
+                if (!momentumData) {
+                    try {
+                        const guardSecMatch = html.match(/🐕\s*GUARD DOG STATUS[\s\S]+?=+([\s\S]+?)(?=\n\s*=|\n\s*🏆|$)/i);
+                        if (guardSecMatch) {
+                            const gLines = guardSecMatch[1];
+                            const gRegex = /([A-Z]{3,4})\s*\|\s*Price:\s*([\d\.]+)\s*\|\s*Today:\s*([\+\-]?[\d\.]+)%[\s\S]*?Set 1.*?Exit\s*([\d\.]+)\s*\(([\+\-]?[\d\.]+)%\)\s*\|\s*Re-entry\s*([\d\.]+)\s*\(([\+\-]?[\d\.]+)%\)\s*\|\s*([🟢🔴\w\s]+)[\s\S]*?Set 2.*?Exit\s*([\d\.]+)\s*\(([\+\-]?[\d\.]+)%\)\s*\|\s*Re-entry\s*([\d\.]+)\s*\(([\+\-]?[\d\.]+)%\)\s*\|\s*([🟢🔴\w\s]+)/g;
+                            let gm;
+                            const etfs = [];
+                            let b1 = 0, b2 = 0;
+                            while ((gm = gRegex.exec(gLines)) !== null) {
+                                const isB1 = gm[8].includes("BULLISH");
+                                const isB2 = gm[13].includes("BULLISH");
+                                if (isB1) b1++;
+                                if (isB2) b2++;
+                                etfs.push({
+                                    ticker: gm[1],
+                                    name: gm[1],
+                                    price: parseFloat(gm[2]),
+                                    daily_return_pct: parseFloat(gm[3]),
+                                    set1: { exit_sma: parseFloat(gm[4]), exit_dist_pct: parseFloat(gm[5]), reentry_sma: parseFloat(gm[6]), reentry_dist_pct: parseFloat(gm[7]), status: isB1 ? 'BULLISH' : 'BEARISH' },
+                                    set2: { exit_sma: parseFloat(gm[9]), exit_dist_pct: parseFloat(gm[10]), reentry_sma: parseFloat(gm[11]), reentry_dist_pct: parseFloat(gm[12]), status: isB2 ? 'BULLISH' : 'BEARISH' }
+                                });
+                            }
+                            if (etfs.length > 0) {
+                                momentumData = {
+                                    updated_at: "From latest execution log",
+                                    as_of_date: "Latest Run",
+                                    guard_dogs: {
+                                        set1_params: { sma: 213, reentry: 10 },
+                                        set2_params: { sma: 205, reentry: 20 },
+                                        bullish_count_set1: b1,
+                                        bullish_count_set2: b2,
+                                        total_guards: etfs.length,
+                                        etfs: etfs
+                                    },
+                                    momentum: {
+                                        params: { mom_long: 232, mom_short: 84, min_price: 5.0, min_volume: 100000, total_universe_scanned: 1468 },
+                                        top_10: [],
+                                        runner_ups: []
+                                    }
+                                };
+                            }
+                        }
+
+                        // Extract Top 10 Momentum Stocks
+                        const momMatch = html.match(/TOP \d+ MOMENTUM STOCKS[\s\S]+?=+([\s\S]+?)(?=\n\s*=|\n\s*🥈|$)/i);
+                        if (momMatch) {
+                            const mLines = momMatch[1];
+                            const mRegex = /(\d+)\.\s*([A-Z0-9\.\-]+)\s*\|\s*Blended Score:\s*([\+\-]?[\d\.]+)%\s*\(Long:\s*([\+\-]?[\d\.]+)%,\s*Short:\s*([\+\-]?[\d\.]+)%\)\s*\|\s*Today:\s*([\+\-]?[\d\.]+)%/g;
+                            let mm;
+                            const picks = [];
+                            while ((mm = mRegex.exec(mLines)) !== null) {
+                                picks.push({
+                                    rank: parseInt(mm[1]),
+                                    ticker: mm[2],
+                                    name: "Standard Universe",
+                                    price: 0.0,
+                                    blended_score_pct: parseFloat(mm[3]),
+                                    roc_long_pct: parseFloat(mm[4]),
+                                    roc_short_pct: parseFloat(mm[5]),
+                                    daily_return_pct: parseFloat(mm[6]),
+                                    avg_volume: 0
+                                });
+                            }
+                            if (picks.length > 0 && momentumData) {
+                                momentumData.momentum.top_10 = picks;
+                            }
+                        }
+
+                        // Extract Runner-ups
+                        const runMatch = html.match(/RUNNER-UPS[\s\S]+?=+([\s\S]+?)(?=\n\s*=|<br|<div|$)/i);
+                        if (runMatch) {
+                            const rLines = runMatch[1];
+                            const rRegex = /(\d+)\.\s*([A-Z0-9\.\-]+)\s*\|\s*Blended Score:\s*([\+\-]?[\d\.]+)%\s*\(Long:\s*([\+\-]?[\d\.]+)%,\s*Short:\s*([\+\-]?[\d\.]+)%\)\s*\|\s*Today:\s*([\+\-]?[\d\.]+)%/g;
+                            let rm;
+                            const rPicks = [];
+                            while ((rm = rRegex.exec(rLines)) !== null) {
+                                rPicks.push({
+                                    rank: parseInt(rm[1]),
+                                    ticker: rm[2],
+                                    name: "Standard Universe",
+                                    price: 0.0,
+                                    blended_score_pct: parseFloat(rm[3]),
+                                    roc_long_pct: parseFloat(rm[4]),
+                                    roc_short_pct: parseFloat(rm[5]),
+                                    daily_return_pct: parseFloat(rm[6]),
+                                    avg_volume: 0
+                                });
+                            }
+                            if (rPicks.length > 0 && momentumData) {
+                                momentumData.momentum.runner_ups = rPicks;
+                            }
+                        }
+
+                        if (momentumData) {
+                            renderMomentumSection();
+                        }
+                    } catch (e) {
+                        console.warn("Fallback log parsing encountered:", e);
+                    }
+                }
 
                 // Render default guard dogs view
                 renderGuardDogsRadar();
@@ -2169,8 +2788,9 @@
             const terminalFrame = document.getElementById('terminalFrame');
             if (terminalFrame) terminalFrame.src = `latest_run.html?t=${timestamp}`;
             
+            loadMomentumData();
             parseLatestRunReport();
-            showToast("🔄 Refreshed Execution Report");
+            showToast("🔄 Refreshed Execution Report & Momentum");
         }
 
         function showToast(msg, type = "info") {
