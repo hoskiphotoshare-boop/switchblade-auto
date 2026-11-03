@@ -928,6 +928,350 @@ def run_batch_backtest():
     else:
         print("[CRITICAL] No results were generated from any strategy.")
 
+    # ==========================================
+    # MOMENTUM & GUARD DOGS ENGINE (COLAB PORT)
+    # ==========================================
+    if data_master is not None and not data_master.empty:
+        run_momentum_and_guard_dogs(data_master, cfg)
+
+
+# ==========================================
+# MOMENTUM & GUARD DOGS ENGINE IMPLEMENTATION
+# ==========================================
+def parse_nport_universe(csv_path: str):
+    """Parses SEC NPORT-P CSV to get the current standard universe constituents."""
+    current_universe = set()
+    if not os.path.exists(csv_path):
+        print(f"\n    [WARNING] SEC NPORT-P CSV not found at {csv_path}. Constituent filtering disabled.")
+        return current_universe
+
+    print(f"\n    [MOM Engine] Loading current index constituents from {csv_path}...")
+    try:
+        pit_df = pd.read_csv(csv_path)
+        pit_df['Filing_Date'] = pd.to_datetime(pit_df['Filing_Date']).dt.date
+
+        def clean_ticker(symbol):
+            if not symbol or pd.isna(symbol): return None
+            s = str(symbol).split('|')[0].strip().upper().replace('.', '-').replace('/', '-')
+            if any(char.isdigit() for char in s) or len(s) > 8: return None
+            return s
+
+        pit_df['Ticker'] = pit_df['Ticker'].apply(clean_ticker)
+        pit_df.dropna(subset=['Ticker', 'Filing_Date'], inplace=True)
+
+        fund_queries = {
+            'S&P 500': 'SP500|IVV|SPY',
+            'Nasdaq-100': 'NASDAQ100|QQQ',
+            'S&P 400': 'SP400|IJH|MDY',
+            'S&P 600': 'SP600|IJR|VIOO'
+        }
+
+        for fund_name, query in fund_queries.items():
+            fund_df = pit_df[pit_df['Fund'].str.contains(query, case=False, na=False)]
+            if not fund_df.empty:
+                latest_date = fund_df['Filing_Date'].max()
+                latest_members = set(fund_df[fund_df['Filing_Date'] == latest_date]['Ticker'])
+                current_universe.update(latest_members)
+                print(f"      -> {fund_name} (As of {latest_date}): {len(latest_members)} valid tickers")
+
+        print(f"      -> Total Unique Standard Universe Constituents: {len(current_universe)}")
+    except Exception as e:
+        print(f"    [MOM Engine Error] Failed to parse SEC NPORT-P CSV: {e}")
+
+    return current_universe
+
+
+def run_momentum_and_guard_dogs(data_master: pd.DataFrame, cfg: dict):
+    print("\n" + "="*80)
+    print(" 🚀 RUNNING MOMENTUM & GUARD DOGS ENGINE")
+    print("="*80)
+
+    s1_cfg = cfg.get("S1", {})
+    s2_cfg = cfg.get("S2", {})
+
+    mom_long = int(s1_cfg.get("mom_long", 232))
+    mom_short = int(s1_cfg.get("mom_short", 84))
+    top_n = int(s1_cfg.get("top_n_stocks", 10))
+    runner_ups_n = 10
+
+    sma_period_1 = int(s1_cfg.get("sma_period", 213))
+    reentry_period_1 = int(s1_cfg.get("reentry_period", 10))
+
+    sma_period_2 = int(s2_cfg.get("sma_period", 205))
+    reentry_period_2 = int(s2_cfg.get("reentry_period", 20))
+
+    min_price = 5.00
+    min_volume = 100000
+
+    guards = ["IWM", "QQQ", "SPY", "XLG", "GLD", "TLT", "IEF", "BIL"]
+    guard_names = {
+        "IWM": "Russell 2000 (Small-Cap)",
+        "QQQ": "Invesco QQQ (Nasdaq-100)",
+        "SPY": "SPDR S&P 500 (Large-Cap)",
+        "XLG": "Invesco Top 50 Mega-Cap",
+        "GLD": "SPDR Gold Shares (Metal)",
+        "TLT": "iShares 20+ Year Treasury",
+        "IEF": "iShares 7-10 Year Treasury",
+        "BIL": "SPDR 1-3 Month T-Bill (Cash)"
+    }
+    nitro_etfs = set(parse_list(GLOBAL_NITRO_ETFS))
+
+    # --- 1. GUARD DOGS ANALYSIS ---
+    print("\n" + "="*80)
+    print(" 🐕 GUARD DOG STATUS")
+    print("="*80)
+
+    max_sma_needed = max(sma_period_1, sma_period_2)
+    all_available = list(data_master.columns.get_level_values(0).unique())
+    missing_guards = [g for g in guards if g not in all_available]
+    guard_data = {}
+
+    if missing_guards:
+        try:
+            temp_df = yf.download(missing_guards, period="2y", group_by='ticker', progress=False, auto_adjust=True)
+            if not temp_df.empty:
+                temp_df.index = pd.to_datetime(temp_df.index, utc=True).tz_localize(None).normalize()
+                for g in missing_guards:
+                    if len(missing_guards) == 1:
+                        guard_data[g] = temp_df['Close'].dropna()
+                    elif g in temp_df.columns.get_level_values(0):
+                        guard_data[g] = temp_df[g]['Close'].dropna()
+        except Exception as e:
+            print(f"    [Warning] Failed to download missing guards {missing_guards}: {e}")
+
+    guard_results = []
+    bullish_s1_count = 0
+    bullish_s2_count = 0
+
+    for g in guards:
+        closes = None
+        if g in all_available:
+            try:
+                closes = data_master[g]['Close'].dropna()
+            except Exception:
+                pass
+        if closes is None or closes.empty:
+            if g in guard_data:
+                closes = guard_data[g]
+
+        if closes is None or len(closes) < max_sma_needed:
+            print(f"{g:4s} | ⚠️ Insufficient data ({len(closes) if closes is not None else 0} days, needs {max_sma_needed})")
+            print("-" * 80)
+            continue
+
+        guard_latest_dt = closes.index[-1]
+        idx = closes.index.get_loc(guard_latest_dt)
+        current_price = float(closes.iloc[idx])
+        prev_price = float(closes.iloc[idx - 1]) if idx > 0 else current_price
+        daily_return = (current_price - prev_price) / prev_price if prev_price > 0 else 0.0
+
+        # SET 1 CALCS
+        sma_exit_1 = float(closes.iloc[idx - sma_period_1 + 1 : idx + 1].mean())
+        dist_exit_1 = ((current_price - sma_exit_1) / sma_exit_1) * 100
+        sma_reentry_1 = float(closes.iloc[idx - reentry_period_1 + 1 : idx + 1].mean())
+        dist_reentry_1 = ((current_price - sma_reentry_1) / sma_reentry_1) * 100
+        status_1 = "🟢 BULLISH" if current_price > sma_exit_1 else "🔴 BEARISH"
+        if current_price > sma_exit_1: bullish_s1_count += 1
+
+        # SET 2 CALCS
+        sma_exit_2 = float(closes.iloc[idx - sma_period_2 + 1 : idx + 1].mean())
+        dist_exit_2 = ((current_price - sma_exit_2) / sma_exit_2) * 100
+        sma_reentry_2 = float(closes.iloc[idx - reentry_period_2 + 1 : idx + 1].mean())
+        dist_reentry_2 = ((current_price - sma_reentry_2) / sma_reentry_2) * 100
+        status_2 = "🟢 BULLISH" if current_price > sma_exit_2 else "🔴 BEARISH"
+        if current_price > sma_exit_2: bullish_s2_count += 1
+
+        print(f"{g:4s} | Price: {current_price:7.2f} | Today: {daily_return*100:+6.2f}%")
+        print(f"       Set 1 ({sma_period_1:3d}/{reentry_period_1:2d}): Exit {sma_exit_1:7.2f} ({dist_exit_1:+7.2f}%) | Re-entry {sma_reentry_1:7.2f} ({dist_reentry_1:+7.2f}%) | {status_1}")
+        print(f"       Set 2 ({sma_period_2:3d}/{reentry_period_2:2d}): Exit {sma_exit_2:7.2f} ({dist_exit_2:+7.2f}%) | Re-entry {sma_reentry_2:7.2f} ({dist_reentry_2:+7.2f}%) | {status_2}")
+        print("-" * 80)
+
+        guard_results.append({
+            "ticker": g,
+            "name": guard_names.get(g, g),
+            "price": round(current_price, 2),
+            "daily_return_pct": round(daily_return * 100, 2),
+            "set1": {
+                "exit_sma": round(sma_exit_1, 2),
+                "exit_dist_pct": round(dist_exit_1, 2),
+                "reentry_sma": round(sma_reentry_1, 2),
+                "reentry_dist_pct": round(dist_reentry_1, 2),
+                "status": "BULLISH" if current_price > sma_exit_1 else "BEARISH"
+            },
+            "set2": {
+                "exit_sma": round(sma_exit_2, 2),
+                "exit_dist_pct": round(dist_exit_2, 2),
+                "reentry_sma": round(sma_reentry_2, 2),
+                "reentry_dist_pct": round(dist_reentry_2, 2),
+                "status": "BULLISH" if current_price > sma_exit_2 else "BEARISH"
+            }
+        })
+
+    # --- 2. MOMENTUM CALCULATION ---
+    csv_path = os.path.join(DATA_DIR, "full_production_holdings.csv")
+    current_universe = parse_nport_universe(csv_path)
+    if not current_universe:
+        current_universe = set(pit_manager.get_all_tickers())
+
+    latest_dt = data_master.index.dropna().max()
+    print(f"\nCalculating momentum as of {latest_dt.date()} (Long: {mom_long}d, Short: {mom_short}d)...")
+
+    ranked = []
+    for t in all_available:
+        if t in guards or t in nitro_etfs or str(t).startswith("Unnamed"):
+            continue
+        if current_universe and t not in current_universe:
+            continue
+
+        try:
+            sub_df = data_master[t]
+            if 'Close' not in sub_df.columns: continue
+            closes = sub_df['Close'].dropna()
+            volumes = sub_df['Volume'].dropna() if 'Volume' in sub_df.columns else pd.Series(dtype=float)
+
+            if volumes.empty: continue
+            if len(closes) > 205 and latest_dt in closes.index:
+                idx = closes.index.get_loc(latest_dt)
+                if idx >= mom_long and latest_dt in volumes.index:
+                    vol_idx = volumes.index.get_loc(latest_dt)
+                    end_price = float(closes.iloc[idx])
+                    if end_price < min_price:
+                        continue
+
+                    if vol_idx >= 20:
+                        avg_vol_20d = float(volumes.iloc[vol_idx-20:vol_idx].mean())
+                        if avg_vol_20d < min_volume:
+                            continue
+                    else:
+                        continue
+
+                    start_long = float(closes.iloc[idx - mom_long])
+                    start_short = float(closes.iloc[idx - mom_short]) if idx >= mom_short else start_long
+
+                    if start_long > 0 and start_short > 0:
+                        roc_long = (end_price - start_long) / start_long
+                        roc_short = (end_price - start_short) / start_short
+                        prev_price = float(closes.iloc[idx - 1]) if idx > 0 else end_price
+                        daily_return = (end_price - prev_price) / prev_price if prev_price > 0 else 0.0
+
+                        blended_roc = (roc_long * 0.70) + (roc_short * 0.30)
+                        ranked.append((t, blended_roc, roc_long, roc_short, daily_return, end_price, avg_vol_20d))
+        except Exception:
+            pass
+
+    ranked.sort(key=lambda x: x[1], reverse=True)
+    top_picks = ranked[:top_n]
+    runner_ups = ranked[top_n : top_n + runner_ups_n]
+
+    print("\n" + "="*80)
+    print(f" 🏆 TOP {top_n} MOMENTUM STOCKS (STANDARD UNIVERSE - DYNAMIC)")
+    print("="*80)
+    top_picks_json = []
+    for i, (ticker, score, r_long, r_short, d_ret, px, v20) in enumerate(top_picks, 1):
+        print(f"{i:2d}. {ticker:5s} | Blended Score: {score*100:6.2f}%  (Long: {r_long*100:6.2f}%, Short: {r_short*100:6.2f}%) | Today: {d_ret*100:+6.2f}%")
+        top_picks_json.append({
+            "rank": i,
+            "ticker": ticker,
+            "price": round(px, 2),
+            "blended_score_pct": round(score * 100, 2),
+            "roc_long_pct": round(r_long * 100, 2),
+            "roc_short_pct": round(r_short * 100, 2),
+            "daily_return_pct": round(d_ret * 100, 2),
+            "avg_volume": int(v20)
+        })
+
+    print("\n" + "="*80)
+    print(f" 🥈 RUNNER-UPS (Next {len(runner_ups)})")
+    print("="*80)
+    runner_ups_json = []
+    for i, (ticker, score, r_long, r_short, d_ret, px, v20) in enumerate(runner_ups, top_n + 1):
+        print(f"{i:2d}. {ticker:5s} | Blended Score: {score*100:6.2f}%  (Long: {r_long*100:6.2f}%, Short: {r_short*100:6.2f}%) | Today: {d_ret*100:+6.2f}%")
+        runner_ups_json.append({
+            "rank": i,
+            "ticker": ticker,
+            "price": round(px, 2),
+            "blended_score_pct": round(score * 100, 2),
+            "roc_long_pct": round(r_long * 100, 2),
+            "roc_short_pct": round(r_short * 100, 2),
+            "daily_return_pct": round(d_ret * 100, 2),
+            "avg_volume": int(v20)
+        })
+
+    # --- 3. EXPORT STRUCTURED JSON ---
+    momentum_data = {
+        "updated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S EDT"),
+        "as_of_date": str(latest_dt.date()),
+        "guard_dogs": {
+            "set1_params": {"sma": sma_period_1, "reentry": reentry_period_1},
+            "set2_params": {"sma": sma_period_2, "reentry": reentry_period_2},
+            "bullish_count_set1": bullish_s1_count,
+            "bullish_count_set2": bullish_s2_count,
+            "total_guards": len(guard_results),
+            "etfs": guard_results
+        },
+        "momentum": {
+            "params": {
+                "mom_long": mom_long,
+                "mom_short": mom_short,
+                "min_price": min_price,
+                "min_volume": min_volume,
+                "total_universe_scanned": len(ranked)
+            },
+            "top_10": top_picks_json,
+            "runner_ups": runner_ups_json
+        }
+    }
+
+    try:
+        docs_json_path = os.path.join("./docs", "momentum_data.json")
+        data_json_path = os.path.join(DATA_DIR, "momentum_data.json")
+        with open(docs_json_path, "w", encoding="utf-8") as f:
+            json.dump(momentum_data, f, indent=2)
+        with open(data_json_path, "w", encoding="utf-8") as f:
+            json.dump(momentum_data, f, indent=2)
+        print(f"\n    [System] Momentum & Guard Dogs data successfully saved to {docs_json_path} and {data_json_path}")
+    except Exception as e:
+        print(f"    [Warning] Failed to save JSON files: {e}")
+
+    # Inject HTML summary into latest_run.html
+    if hasattr(sys.stdout, 'inject_html'):
+        try:
+            guards_rows = "".join([
+                f"<tr><td style='padding:6px 10px;font-weight:bold;'>{g['ticker']} ({g['name']})</td>"
+                f"<td style='padding:6px 10px;'>${g['price']:.2f} <span style='color:{'#34d399' if g['daily_return_pct']>=0 else '#f87171'}'>({g['daily_return_pct']:+.2f}%)</span></td>"
+                f"<td style='padding:6px 10px;color:{'#34d399' if g['set1']['status']=='BULLISH' else '#f87171'}'>{g['set1']['status']} (Exit {g['set1']['exit_dist_pct']:+.2f}%)</td>"
+                f"<td style='padding:6px 10px;color:{'#34d399' if g['set2']['status']=='BULLISH' else '#f87171'}'>{g['set2']['status']} (Exit {g['set2']['exit_dist_pct']:+.2f}%)</td></tr>"
+                for g in guard_results
+            ])
+            top_rows = "".join([
+                f"<tr><td style='padding:6px 10px;font-weight:bold;'>#{item['rank']} {item['ticker']}</td>"
+                f"<td style='padding:6px 10px;color:#34d399;font-weight:bold;'>+{item['blended_score_pct']:.2f}%</td>"
+                f"<td style='padding:6px 10px;'>Long: +{item['roc_long_pct']:.2f}% | Short: +{item['roc_short_pct']:.2f}%</td>"
+                f"<td style='padding:6px 10px;'>${item['price']:.2f} ({item['daily_return_pct']:+.2f}%)</td></tr>"
+                for item in top_picks_json
+            ])
+            html_block = f"""
+            <div style="margin:24px 0;padding:16px;background:#111827;border:1px solid #374151;border-radius:8px;font-family:sans-serif;">
+                <h3 style="color:#60a5fa;margin-top:0;">🐕 Guard Dogs Status (As of {latest_dt.date()})</h3>
+                <table style="width:100%;border-collapse:collapse;font-size:13px;color:#e5e7eb;margin-bottom:20px;">
+                    <thead><tr style="border-bottom:1px solid #4b5563;text-align:left;">
+                        <th style="padding:6px 10px;">Asset</th><th style="padding:6px 10px;">Price</th><th style="padding:6px 10px;">Set 1 (213/10)</th><th style="padding:6px 10px;">Set 2 (205/20)</th>
+                    </tr></thead>
+                    <tbody>{guards_rows}</tbody>
+                </table>
+                <h3 style="color:#fbbf24;margin-top:0;">🏆 Top 10 Momentum Stocks (Dynamic Universe)</h3>
+                <table style="width:100%;border-collapse:collapse;font-size:13px;color:#e5e7eb;">
+                    <thead><tr style="border-bottom:1px solid #4b5563;text-align:left;">
+                        <th style="padding:6px 10px;">Rank & Ticker</th><th style="padding:6px 10px;">Blended Score</th><th style="padding:6px 10px;">Momentum Periods</th><th style="padding:6px 10px;">Price / Today</th>
+                    </tr></thead>
+                    <tbody>{top_rows}</tbody>
+                </table>
+            </div>
+            """
+            sys.stdout.inject_html(html_block)
+        except Exception as e:
+            print(f"    [Warning] Failed to inject HTML block: {e}")
+
 
 # ==========================================
 # MAIN ENTRY & HTML LOGGER
