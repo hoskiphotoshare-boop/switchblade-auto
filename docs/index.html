@@ -42,6 +42,16 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior-x: none;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -49,10 +59,14 @@
             background-color: var(--bg-base);
             color: var(--text-primary);
             min-height: 100vh;
+            width: 100%;
+            max-width: 100%;
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            position: relative;
             scroll-behavior: smooth;
+            overscroll-behavior-x: none;
         }
 
         /* Top Header */
@@ -69,6 +83,9 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .brand-group {
@@ -262,6 +279,8 @@
             display: flex;
             flex-direction: column;
             gap: 24px;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
 
         /* Panels & Cards */
@@ -272,6 +291,9 @@
             padding: 22px;
             box-shadow: var(--shadow-sm);
             transition: border-color 0.2s;
+            max-width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
         }
 
         .card:hover {
@@ -331,6 +353,10 @@
             overflow-x: auto;
             padding: 4px 0 10px 0;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+            touch-action: pan-x;
+            max-width: 100%;
+            scrollbar-width: none;
         }
 
         .quick-jump-bar::-webkit-scrollbar { display: none; }
@@ -532,8 +558,11 @@
         /* League Table Styles */
         .table-responsive-wrapper {
             width: 100%;
+            max-width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+            touch-action: pan-x;
             border-radius: var(--radius-md);
             border: 1px solid var(--border);
             background: var(--bg-surface);
@@ -629,6 +658,16 @@
             padding: 3px;
             border-radius: var(--radius-md);
             border: 1px solid var(--border);
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+            touch-action: pan-x;
+            scrollbar-width: none;
+        }
+
+        .chart-toggle-group::-webkit-scrollbar {
+            display: none;
         }
 
         .chart-toggle-btn {
@@ -794,7 +833,18 @@
             color: #34d399;
             overflow-x: auto;
             white-space: pre-wrap;
+            word-break: break-all;
+            overflow-wrap: anywhere;
             line-height: 1.4;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .tab-pane {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
         }
 
         /* Forms */
@@ -887,26 +937,42 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* Mobile Bottom Nav */
+        /* Mobile Bottom Nav: Static anchor at viewport bottom, horizontally scrollable icon row */
         .mobile-nav-bar {
             display: none;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: var(--bottom-nav-height);
-            background: rgba(14, 22, 38, 0.95);
+            width: 100%;
+            max-width: 100%;
+            height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+            background: rgba(10, 16, 28, 0.96);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border);
-            z-index: 60;
-            justify-content: space-around;
-            align-items: center;
-            padding: 0 4px;
+            border-top: 1px solid var(--border-highlight);
+            z-index: 1000;
+            box-sizing: border-box;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+            overscroll-behavior-y: none;
+            touch-action: pan-x;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .mobile-nav-bar::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
         }
 
         .mobile-nav-item {
-            display: flex;
+            display: inline-flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -914,27 +980,41 @@
             background: transparent;
             border: none;
             color: var(--text-secondary);
-            font-size: 0.65rem;
+            font-size: 0.68rem;
             font-weight: 500;
-            padding: 6px 8px;
+            padding: 6px 12px;
             cursor: pointer;
-            flex: 1;
-            transition: color 0.15s;
+            flex: 0 0 auto;
+            min-width: 68px;
+            height: 100%;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+            user-select: none;
+            -webkit-user-select: none;
+            border-radius: var(--radius-sm);
+        }
+
+        .mobile-nav-item:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .mobile-nav-item svg {
             width: 20px;
             height: 20px;
             stroke-width: 2;
+            transition: transform 0.15s;
         }
 
         .mobile-nav-item.active {
             color: var(--accent-emerald);
             font-weight: 600;
+            background: rgba(16, 185, 129, 0.08);
         }
 
         .mobile-nav-item.active svg {
             stroke: var(--accent-emerald);
+            transform: translateY(-1px);
         }
 
         /* Dynamic Momentum Engine */
@@ -1119,16 +1199,31 @@
         /* Responsive Breakpoints */
         @media (max-width: 980px) {
             .nav-tabs-desktop { display: none; }
-            .mobile-nav-bar { display: flex; }
-            body { padding-bottom: calc(var(--bottom-nav-height) + 16px); }
+            .mobile-nav-bar {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 4px;
+                padding: 0 8px env(safe-area-inset-bottom, 0px) 8px;
+            }
+            body {
+                padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 20px);
+            }
             main.app-main { padding: 14px; gap: 18px; }
             header.top-header { padding: 10px 14px; }
+            .brand-group { min-width: 0; flex-shrink: 1; }
+            .brand-text { min-width: 0; }
+            .brand-text h1 { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .header-actions { flex-shrink: 0; }
             .strategy-grid { grid-template-columns: 1fr; }
             .strat-metrics-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .mom-card-grid { grid-template-columns: 1fr; }
             .radar-grid { grid-template-columns: 1fr; }
+            .grid-2col, .grid-3col { grid-template-columns: 1fr; }
             .hide-mobile { display: none !important; }
-            #toast { bottom: calc(var(--bottom-nav-height) + 14px); right: 14px; left: 14px; }
+            #toast { bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 14px); right: 14px; left: 14px; }
         }
 
         @media (min-width: 981px) {
@@ -1155,7 +1250,7 @@
 
         <!-- Desktop Segmented Tab Navigation -->
         <nav class="nav-tabs-desktop" id="desktopNav">
-            <button class="nav-tab-btn active" onclick="switchMainTab('dashboard')">
+            <button class="nav-tab-btn active" onclick="switchMainTab('dashboard'); scrollToSection('section-holdings');">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                 Dashboard
             </button>
@@ -1839,29 +1934,33 @@
         </div>
     </div>
 
-    <!-- Mobile Bottom Navigation Bar -->
-    <nav class="mobile-nav-bar" id="mobileNavBar">
-        <button class="mobile-nav-item active" onclick="switchMainTab('dashboard'); scrollToSection('section-holdings');">
+    <!-- Mobile Bottom Navigation Bar (Statically anchored to viewport bottom, horizontally scrollable icon row) -->
+    <nav class="mobile-nav-bar" id="mobileNavBar" aria-label="Mobile Navigation">
+        <button class="mobile-nav-item active" data-nav="holdings" onclick="handleMobileNavClick(this, 'dashboard', 'section-holdings');" title="Holdings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Holdings</span>
         </button>
-        <button class="mobile-nav-item" onclick="switchMainTab('dashboard'); scrollToSection('section-momentum');">
+        <button class="mobile-nav-item" data-nav="momentum" onclick="handleMobileNavClick(this, 'dashboard', 'section-momentum');" title="Momentum">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
             <span>Momentum</span>
         </button>
-        <button class="mobile-nav-item" onclick="switchMainTab('dashboard'); scrollToSection('section-guards');">
+        <button class="mobile-nav-item" data-nav="guards" onclick="handleMobileNavClick(this, 'dashboard', 'section-guards');" title="Guard Dogs">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             <span>Guards</span>
         </button>
-        <button class="mobile-nav-item" onclick="switchMainTab('dashboard'); scrollToSection('section-league');">
+        <button class="mobile-nav-item" data-nav="league" onclick="handleMobileNavClick(this, 'dashboard', 'section-league');" title="League Table">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
             <span>League</span>
         </button>
-        <button class="mobile-nav-item" onclick="switchMainTab('dashboard'); scrollToSection('section-charts');">
+        <button class="mobile-nav-item" data-nav="charts" onclick="handleMobileNavClick(this, 'dashboard', 'section-charts');" title="Performance Charts">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
             <span>Charts</span>
         </button>
-        <button class="mobile-nav-item" onclick="switchMainTab('terminal')">
+        <button class="mobile-nav-item" data-nav="strategies" onclick="handleMobileNavClick(this, 'strategies');" title="Configuration">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Config</span>
+        </button>
+        <button class="mobile-nav-item" data-nav="terminal" onclick="handleMobileNavClick(this, 'terminal');" title="Terminal Stream">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
             <span>Logs</span>
         </button>
@@ -1908,29 +2007,69 @@
             }
         });
 
+        // Synchronize Active States across Desktop and Mobile Navigation
+        function updateNavActive(navKey) {
+            // Update Desktop Nav (Dashboard=0, Momentum=1, Guards=2, League=3, Charts=4, Config=5, Terminal=6)
+            const desktopKeyMap = {
+                'dashboard': 0, 'holdings': 0,
+                'momentum': 1,
+                'guards': 2,
+                'league': 3,
+                'charts': 4,
+                'strategies': 5, 'config': 5,
+                'terminal': 6, 'logs': 6
+            };
+            const targetIdx = desktopKeyMap[navKey];
+            const desktopButtons = document.querySelectorAll('#desktopNav .nav-tab-btn');
+            desktopButtons.forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === targetIdx);
+            });
+
+            // Update Mobile Bottom Nav (Holdings, Momentum, Guards, League, Charts, Config, Logs)
+            const mobileItems = document.querySelectorAll('.mobile-nav-item');
+            mobileItems.forEach(btn => {
+                const isMatch = btn.getAttribute('data-nav') === navKey;
+                btn.classList.toggle('active', isMatch);
+                if (isMatch) {
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            });
+        }
+
+        // Dedicated Mobile Navigation Click Handler
+        function handleMobileNavClick(btn, tabId, sectionId) {
+            const navKey = btn ? btn.getAttribute('data-nav') : (sectionId ? sectionId.replace('section-', '') : tabId);
+            if (sectionId) {
+                switchMainTab(tabId, false);
+                scrollToSection(sectionId, false);
+            } else {
+                switchMainTab(tabId, false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            updateNavActive(navKey);
+        }
+
         // Main Tab Switching
-        function switchMainTab(tabId) {
+        function switchMainTab(tabId, syncNav = true) {
             const tabs = ['dashboard', 'strategies', 'settings', 'terminal'];
             tabs.forEach(id => {
                 const el = document.getElementById(`tab-${id}`);
                 if (el) el.style.display = (id === tabId) ? 'block' : 'none';
             });
 
-            // Update Desktop Nav (7 items: Dashboard=0, Momentum=1, Guards=2, League=3, Charts=4, Config=5, Terminal=6)
-            const navMap = {
-                'dashboard': 0,
-                'strategies': 5,
-                'terminal': 6
-            };
-            const desktopButtons = document.querySelectorAll('#desktopNav .nav-tab-btn');
-            desktopButtons.forEach((btn, idx) => {
-                btn.classList.toggle('active', navMap[tabId] === idx);
-            });
+            if (syncNav) {
+                const defaultKey = (tabId === 'strategies') ? 'strategies' : (tabId === 'terminal') ? 'terminal' : 'holdings';
+                updateNavActive(defaultKey);
+            }
         }
 
         // Direct Smooth Scroll within the Dashboard
-        function scrollToSection(sectionId) {
-            switchMainTab('dashboard');
+        function scrollToSection(sectionId, syncNav = true) {
+            switchMainTab('dashboard', false);
+            if (syncNav) {
+                const navKey = sectionId.replace('section-', '');
+                updateNavActive(navKey);
+            }
             setTimeout(() => {
                 const el = document.getElementById(sectionId);
                 if (el) {
