@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-04 01:47:11 EDT",
-  "as_of_date": "2026-11-03",
+  "updated_at": "2026-11-04 22:25:25 EDT",
+  "as_of_date": "2026-11-04",
   "guard_dogs": {
     "set1_params": {
       "sma": 213,
@@ -17,160 +17,160 @@
       {
         "ticker": "IWM",
         "name": "Russell 2000 (Small-Cap)",
-        "price": 279.14,
-        "daily_return_pct": 0.0,
+        "price": 284.02,
+        "daily_return_pct": 1.51,
         "set1": {
-          "exit_sma": 276.48,
-          "exit_dist_pct": 0.96,
-          "reentry_sma": 278.9,
-          "reentry_dist_pct": 0.09,
+          "exit_sma": 276.66,
+          "exit_dist_pct": 2.66,
+          "reentry_sma": 279.72,
+          "reentry_dist_pct": 1.54,
           "status": "BULLISH"
         },
         "set2": {
-          "exit_sma": 277.46,
-          "exit_dist_pct": 0.61,
-          "reentry_sma": 277.09,
-          "reentry_dist_pct": 0.74,
+          "exit_sma": 277.58,
+          "exit_dist_pct": 2.32,
+          "reentry_sma": 277.44,
+          "reentry_dist_pct": 2.37,
           "status": "BULLISH"
         }
       },
       {
         "ticker": "QQQ",
         "name": "Invesco QQQ (Nasdaq-100)",
-        "price": 681.09,
-        "daily_return_pct": 0.0,
+        "price": 691.95,
+        "daily_return_pct": 0.97,
         "set1": {
-          "exit_sma": 675.34,
-          "exit_dist_pct": 0.85,
-          "reentry_sma": 706.11,
-          "reentry_dist_pct": -3.54,
+          "exit_sma": 675.71,
+          "exit_dist_pct": 2.4,
+          "reentry_sma": 703.21,
+          "reentry_dist_pct": -1.6,
           "status": "BULLISH"
         },
         "set2": {
-          "exit_sma": 677.58,
-          "exit_dist_pct": 0.52,
-          "reentry_sma": 720.5,
-          "reentry_dist_pct": -5.47,
+          "exit_sma": 677.93,
+          "exit_dist_pct": 2.07,
+          "reentry_sma": 717.42,
+          "reentry_dist_pct": -3.55,
           "status": "BULLISH"
         }
       },
       {
         "ticker": "SPY",
         "name": "SPDR S&P 500 (Large-Cap)",
-        "price": 752.1,
-        "daily_return_pct": 0.0,
+        "price": 766.81,
+        "daily_return_pct": 1.65,
         "set1": {
-          "exit_sma": 724.07,
-          "exit_dist_pct": 3.87,
-          "reentry_sma": 763.36,
-          "reentry_dist_pct": -1.48,
+          "exit_sma": 724.48,
+          "exit_dist_pct": 5.84,
+          "reentry_sma": 762.96,
+          "reentry_dist_pct": 0.5,
           "status": "BULLISH"
         },
         "set2": {
-          "exit_sma": 725.68,
-          "exit_dist_pct": 3.64,
-          "reentry_sma": 767.98,
-          "reentry_dist_pct": -2.07,
+          "exit_sma": 726.07,
+          "exit_dist_pct": 5.61,
+          "reentry_sma": 767.57,
+          "reentry_dist_pct": -0.1,
           "status": "BULLISH"
         }
       },
       {
         "ticker": "XLG",
         "name": "Invesco Top 50 Mega-Cap",
-        "price": 60.9,
-        "daily_return_pct": 0.0,
+        "price": 62.35,
+        "daily_return_pct": 1.81,
         "set1": {
-          "exit_sma": 60.46,
-          "exit_dist_pct": 0.73,
-          "reentry_sma": 62.45,
-          "reentry_dist_pct": -2.48,
+          "exit_sma": 60.47,
+          "exit_dist_pct": 3.1,
+          "reentry_sma": 62.33,
+          "reentry_dist_pct": 0.03,
           "status": "BULLISH"
         },
         "set2": {
-          "exit_sma": 60.51,
-          "exit_dist_pct": 0.64,
-          "reentry_sma": 63.31,
-          "reentry_dist_pct": -3.81,
+          "exit_sma": 60.53,
+          "exit_dist_pct": 3.01,
+          "reentry_sma": 63.19,
+          "reentry_dist_pct": -1.33,
           "status": "BULLISH"
         }
       },
       {
         "ticker": "GLD",
         "name": "SPDR Gold Shares (Metal)",
-        "price": 361.65,
-        "daily_return_pct": 0.0,
+        "price": 372.49,
+        "daily_return_pct": 3.68,
         "set1": {
-          "exit_sma": 412.34,
-          "exit_dist_pct": -12.29,
-          "reentry_sma": 367.58,
-          "reentry_dist_pct": -1.61,
+          "exit_sma": 412.2,
+          "exit_dist_pct": -9.63,
+          "reentry_sma": 366.7,
+          "reentry_dist_pct": 1.58,
           "status": "BEARISH"
         },
         "set2": {
-          "exit_sma": 412.57,
-          "exit_dist_pct": -12.34,
-          "reentry_sma": 373.84,
-          "reentry_dist_pct": -3.26,
+          "exit_sma": 412.32,
+          "exit_dist_pct": -9.66,
+          "reentry_sma": 373.55,
+          "reentry_dist_pct": -0.28,
           "status": "BEARISH"
         }
       },
       {
         "ticker": "TLT",
         "name": "iShares 20+ Year Treasury",
-        "price": 81.73,
-        "daily_return_pct": 0.0,
+        "price": 81.76,
+        "daily_return_pct": 0.8,
         "set1": {
-          "exit_sma": 83.59,
-          "exit_dist_pct": -2.22,
-          "reentry_sma": 81.44,
-          "reentry_dist_pct": 0.35,
+          "exit_sma": 83.57,
+          "exit_dist_pct": -2.16,
+          "reentry_sma": 81.53,
+          "reentry_dist_pct": 0.28,
           "status": "BEARISH"
         },
         "set2": {
-          "exit_sma": 83.53,
-          "exit_dist_pct": -2.16,
-          "reentry_sma": 80.12,
-          "reentry_dist_pct": 2.01,
+          "exit_sma": 83.52,
+          "exit_dist_pct": -2.1,
+          "reentry_sma": 80.32,
+          "reentry_dist_pct": 1.8,
           "status": "BEARISH"
         }
       },
       {
         "ticker": "IEF",
         "name": "iShares 7-10 Year Treasury",
-        "price": 91.5,
-        "daily_return_pct": 0.0,
+        "price": 91.66,
+        "daily_return_pct": 0.55,
         "set1": {
-          "exit_sma": 92.84,
-          "exit_dist_pct": -1.44,
-          "reentry_sma": 91.16,
-          "reentry_dist_pct": 0.38,
+          "exit_sma": 92.82,
+          "exit_dist_pct": -1.25,
+          "reentry_sma": 91.27,
+          "reentry_dist_pct": 0.43,
           "status": "BEARISH"
         },
         "set2": {
-          "exit_sma": 92.8,
-          "exit_dist_pct": -1.4,
-          "reentry_sma": 90.47,
-          "reentry_dist_pct": 1.14,
+          "exit_sma": 92.79,
+          "exit_dist_pct": -1.22,
+          "reentry_sma": 90.58,
+          "reentry_dist_pct": 1.2,
           "status": "BEARISH"
         }
       },
       {
         "ticker": "BIL",
         "name": "SPDR 1-3 Month T-Bill (Cash)",
-        "price": 91.41,
+        "price": 91.42,
         "daily_return_pct": 0.0,
         "set1": {
-          "exit_sma": 90.57,
+          "exit_sma": 90.58,
           "exit_dist_pct": 0.92,
-          "reentry_sma": 91.6,
-          "reentry_dist_pct": -0.21,
+          "reentry_sma": 91.58,
+          "reentry_dist_pct": -0.18,
           "status": "BULLISH"
         },
         "set2": {
-          "exit_sma": 90.62,
+          "exit_sma": 90.63,
           "exit_dist_pct": 0.87,
           "reentry_sma": 91.56,
-          "reentry_dist_pct": -0.16,
+          "reentry_dist_pct": -0.15,
           "status": "BULLISH"
         }
       }
@@ -182,210 +182,210 @@
       "mom_short": 84,
       "min_price": 5.0,
       "min_volume": 100000,
-      "total_universe_scanned": 1433
+      "total_universe_scanned": 1437
     },
     "top_10": [
       {
         "rank": 1,
         "ticker": "MRNA",
-        "price": 220.83,
-        "blended_score_pct": 596.95,
-        "roc_long_pct": 777.01,
-        "roc_short_pct": 176.83,
-        "daily_return_pct": 0.0,
-        "avg_volume": 18980985
+        "price": 258.38,
+        "blended_score_pct": 714.59,
+        "roc_long_pct": 913.65,
+        "roc_short_pct": 250.11,
+        "daily_return_pct": 13.11,
+        "avg_volume": 18517030
       },
       {
         "rank": 2,
         "ticker": "SNDK",
-        "price": 1075.08,
-        "blended_score_pct": 307.09,
-        "roc_long_pct": 453.08,
-        "roc_short_pct": -33.54,
-        "daily_return_pct": 0.0,
-        "avg_volume": 8876785
+        "price": 1037.4,
+        "blended_score_pct": 258.45,
+        "roc_long_pct": 386.33,
+        "roc_short_pct": -39.94,
+        "daily_return_pct": -7.91,
+        "avg_volume": 8977820
       },
       {
         "rank": 3,
         "ticker": "MU",
-        "price": 833.59,
-        "blended_score_pct": 176.13,
-        "roc_long_pct": 256.4,
-        "roc_short_pct": -11.15,
-        "daily_return_pct": 0.0,
-        "avg_volume": 26678025
+        "price": 795.23,
+        "blended_score_pct": 171.03,
+        "roc_long_pct": 251.26,
+        "roc_short_pct": -16.17,
+        "daily_return_pct": -7.0,
+        "avg_volume": 26653290
       },
       {
         "rank": 4,
-        "ticker": "MXL",
-        "price": 61.33,
-        "blended_score_pct": 160.88,
-        "roc_long_pct": 242.05,
-        "roc_short_pct": -28.54,
-        "daily_return_pct": 0.0,
-        "avg_volume": 3595745
+        "ticker": "OABI",
+        "price": 5.18,
+        "blended_score_pct": 151.63,
+        "roc_long_pct": 162.94,
+        "roc_short_pct": 125.22,
+        "daily_return_pct": 0.58,
+        "avg_volume": 1410000
       },
       {
         "rank": 5,
-        "ticker": "OABI",
-        "price": 5.09,
-        "blended_score_pct": 155.34,
-        "roc_long_pct": 170.74,
-        "roc_short_pct": 119.4,
-        "daily_return_pct": 0.0,
-        "avg_volume": 1431340
+        "ticker": "RNG",
+        "price": 77.96,
+        "blended_score_pct": 146.82,
+        "roc_long_pct": 167.78,
+        "roc_short_pct": 97.92,
+        "daily_return_pct": -0.23,
+        "avg_volume": 1742540
       },
       {
         "rank": 6,
-        "ticker": "RNG",
-        "price": 77.74,
-        "blended_score_pct": 144.61,
-        "roc_long_pct": 167.29,
-        "roc_short_pct": 91.68,
-        "daily_return_pct": 0.0,
-        "avg_volume": 1724895
+        "ticker": "AMN",
+        "price": 47.74,
+        "blended_score_pct": 146.32,
+        "roc_long_pct": 188.11,
+        "roc_short_pct": 48.82,
+        "daily_return_pct": 5.39,
+        "avg_volume": 961420
       },
       {
         "rank": 7,
-        "ticker": "DELL",
-        "price": 392.78,
-        "blended_score_pct": 136.25,
-        "roc_long_pct": 197.03,
-        "roc_short_pct": -5.59,
-        "daily_return_pct": 0.0,
-        "avg_volume": 6659035
+        "ticker": "MXL",
+        "price": 56.85,
+        "blended_score_pct": 137.16,
+        "roc_long_pct": 210.49,
+        "roc_short_pct": -33.93,
+        "daily_return_pct": -11.13,
+        "avg_volume": 3594185
       },
       {
         "rank": 8,
-        "ticker": "AMN",
-        "price": 45.77,
-        "blended_score_pct": 133.26,
-        "roc_long_pct": 174.24,
-        "roc_short_pct": 37.65,
-        "daily_return_pct": 0.0,
-        "avg_volume": 948630
+        "ticker": "VSXY",
+        "price": 108.95,
+        "blended_score_pct": 126.14,
+        "roc_long_pct": 162.09,
+        "roc_short_pct": 42.27,
+        "daily_return_pct": 8.38,
+        "avg_volume": 1484320
       },
       {
         "rank": 9,
         "ticker": "CBRL",
-        "price": 69.75,
-        "blended_score_pct": 115.91,
-        "roc_long_pct": 147.53,
-        "roc_short_pct": 42.13,
-        "daily_return_pct": 0.0,
-        "avg_volume": 909465
+        "price": 70.27,
+        "blended_score_pct": 121.29,
+        "roc_long_pct": 153.59,
+        "roc_short_pct": 45.9,
+        "daily_return_pct": 2.84,
+        "avg_volume": 905245
       },
       {
         "rank": 10,
-        "ticker": "MPC",
-        "price": 430.39,
-        "blended_score_pct": 109.5,
-        "roc_long_pct": 129.84,
-        "roc_short_pct": 62.04,
-        "daily_return_pct": 0.0,
-        "avg_volume": 2064345
+        "ticker": "CAKE",
+        "price": 115.39,
+        "blended_score_pct": 116.46,
+        "roc_long_pct": 144.51,
+        "roc_short_pct": 50.99,
+        "daily_return_pct": 4.69,
+        "avg_volume": 1533670
       }
     ],
     "runner_ups": [
       {
         "rank": 11,
-        "ticker": "CAKE",
-        "price": 112.96,
-        "blended_score_pct": 109.12,
-        "roc_long_pct": 136.3,
-        "roc_short_pct": 45.7,
-        "daily_return_pct": 0.0,
-        "avg_volume": 1583190
+        "ticker": "DELL",
+        "price": 372.36,
+        "blended_score_pct": 115.45,
+        "roc_long_pct": 170.73,
+        "roc_short_pct": -13.54,
+        "daily_return_pct": -8.82,
+        "avg_volume": 6624420
       },
       {
         "rank": 12,
-        "ticker": "IRDM",
-        "price": 43.74,
-        "blended_score_pct": 108.21,
-        "roc_long_pct": 160.64,
-        "roc_short_pct": -14.11,
-        "daily_return_pct": 0.0,
-        "avg_volume": 837500
+        "ticker": "GKOS",
+        "price": 246.7,
+        "blended_score_pct": 107.03,
+        "roc_long_pct": 126.64,
+        "roc_short_pct": 61.28,
+        "daily_return_pct": 5.86,
+        "avg_volume": 1925160
       },
       {
         "rank": 13,
-        "ticker": "PBF",
-        "price": 75.08,
-        "blended_score_pct": 105.06,
-        "roc_long_pct": 126.3,
-        "roc_short_pct": 55.51,
-        "daily_return_pct": 0.0,
-        "avg_volume": 2794735
+        "ticker": "IRDM",
+        "price": 43.81,
+        "blended_score_pct": 104.59,
+        "roc_long_pct": 154.95,
+        "roc_short_pct": -12.93,
+        "daily_return_pct": -0.14,
+        "avg_volume": 854705
       },
       {
         "rank": 14,
-        "ticker": "INSW",
-        "price": 105.68,
-        "blended_score_pct": 103.77,
-        "roc_long_pct": 135.27,
-        "roc_short_pct": 30.28,
-        "daily_return_pct": 0.0,
-        "avg_volume": 809065
+        "ticker": "XNCR",
+        "price": 35.03,
+        "blended_score_pct": 99.02,
+        "roc_long_pct": 93.11,
+        "roc_short_pct": 112.82,
+        "daily_return_pct": 14.33,
+        "avg_volume": 1808325
       },
       {
         "rank": 15,
-        "ticker": "GKOS",
-        "price": 238.61,
-        "blended_score_pct": 102.95,
-        "roc_long_pct": 122.05,
-        "roc_short_pct": 58.39,
-        "daily_return_pct": 0.0,
-        "avg_volume": 1421445
+        "ticker": "CON",
+        "price": 43.56,
+        "blended_score_pct": 98.77,
+        "roc_long_pct": 124.5,
+        "roc_short_pct": 38.71,
+        "daily_return_pct": 8.49,
+        "avg_volume": 1264700
       },
       {
         "rank": 16,
         "ticker": "HZO",
-        "price": 52.7,
-        "blended_score_pct": 100.34,
-        "roc_long_pct": 122.74,
-        "roc_short_pct": 48.08,
-        "daily_return_pct": 0.0,
-        "avg_volume": 752360
+        "price": 52.71,
+        "blended_score_pct": 98.6,
+        "roc_long_pct": 119.53,
+        "roc_short_pct": 49.74,
+        "daily_return_pct": 0.11,
+        "avg_volume": 740470
       },
       {
         "rank": 17,
-        "ticker": "DINO",
-        "price": 111.66,
-        "blended_score_pct": 100.25,
-        "roc_long_pct": 120.95,
-        "roc_short_pct": 51.95,
-        "daily_return_pct": 0.0,
-        "avg_volume": 2240335
+        "ticker": "PBF",
+        "price": 72.62,
+        "blended_score_pct": 96.44,
+        "roc_long_pct": 121.58,
+        "roc_short_pct": 37.79,
+        "daily_return_pct": -6.67,
+        "avg_volume": 2820400
       },
       {
         "rank": 18,
-        "ticker": "VSXY",
-        "price": 98.55,
-        "blended_score_pct": 100.06,
-        "roc_long_pct": 131.83,
-        "roc_short_pct": 25.94,
-        "daily_return_pct": 0.0,
-        "avg_volume": 1512455
+        "ticker": "OKTA",
+        "price": 191.05,
+        "blended_score_pct": 94.74,
+        "roc_long_pct": 122.41,
+        "roc_short_pct": 30.17,
+        "daily_return_pct": 0.72,
+        "avg_volume": 4935390
       },
       {
         "rank": 19,
-        "ticker": "HPE",
-        "price": 51.19,
-        "blended_score_pct": 99.29,
-        "roc_long_pct": 134.11,
-        "roc_short_pct": 18.06,
-        "daily_return_pct": 0.0,
-        "avg_volume": 17945185
+        "ticker": "LFST",
+        "price": 14.21,
+        "blended_score_pct": 94.62,
+        "roc_long_pct": 119.97,
+        "roc_short_pct": 35.46,
+        "daily_return_pct": 6.28,
+        "avg_volume": 3004920
       },
       {
         "rank": 20,
-        "ticker": "VLO",
-        "price": 381.46,
-        "blended_score_pct": 96.2,
-        "roc_long_pct": 118.64,
-        "roc_short_pct": 43.84,
-        "daily_return_pct": 0.0,
-        "avg_volume": 2750085
+        "ticker": "HALO",
+        "price": 130.34,
+        "blended_score_pct": 93.59,
+        "roc_long_pct": 107.05,
+        "roc_short_pct": 62.17,
+        "daily_return_pct": 1.34,
+        "avg_volume": 2172660
       }
     ]
   }
