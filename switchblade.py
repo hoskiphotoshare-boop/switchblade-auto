@@ -1082,8 +1082,8 @@ def run_momentum_and_guard_dogs(data_master: pd.DataFrame, cfg: dict):
         if current_price > sma_exit_2: bullish_s2_count += 1
 
         print(f"{g:4s} | Price: {current_price:7.2f} | Today: {daily_return*100:+6.2f}%")
-        print(f"       Set 1 ({sma_period_1:3d}/{reentry_period_1:2d}): Exit {sma_exit_1:7.2f} ({dist_exit_1:+7.2f}%) | Re-entry {sma_reentry_1:7.2f} ({dist_reentry_1:+7.2f}%) | {status_1}")
-        print(f"       Set 2 ({sma_period_2:3d}/{reentry_period_2:2d}): Exit {sma_exit_2:7.2f} ({dist_exit_2:+7.2f}%) | Re-entry {sma_reentry_2:7.2f} ({dist_reentry_2:+7.2f}%) | {status_2}")
+        print(f"       Standard Strat ({sma_period_1:3d}/{reentry_period_1:2d}): Exit {sma_exit_1:7.2f} ({dist_exit_1:+7.2f}%) | Re-entry {sma_reentry_1:7.2f} ({dist_reentry_1:+7.2f}%) | {status_1}")
+        print(f"       TQQQ Strat     ({sma_period_2:3d}/{reentry_period_2:2d}): Exit {sma_exit_2:7.2f} ({dist_exit_2:+7.2f}%) | Re-entry {sma_reentry_2:7.2f} ({dist_reentry_2:+7.2f}%) | {status_2}")
         print("-" * 80)
 
         guard_results.append({
@@ -1255,7 +1255,7 @@ def run_momentum_and_guard_dogs(data_master: pd.DataFrame, cfg: dict):
                 <h3 style="color:#60a5fa;margin-top:0;">🐕 Guard Dogs Status (As of {latest_dt.date()})</h3>
                 <table style="width:100%;border-collapse:collapse;font-size:13px;color:#e5e7eb;margin-bottom:20px;">
                     <thead><tr style="border-bottom:1px solid #4b5563;text-align:left;">
-                        <th style="padding:6px 10px;">Asset</th><th style="padding:6px 10px;">Price</th><th style="padding:6px 10px;">Set 1 (213/10)</th><th style="padding:6px 10px;">Set 2 (205/20)</th>
+                        <th style="padding:6px 10px;">Asset</th><th style="padding:6px 10px;">Price</th><th style="padding:6px 10px;">Standard Strat (213/10)</th><th style="padding:6px 10px;">TQQQ Strat (205/20)</th>
                     </tr></thead>
                     <tbody>{guards_rows}</tbody>
                 </table>
