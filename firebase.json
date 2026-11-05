@@ -11,9 +11,17 @@
       {
         "source": "**",
         "headers": [
-          { "key": "X-Frame-Options", "value": "DENY" },
+          { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
           { "key": "X-Content-Type-Options", "value": "nosniff" },
           { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        ]
+      },
+      {
+        "source": "/latest_run.html",
+        "headers": [
+          { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
         ]
       },
       {
