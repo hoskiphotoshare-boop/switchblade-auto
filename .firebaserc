@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "hokkaido-2027"
+  },
+  "targets": {
+    "hokkaido-2027": {
+      "hosting": {
+        "switchblade": [
+          "switchblade-app"
+        ]
+      }
+    }
+  }
+}

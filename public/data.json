@@ -1,0 +1,187 @@
+{
+  "timestamp": "2026-11-05 15:54:56",
+  "date": "2026-11-05",
+  "mode": "Backtest Mode",
+  "strategies": [
+    {
+      "id": 1,
+      "name": "TQQQ_ONLY (sma 205/20)",
+      "current_mode": "TQQQ",
+      "graduated_state": "FIRMLY_BEARISH",
+      "pending_mode": "None",
+      "pending_state": "None",
+      "confirm_counter": 0,
+      "timer": 0,
+      "last_rebal_date": "2026-11-05",
+      "last_run_date": "2026-11-05",
+      "holdings": {
+        "TLT": "100.00%"
+      },
+      "guards": {
+        "IWM": {
+          "price": 275.31,
+          "dist_exit": -0.84,
+          "dist_entry": -0.73
+        },
+        "QQQ": {
+          "price": 651.27,
+          "dist_exit": -3.95,
+          "dist_entry": -8.61
+        },
+        "SPY": {
+          "price": 739.56,
+          "dist_exit": 1.82,
+          "dist_entry": -3.43
+        },
+        "XLG": {
+          "price": 59.54,
+          "dist_exit": -1.63,
+          "dist_entry": -5.41
+        },
+        "GLD": {
+          "price": 373.65,
+          "dist_exit": -9.33,
+          "dist_entry": 0.09
+        },
+        "TLT": {
+          "price": 82.04,
+          "dist_exit": -1.74,
+          "dist_entry": 1.89
+        },
+        "IEF": {
+          "price": 92.01,
+          "dist_exit": -0.83,
+          "dist_entry": 1.44
+        },
+        "BIL": {
+          "price": 91.43,
+          "dist_exit": 0.87,
+          "dist_entry": -0.13
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "Standard (sma 213/10, momo 230/84, 5)",
+      "current_mode": "ALL_STOCKS",
+      "graduated_state": "FIRMLY_BULLISH",
+      "pending_mode": "None",
+      "pending_state": "None",
+      "confirm_counter": 0,
+      "timer": 0,
+      "last_rebal_date": "2026-11-05",
+      "last_run_date": "2026-11-05",
+      "holdings": {
+        "MU": "10.00%",
+        "LITE": "10.00%",
+        "ICHR": "10.00%",
+        "MRNA": "10.00%",
+        "SNDK": "10.00%",
+        "MXL": "10.00%",
+        "DELL": "10.00%",
+        "PENG": "10.00%",
+        "HPE": "10.00%",
+        "RNG": "10.00%"
+      },
+      "guards": {
+        "IWM": {
+          "price": 275.31,
+          "dist_exit": -0.54,
+          "dist_entry": -1.53
+        },
+        "QQQ": {
+          "price": 651.27,
+          "dist_exit": -3.64,
+          "dist_entry": -6.68
+        },
+        "SPY": {
+          "price": 739.56,
+          "dist_exit": 2.04,
+          "dist_entry": -2.76
+        },
+        "XLG": {
+          "price": 59.54,
+          "dist_exit": -1.55,
+          "dist_entry": -4.01
+        },
+        "GLD": {
+          "price": 373.65,
+          "dist_exit": -9.33,
+          "dist_entry": 1.77
+        },
+        "TLT": {
+          "price": 82.04,
+          "dist_exit": -1.81,
+          "dist_entry": 0.59
+        },
+        "IEF": {
+          "price": 92.01,
+          "dist_exit": -0.87,
+          "dist_entry": 0.73
+        },
+        "BIL": {
+          "price": 91.43,
+          "dist_exit": 0.93,
+          "dist_entry": -0.14
+        }
+      }
+    }
+  ],
+  "league_table": [
+    {
+      "Strategy": "TQQQ_ONLY (sma 205/20)",
+      "Return %": 45075.67,
+      "MaxDD %": 53.63,
+      "CurrDD %": 16.24,
+      "Sharpe": 1.0,
+      "Sortino": 1.06,
+      "Calmar": 0.95,
+      "Trades": 0,
+      "Switches": 79
+    },
+    {
+      "Strategy": "Standard (sma 213/10, momo 230/84, 5)",
+      "Return %": 32689.27,
+      "MaxDD %": 41.8,
+      "CurrDD %": 41.8,
+      "Sharpe": 1.2,
+      "Sortino": 1.35,
+      "Calmar": 1.15,
+      "Trades": 0,
+      "Switches": 84
+    },
+    {
+      "Strategy": "BENCHMARK: TQQQ",
+      "Return %": 12559.74,
+      "MaxDD %": 81.66,
+      "CurrDD %": 41.0,
+      "Sharpe": 0.0,
+      "Sortino": 0.6,
+      "Calmar": 0.47,
+      "Trades": 0,
+      "Switches": 0
+    },
+    {
+      "Strategy": "BENCHMARK: QQQ",
+      "Return %": 1140.74,
+      "MaxDD %": 35.12,
+      "CurrDD %": 14.27,
+      "Sharpe": 0.0,
+      "Sortino": 0.85,
+      "Calmar": 0.53,
+      "Trades": 0,
+      "Switches": 0
+    },
+    {
+      "Strategy": "BENCHMARK: SPY",
+      "Return %": 629.74,
+      "MaxDD %": 33.72,
+      "CurrDD %": 5.07,
+      "Sharpe": 0.0,
+      "Sortino": 0.82,
+      "Calmar": 0.43,
+      "Trades": 0,
+      "Switches": 0
+    }
+  ]
+}
