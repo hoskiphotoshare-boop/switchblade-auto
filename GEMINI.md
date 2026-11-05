@@ -33,7 +33,7 @@ These project rules enforce development invariants, scheduling standards, and sa
 When modifying `docs/index.html` or any web dashboard:
 - **Root Viewport Lockdown:** Always keep `html, body { width: 100%; max-width: 100%; overflow-x: hidden; overscroll-behavior-x: none; }`. Never use `width: 100vw`.
 - **Static Bottom Navigation:** The bottom navigation bar must remain statically anchored to the bottom of the viewport (`position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));`).
-- **Horizontal Scroll Isolation:** Horizontally scrollable elements (bottom icon bar, financial tables, chart switchers, quick-jump pills) must enforce `overscroll-behavior-x: contain; touch-action: pan-x;` so swiping on them never pans or drags the underlying page.
+- **Horizontal Scroll Isolation:** Horizontally scrollable elements (financial tables, chart switchers, quick-jump pills) must enforce `overscroll-behavior-x: contain; overscroll-behavior-y: auto; touch-action: pan-x pan-y;` so swiping horizontally scrolls the element without dragging the page horizontally, while allowing vertical finger scrolling up and down the page.
 - **Preformatted Text Wrap:** All console dumps, `<pre>` tags, and code blocks must include `word-break: break-all; overflow-wrap: anywhere;` to prevent unformatted output from breaking mobile container widths.
 
 ---
