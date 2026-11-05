@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-11-05 19:17:50",
+  "timestamp": "2026-11-05 21:23:21",
   "date": "2026-11-05",
   "guard_dogs": {
     "set_1_params": {
@@ -12,137 +12,137 @@
     },
     "etfs": {
       "IWM": {
-        "price": 272.48,
-        "today_change_pct": -4.06,
+        "price": 271.31,
+        "today_change_pct": -4.48,
         "set_1": {
           "exit_sma": 276.79,
-          "dist_exit_pct": -1.56,
-          "reentry_sma": 279.3,
-          "dist_reentry_pct": -2.44,
+          "dist_exit_pct": -1.98,
+          "reentry_sma": 279.18,
+          "dist_reentry_pct": -2.82,
           "status": "BEARISH"
         },
         "set_2": {
-          "exit_sma": 277.64,
-          "dist_exit_pct": -1.86,
-          "reentry_sma": 277.18,
-          "dist_reentry_pct": -1.7,
+          "exit_sma": 277.63,
+          "dist_exit_pct": -2.28,
+          "reentry_sma": 277.12,
+          "dist_reentry_pct": -2.1,
           "status": "BEARISH"
         }
       },
       "QQQ": {
-        "price": 655.45,
-        "today_change_pct": -5.27,
+        "price": 650.95,
+        "today_change_pct": -5.93,
         "set_1": {
-          "exit_sma": 675.91,
-          "dist_exit_pct": -3.03,
-          "reentry_sma": 698.31,
-          "dist_reentry_pct": -6.14,
+          "exit_sma": 675.89,
+          "dist_exit_pct": -3.69,
+          "reentry_sma": 697.86,
+          "dist_reentry_pct": -6.72,
           "status": "BEARISH"
         },
         "set_2": {
-          "exit_sma": 678.08,
-          "dist_exit_pct": -3.34,
-          "reentry_sma": 712.82,
-          "dist_reentry_pct": -8.05,
+          "exit_sma": 678.06,
+          "dist_exit_pct": -4.0,
+          "reentry_sma": 712.59,
+          "dist_reentry_pct": -8.65,
           "status": "BEARISH"
         }
       },
       "SPY": {
-        "price": 738.51,
-        "today_change_pct": -3.69,
+        "price": 735.45,
+        "today_change_pct": -4.09,
         "set_1": {
-          "exit_sma": 724.77,
-          "dist_exit_pct": 1.9,
-          "reentry_sma": 760.42,
-          "dist_reentry_pct": -2.88,
+          "exit_sma": 724.75,
+          "dist_exit_pct": 1.48,
+          "reentry_sma": 760.11,
+          "dist_reentry_pct": -3.24,
           "status": "BULLISH"
         },
         "set_2": {
-          "exit_sma": 726.31,
-          "dist_exit_pct": 1.68,
-          "reentry_sma": 765.8,
-          "dist_reentry_pct": -3.56,
+          "exit_sma": 726.3,
+          "dist_exit_pct": 1.26,
+          "reentry_sma": 765.65,
+          "dist_reentry_pct": -3.94,
           "status": "BULLISH"
         }
       },
       "XLG": {
-        "price": 59.71,
-        "today_change_pct": -4.23,
+        "price": 59.44,
+        "today_change_pct": -4.67,
         "set_1": {
-          "exit_sma": 60.48,
-          "dist_exit_pct": -1.27,
-          "reentry_sma": 62.05,
-          "dist_reentry_pct": -3.77,
+          "exit_sma": 60.47,
+          "dist_exit_pct": -1.71,
+          "reentry_sma": 62.02,
+          "dist_reentry_pct": -4.16,
           "status": "BEARISH"
         },
         "set_2": {
           "exit_sma": 60.53,
-          "dist_exit_pct": -1.35,
-          "reentry_sma": 62.95,
-          "dist_reentry_pct": -5.15,
+          "dist_exit_pct": -1.8,
+          "reentry_sma": 62.94,
+          "dist_reentry_pct": -5.56,
           "status": "BEARISH"
         }
       },
       "GLD": {
-        "price": 376.22,
-        "today_change_pct": 1.0,
+        "price": 375.64,
+        "today_change_pct": 0.85,
         "set_1": {
-          "exit_sma": 412.11,
-          "dist_exit_pct": -8.71,
-          "reentry_sma": 367.42,
-          "dist_reentry_pct": 2.4,
+          "exit_sma": 412.1,
+          "dist_exit_pct": -8.85,
+          "reentry_sma": 367.36,
+          "dist_reentry_pct": 2.25,
           "status": "BEARISH"
         },
         "set_2": {
-          "exit_sma": 412.1,
-          "dist_exit_pct": -8.71,
-          "reentry_sma": 373.43,
-          "dist_reentry_pct": 0.75,
+          "exit_sma": 412.09,
+          "dist_exit_pct": -8.85,
+          "reentry_sma": 373.4,
+          "dist_reentry_pct": 0.6,
           "status": "BEARISH"
         }
       },
       "TLT": {
-        "price": 82.07,
-        "today_change_pct": 0.37,
+        "price": 81.97,
+        "today_change_pct": 0.26,
         "set_1": {
           "exit_sma": 83.55,
-          "dist_exit_pct": -1.78,
-          "reentry_sma": 81.56,
-          "dist_reentry_pct": 0.61,
+          "dist_exit_pct": -1.9,
+          "reentry_sma": 81.55,
+          "dist_reentry_pct": 0.51,
           "status": "BEARISH"
         },
         "set_2": {
           "exit_sma": 83.5,
-          "dist_exit_pct": -1.72,
-          "reentry_sma": 80.53,
-          "dist_reentry_pct": 1.91,
+          "dist_exit_pct": -1.83,
+          "reentry_sma": 80.52,
+          "dist_reentry_pct": 1.8,
           "status": "BEARISH"
         }
       },
       "IEF": {
-        "price": 92.01,
-        "today_change_pct": 0.38,
+        "price": 92.02,
+        "today_change_pct": 0.39,
         "set_1": {
           "exit_sma": 92.82,
-          "dist_exit_pct": -0.87,
+          "dist_exit_pct": -0.86,
           "reentry_sma": 91.35,
-          "dist_reentry_pct": 0.73,
+          "dist_reentry_pct": 0.74,
           "status": "BEARISH"
         },
         "set_2": {
           "exit_sma": 92.78,
-          "dist_exit_pct": -0.83,
+          "dist_exit_pct": -0.82,
           "reentry_sma": 90.7,
-          "dist_reentry_pct": 1.44,
+          "dist_reentry_pct": 1.45,
           "status": "BEARISH"
         }
       },
       "BIL": {
         "price": 91.43,
-        "today_change_pct": 0.01,
+        "today_change_pct": 0.02,
         "set_1": {
           "exit_sma": 90.59,
-          "dist_exit_pct": 0.92,
+          "dist_exit_pct": 0.93,
           "reentry_sma": 91.56,
           "dist_reentry_pct": -0.14,
           "status": "BULLISH"
@@ -151,7 +151,7 @@
           "exit_sma": 90.64,
           "dist_exit_pct": 0.87,
           "reentry_sma": 91.56,
-          "dist_reentry_pct": -0.14,
+          "dist_reentry_pct": -0.13,
           "status": "BULLISH"
         }
       }
@@ -167,124 +167,124 @@
       {
         "rank": 1,
         "ticker": "MRNA",
-        "blended_score_pct": 672.13,
-        "long_roc_pct": 866.77,
-        "short_roc_pct": 217.96,
-        "today_return_pct": -5.78
+        "blended_score_pct": 668.87,
+        "long_roc_pct": 862.69,
+        "short_roc_pct": 216.62,
+        "today_return_pct": -6.18
       },
       {
         "rank": 2,
         "ticker": "SNDK",
-        "blended_score_pct": 219.74,
-        "long_roc_pct": 337.17,
-        "short_roc_pct": -54.27,
-        "today_return_pct": -18.09
+        "blended_score_pct": 211.85,
+        "long_roc_pct": 326.38,
+        "short_roc_pct": -55.4,
+        "today_return_pct": -20.11
       },
       {
         "rank": 3,
         "ticker": "AMN",
-        "blended_score_pct": 141.42,
-        "long_roc_pct": 181.13,
-        "short_roc_pct": 48.76,
-        "today_return_pct": -1.72
+        "blended_score_pct": 141.83,
+        "long_roc_pct": 181.61,
+        "short_roc_pct": 49.02,
+        "today_return_pct": -1.55
       },
       {
         "rank": 4,
         "ticker": "RNG",
-        "blended_score_pct": 134.33,
-        "long_roc_pct": 156.5,
-        "short_roc_pct": 82.59,
-        "today_return_pct": -4.31
+        "blended_score_pct": 133.4,
+        "long_roc_pct": 155.48,
+        "short_roc_pct": 81.87,
+        "today_return_pct": -4.69
       },
       {
         "rank": 5,
         "ticker": "MU",
-        "blended_score_pct": 124.31,
-        "long_roc_pct": 191.01,
-        "short_roc_pct": -31.35,
-        "today_return_pct": -14.41
+        "blended_score_pct": 121.42,
+        "long_roc_pct": 187.27,
+        "short_roc_pct": -32.23,
+        "today_return_pct": -15.51
       },
       {
         "rank": 6,
         "ticker": "VSXY",
-        "blended_score_pct": 119.51,
-        "long_roc_pct": 153.07,
-        "short_roc_pct": 41.2,
-        "today_return_pct": -1.26
+        "blended_score_pct": 117.45,
+        "long_roc_pct": 150.69,
+        "short_roc_pct": 39.87,
+        "today_return_pct": -2.18
       },
       {
         "rank": 7,
         "ticker": "CBRL",
-        "blended_score_pct": 110.13,
-        "long_roc_pct": 140.91,
-        "short_roc_pct": 38.3,
-        "today_return_pct": -3.39
+        "blended_score_pct": 110.47,
+        "long_roc_pct": 141.3,
+        "short_roc_pct": 38.53,
+        "today_return_pct": -3.24
       },
       {
         "rank": 8,
-        "ticker": "XNCR",
-        "blended_score_pct": 105.66,
-        "long_roc_pct": 101.18,
-        "short_roc_pct": 116.1,
-        "today_return_pct": -0.59
+        "ticker": "ECPG",
+        "blended_score_pct": 109.85,
+        "long_roc_pct": 141.03,
+        "short_roc_pct": 37.12,
+        "today_return_pct": 26.05
       },
       {
         "rank": 9,
         "ticker": "CAKE",
-        "blended_score_pct": 104.88,
-        "long_roc_pct": 131.92,
-        "short_roc_pct": 41.76,
-        "today_return_pct": -3.92
+        "blended_score_pct": 105.89,
+        "long_roc_pct": 133.08,
+        "short_roc_pct": 42.47,
+        "today_return_pct": -3.44
       },
       {
         "rank": 10,
-        "ticker": "ECPG",
-        "blended_score_pct": 104.67,
-        "long_roc_pct": 135.07,
-        "short_roc_pct": 33.74,
-        "today_return_pct": 22.94
+        "ticker": "XNCR",
+        "blended_score_pct": 105.68,
+        "long_roc_pct": 101.2,
+        "short_roc_pct": 116.12,
+        "today_return_pct": -0.58
       }
     ],
     "runner_ups": [
       {
         "rank": 11,
-        "ticker": "ACHC",
-        "blended_score_pct": 103.19,
-        "long_roc_pct": 141.8,
-        "short_roc_pct": 13.12,
-        "today_return_pct": 10.14
+        "ticker": "HZO",
+        "blended_score_pct": 101.49,
+        "long_roc_pct": 122.89,
+        "short_roc_pct": 51.58,
+        "today_return_pct": 0.05
       },
       {
         "rank": 12,
-        "ticker": "HZO",
-        "blended_score_pct": 101.55,
-        "long_roc_pct": 122.95,
-        "short_roc_pct": 51.62,
-        "today_return_pct": 0.08
+        "ticker": "IRDM",
+        "blended_score_pct": 100.76,
+        "long_roc_pct": 151.01,
+        "short_roc_pct": -16.49,
+        "today_return_pct": -3.85
       },
       {
         "rank": 13,
-        "ticker": "IRDM",
-        "blended_score_pct": 100.05,
-        "long_roc_pct": 150.12,
-        "short_roc_pct": -16.79,
-        "today_return_pct": -4.19
+        "ticker": "ACHC",
+        "blended_score_pct": 99.42,
+        "long_roc_pct": 137.3,
+        "short_roc_pct": 11.02,
+        "today_return_pct": 8.09
       },
       {
         "rank": 14,
-        "ticker": "LFST",
-        "blended_score_pct": 98.8,
-        "long_roc_pct": 126.48,
-        "short_roc_pct": 34.21,
-        "today_return_pct": 2.01
+        "ticker": "SEZL",
+        "blended_score_pct": 96.04,
+        "long_roc_pct": 142.27,
+        "short_roc_pct": -11.84,
+        "today_return_pct": 14.21
       },
       {
         "rank": 15,
-        "ticker": "SEZL",
-        "blended_score_pct": 97.35,
-        "long_roc_pct": 143.89,
-        "short_roc_pct": -11.25,
-        "today_return_pct": 14.98
+        "ticker": "CON",
+        "blended_score_pct": 93.07,
+        "long_roc_pct": 118.03,
+        "short_roc_pct": 34.83,
+        "today_return_pct": -2.98
       }
     ]
   }
