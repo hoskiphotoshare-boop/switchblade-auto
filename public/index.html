@@ -406,7 +406,7 @@
                         <h2 class="text-lg font-bold text-white flex items-center">
                             🐕 Guard Dog ETF Regime Status
                         </h2>
-                        <p class="text-xs text-slate-400 font-mono">Distance vs Exit SMA & Re-entry SMA across dual parameter sets <span id="momentum-vancouver-time" class="ml-2 text-accent-cyan font-semibold"></span></p>
+                        <p class="text-xs text-slate-400 font-mono">Distance vs Exit & Re-entry SMAs for Standard Strategy (213/10) and TQQQ Strategy (205/20) <span id="momentum-vancouver-time" class="ml-2 text-accent-cyan font-semibold"></span></p>
                     </div>
                 </div>
 
@@ -417,12 +417,12 @@
                                 <th class="py-3 px-4 font-semibold text-white">ETF</th>
                                 <th class="py-3 px-3 text-right">Price</th>
                                 <th class="py-3 px-3 text-right">Today %</th>
-                                <th class="py-3 px-3 text-center">Set 1 (213/10) Exit</th>
-                                <th class="py-3 px-3 text-center">Set 1 Re-entry</th>
-                                <th class="py-3 px-3 text-center">Set 1 Status</th>
-                                <th class="py-3 px-3 text-center">Set 2 (205/20) Exit</th>
-                                <th class="py-3 px-3 text-center">Set 2 Re-entry</th>
-                                <th class="py-3 px-3 text-center">Set 2 Status</th>
+                                <th class="py-3 px-3 text-center text-accent-blue border-l border-dark-border/80">Standard Exit (213)</th>
+                                <th class="py-3 px-3 text-center text-accent-blue">Standard Re-entry (10)</th>
+                                <th class="py-3 px-3 text-center text-accent-blue">Standard Status</th>
+                                <th class="py-3 px-3 text-center text-accent-emerald border-l border-dark-border/80">TQQQ Exit (205)</th>
+                                <th class="py-3 px-3 text-center text-accent-emerald">TQQQ Re-entry (20)</th>
+                                <th class="py-3 px-3 text-center text-accent-emerald">TQQQ Status</th>
                             </tr>
                         </thead>
                         <tbody id="guard-dogs-table-body" class="divide-y divide-dark-border/60">
@@ -776,8 +776,31 @@
         const KNOWN_DRIVE_FILES = {
             chart: '1zRcj2czA1DtqCmTW7xiIPBzOpBYCR5BG',
             momentum: '19bw6H7Xc70EGb53BuJjH0v1KvDJS1vFv',
-            run_data: '12qaTZINTWfDclzcuiThxDQeX_R__GtKX'
+            run_data: '12qaTZINTWfDclzcuiThxDQeX_R__GtKX',
+            log: '1x2cTiuyvsmfAaBfEnmC1LPeKyJLuylfs'
         };
+
+        // Resilient log loader using srcdoc to prevent X-Frame-Options refusals
+        async function loadExecutionLog(htmlContent) {
+            const iframe = document.getElementById('raw-log-iframe');
+            if (!iframe) return;
+            if (htmlContent) {
+                iframe.srcdoc = htmlContent;
+                return;
+            }
+            try {
+                const res = await fetch(`latest_run.html?t=${Date.now()}`);
+                if (res.ok) {
+                    const text = await res.text();
+                    iframe.srcdoc = text;
+                } else {
+                    iframe.src = `latest_run.html?t=${Date.now()}`;
+                }
+            } catch (e) {
+                console.warn("Could not fetch latest_run.html text:", e);
+                iframe.src = `latest_run.html?t=${Date.now()}`;
+            }
+        }
 
         async function fetchFromGoogleDrive(token) {
             try {
@@ -818,6 +841,7 @@
                 let runDataFile = filesList.find(f => f.name === 'run_data.json') || { id: KNOWN_DRIVE_FILES.run_data };
                 let momDataFile = filesList.find(f => f.name === 'momentum_data.json') || { id: KNOWN_DRIVE_FILES.momentum };
                 let chartFile = filesList.find(f => f.name === 'zoomed_chart.png') || { id: KNOWN_DRIVE_FILES.chart };
+                let logFile = filesList.find(f => f.name === 'latest_run.html') || { id: KNOWN_DRIVE_FILES.log };
 
                 // 3. Fetch structured run data
                 if (runDataFile && runDataFile.id) {
@@ -871,6 +895,26 @@
                         const imgEl = document.getElementById('drive-zoomed-img');
                         if (imgEl) imgEl.src = `zoomed_chart.png?t=${Date.now()}`;
                     }
+                }
+
+                // 6. Fetch Raw Execution Log
+                if (logFile && logFile.id) {
+                    try {
+                        const lRes = await fetch(`https://www.googleapis.com/drive/v3/files/${logFile.id}?alt=media`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (lRes.ok) {
+                            const logText = await lRes.text();
+                            loadExecutionLog(logText);
+                        } else {
+                            loadExecutionLog();
+                        }
+                    } catch (e) {
+                        console.warn("Could not fetch log text from Drive:", e);
+                        loadExecutionLog();
+                    }
+                } else {
+                    loadExecutionLog();
                 }
 
                 // Update UI badges
@@ -928,6 +972,9 @@
                 const chartBtn = document.getElementById('btn-open-chart');
                 if (chartImg) chartImg.src = `zoomed_chart.png?t=${ts}`;
                 if (chartBtn) chartBtn.href = `zoomed_chart.png?t=${ts}`;
+
+                // Populate execution log iframe via srcdoc to prevent X-Frame-Options denial
+                loadExecutionLog();
             } catch (e) {
                 console.error("Error loading bundled data:", e);
             }
