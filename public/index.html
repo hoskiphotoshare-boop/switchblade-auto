@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Switchblade V3.0 | Quantitative Strategy & Execution Portal</title>
+    
+    <!-- Fonts & Tailwind -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            base: '#080c14',
+                            surface: '#0e1626',
+                            elevated: '#141f36',
+                            card: '#111b2e',
+                            hover: '#16243d',
+                            border: 'rgba(255, 255, 255, 0.09)'
+                        },
+                        accent: {
+                            emerald: '#10b981',
+                            blue: '#3b82f6',
+                            purple: '#8b5cf6',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e',
+                            cyan: '#06b6d4'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Mobile Viewport & Gesture Containment Invariants (GEMINI.md Rule 3) */
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            overscroll-behavior-x: none;
+            -webkit-text-size-adjust: 100%;
+            background-color: #080c14;
+            color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bottom-nav-height: 64px;
+        }
+
+        /* Static Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            background: rgba(14, 22, 38, 0.95);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Horizontal Scroll Isolation */
+        .isolate-horizontal-scroll {
+            overscroll-behavior-x: contain;
+            touch-action: pan-x;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Preformatted Text Wrap */
+        pre, code, .code-dump {
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #080c14; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; animation: fadeIn 0.25s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-glow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(16, 185, 129, 0.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans pb-24 md:pb-12 text-slate-100">
+
+    <!-- TOP HEADER -->
+    <header class="bg-dark-surface/90 border-b border-dark-border sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-accent-emerald to-accent-blue flex items-center justify-center font-bold text-black shadow-lg">
+                    ⚡
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <h1 class="text-lg font-bold tracking-tight text-white flex items-center">
+                            SWITCHBLADE <span class="ml-1.5 text-xs px-2 py-0.5 rounded-full bg-accent-blue/20 text-accent-blue border border-accent-blue/40 font-mono">V3.0</span>
+                        </h1>
+                        <span id="sync-source-pill" class="hidden sm:inline-flex items-center text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-mono">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span> Bundled Cache
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 font-mono">Quantitative Trading Strategy & Execution Portal</p>
+                </div>
+            </div>
+
+            <!-- Top Right: Google Drive / Account Connect -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <button id="btn-drive-refresh" onclick="refreshDriveData()" title="Refresh data from Google Drive" class="p-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-slate-300 hover:text-white transition flex items-center text-xs font-medium">
+                    <svg class="w-4 h-4 mr-1 text-accent-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span class="hidden md:inline">Refresh</span>
+                </button>
+
+                <div id="auth-container">
+                    <button id="btn-auth-signin" onclick="signInWithGoogle()" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-accent-blue hover:bg-blue-600 text-white font-medium text-xs shadow-md transition">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/></svg>
+                        <span>Connect Drive</span>
+                    </button>
+                    <div id="auth-user-profile" class="hidden flex items-center space-x-2">
+                        <img id="user-avatar" class="w-7 h-7 rounded-full border border-accent-emerald" src="" alt="avatar">
+                        <button onclick="signOutUser()" title="Sign Out" class="text-xs text-slate-400 hover:text-white transition">Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Navigation Tabs (Hidden on small mobile screens) -->
+        <div class="hidden md:block border-t border-dark-border/60 bg-dark-base/60">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 py-1.5">
+                <button onclick="switchTab('overview')" class="nav-tab active px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition text-accent-emerald bg-accent-emerald/10 border border-accent-emerald/30" data-tab="overview">Overview & Holdings</button>
+                <button onclick="switchTab('league')" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition text-slate-400 hover:text-white hover:bg-dark-surface" data-tab="league">League Table</button>
+                <button onclick="switchTab('momentum')" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition text-slate-400 hover:text-white hover:bg-dark-surface" data-tab="momentum">Momentum & Guard Dogs</button>
+                <button onclick="switchTab('charts')" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition text-slate-400 hover:text-white hover:bg-dark-surface" data-tab="charts">Performance Charts</button>
+                <button onclick="switchTab('state')" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition text-slate-400 hover:text-white hover:bg-dark-surface" data-tab="state">State Dump</button>
+                <button onclick="switchTab('log')" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition text-slate-400 hover:text-white hover:bg-dark-surface" data-tab="log">Execution Log</button>
+                <button onclick="switchTab('settings')" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition text-slate-400 hover:text-white hover:bg-dark-surface" data-tab="settings">Cloud Sync</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
+
+        <!-- STATUS BANNER -->
+        <div id="drive-status-banner" class="rounded-xl bg-dark-card border border-dark-border p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+            <div class="flex items-center space-x-3">
+                <div id="status-indicator-dot" class="w-3 h-3 rounded-full bg-accent-emerald animate-pulse"></div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span id="banner-title" class="text-sm font-semibold text-white">Google Drive Synced</span>
+                        <span id="banner-timestamp" class="text-xs font-mono text-slate-400">Loading timestamp...</span>
+                    </div>
+                    <p id="banner-subtext" class="text-xs text-slate-400">Colab Run artifacts connected from <span class="font-mono text-accent-blue">MyDrive/Switchblade_Live</span></p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 text-xs font-mono">
+                <span id="execution-mode-badge" class="px-2.5 py-1 rounded-md bg-dark-elevated text-slate-300 border border-dark-border">Mode: Backtest</span>
+                <span id="tqqq-state-badge" class="px-2.5 py-1 rounded-md bg-accent-rose/20 text-accent-rose border border-accent-rose/40 font-bold">TQQQ: TLT</span>
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- TAB 1: OVERVIEW & ACTIVE HOLDINGS -->
+        <!-- ============================================================== -->
+        <section id="tab-overview" class="tab-pane active space-y-6">
+            
+            <!-- TOP HIGHLIGHT: TQQQ STRATEGY ACTIVE HOLDINGS -->
+            <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-blue/30 p-4 sm:p-6 card-glow relative overflow-hidden">
+                <div class="absolute -top-12 -right-12 w-48 h-48 bg-accent-blue/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-blue/20 text-accent-blue border border-accent-blue/40 font-mono uppercase tracking-wider">Strategy 1 Focus</span>
+                            <span class="text-xs font-mono text-slate-400">TQQQ_ONLY (sma 205/20)</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-black text-white mt-1">TQQQ Strategy Active Holdings</h2>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+                            Real-time capital deployment for the benchmark TQQQ momentum regime switch strategy.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Current Mode</span>
+                            <span id="tqqq-mode-display" class="text-sm font-bold font-mono text-accent-amber">TLT</span>
+                        </div>
+                        <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Regime Stance</span>
+                            <span id="tqqq-regime-display" class="text-sm font-bold font-mono text-accent-rose">FIRMLY_BEARISH</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Holdings Pills -->
+                <div class="mt-5 pt-4 border-t border-dark-border/60">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2 font-mono">Final Holdings Allocation:</span>
+                    <div id="tqqq-holdings-container" class="flex flex-wrap items-center gap-3">
+                        <div class="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-accent-blue/15 border border-accent-blue/40 text-accent-blue font-mono font-bold text-sm">
+                            <span>TLT</span>
+                            <span class="text-xs px-2 py-0.5 rounded-md bg-accent-blue/25 text-white">100.00%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STRATEGY 2 HIGHLIGHT: STANDARD STRATEGY ACTIVE HOLDINGS -->
+            <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-emerald/30 p-4 sm:p-6 card-glow relative overflow-hidden">
+                <div class="absolute -top-12 -right-12 w-48 h-48 bg-accent-emerald/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-mono uppercase tracking-wider">Strategy 2 Focus</span>
+                            <span class="text-xs font-mono text-slate-400">Standard (sma 213/10, momo 230/84, 5)</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-black text-white mt-1">Standard Universe Active Holdings</h2>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+                            Top momentum stock constituents filtered by Point-In-Time universe and 20-day liquidity thresholds.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Current Mode</span>
+                            <span id="standard-mode-display" class="text-sm font-bold font-mono text-accent-emerald">ALL_STOCKS</span>
+                        </div>
+                        <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Regime Stance</span>
+                            <span id="standard-regime-display" class="text-sm font-bold font-mono text-accent-emerald">FIRMLY_BULLISH</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Standard Holdings Container -->
+                <div class="mt-5 pt-4 border-t border-dark-border/60">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2 font-mono">Constituent Allocations (10 Picks):</span>
+                    <div id="standard-holdings-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXECUTIVE KPI CARDS -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4">
+                    <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Top Strategy Return</span>
+                    <div id="kpi-top-return" class="text-xl sm:text-2xl font-black text-accent-emerald mt-1 font-mono">+45,075%</div>
+                    <span class="text-[10px] text-slate-500 font-mono">TQQQ_ONLY (sma 205/20)</span>
+                </div>
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4">
+                    <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Standard Strategy</span>
+                    <div id="kpi-standard-return" class="text-xl sm:text-2xl font-black text-accent-blue mt-1 font-mono">+32,689%</div>
+                    <span class="text-[10px] text-slate-500 font-mono">Standard (213/10)</span>
+                </div>
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4">
+                    <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Benchmark TQQQ</span>
+                    <div id="kpi-benchmark-return" class="text-xl sm:text-2xl font-black text-slate-200 mt-1 font-mono">+12,560%</div>
+                    <span class="text-[10px] text-slate-500 font-mono">Buy & Hold Reference</span>
+                </div>
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4">
+                    <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider">SPY Benchmark</span>
+                    <div id="kpi-spy-return" class="text-xl sm:text-2xl font-black text-slate-300 mt-1 font-mono">+629.74%</div>
+                    <span class="text-[10px] text-slate-500 font-mono">S&P 500 Index</span>
+                </div>
+            </div>
+
+            <!-- QUICK JUMP CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div onclick="switchTab('momentum')" class="cursor-pointer bg-dark-card hover:bg-dark-hover border border-dark-border rounded-xl p-4 transition group">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg">🐕</span>
+                            <h3 class="text-sm font-bold text-white group-hover:text-accent-emerald transition">Guard Dogs & Top Momentum</h3>
+                        </div>
+                        <span class="text-xs text-accent-blue font-mono group-hover:translate-x-1 transition-transform">View Radar →</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">
+                        Inspect regime distances for IWM, QQQ, SPY, XLG, GLD, TLT, IEF and top 10 momentum picks.
+                    </p>
+                </div>
+                <div onclick="switchTab('charts')" class="cursor-pointer bg-dark-card hover:bg-dark-hover border border-dark-border rounded-xl p-4 transition group">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg">📈</span>
+                            <h3 class="text-sm font-bold text-white group-hover:text-accent-blue transition">200-Day Zoom Lens & Equity Curves</h3>
+                        </div>
+                        <span class="text-xs text-accent-blue font-mono group-hover:translate-x-1 transition-transform">View Charts →</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">
+                        Examine normalized 200-day zoom lens rebased to 100 with drawdown profile and market regime shading.
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TAB 2: LEAGUE TABLE -->
+        <!-- ============================================================== -->
+        <section id="tab-league" class="tab-pane space-y-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b border-dark-border">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center">
+                        🏆 Strategy League Table
+                    </h2>
+                    <p class="text-xs text-slate-400 font-mono">Performance & Risk Metrics Across Active Models</p>
+                </div>
+                <div class="text-xs text-slate-400 font-mono">
+                    Sorted by Return % (Descending)
+                </div>
+            </div>
+
+            <!-- Table Container with Horizontal Gesture Isolation -->
+            <div class="overflow-x-auto isolate-horizontal-scroll rounded-xl border border-dark-border bg-dark-card">
+                <table class="w-full text-left text-xs font-mono">
+                    <thead class="bg-dark-surface/90 text-slate-400 border-b border-dark-border uppercase tracking-wider text-[11px]">
+                        <tr>
+                            <th class="py-3 px-4 font-semibold text-white">Strategy</th>
+                            <th class="py-3 px-3 font-semibold text-right">Return %</th>
+                            <th class="py-3 px-3 font-semibold text-right">Max DD</th>
+                            <th class="py-3 px-3 font-semibold text-right">Curr DD</th>
+                            <th class="py-3 px-3 font-semibold text-right">Sharpe</th>
+                            <th class="py-3 px-3 font-semibold text-right">Sortino</th>
+                            <th class="py-3 px-3 font-semibold text-right">Calmar</th>
+                            <th class="py-3 px-3 font-semibold text-right">Trades</th>
+                            <th class="py-3 px-3 font-semibold text-right">Switches</th>
+                        </tr>
+                    </thead>
+                    <tbody id="league-table-body" class="divide-y divide-dark-border/60">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TAB 3: MOMENTUM & GUARD DOGS -->
+        <!-- ============================================================== -->
+        <section id="tab-momentum" class="tab-pane space-y-6">
+            
+            <!-- GUARD DOG REGIME STATUS -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center">
+                            🐕 Guard Dog ETF Regime Status
+                        </h2>
+                        <p class="text-xs text-slate-400 font-mono">Distance vs Exit SMA & Re-entry SMA across dual parameter sets</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto isolate-horizontal-scroll rounded-xl border border-dark-border bg-dark-card">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-dark-surface text-slate-400 border-b border-dark-border text-[11px] uppercase tracking-wider">
+                            <tr>
+                                <th class="py-3 px-4 font-semibold text-white">ETF</th>
+                                <th class="py-3 px-3 text-right">Price</th>
+                                <th class="py-3 px-3 text-right">Today %</th>
+                                <th class="py-3 px-3 text-center">Set 1 (213/10) Exit</th>
+                                <th class="py-3 px-3 text-center">Set 1 Re-entry</th>
+                                <th class="py-3 px-3 text-center">Set 1 Status</th>
+                                <th class="py-3 px-3 text-center">Set 2 (205/20) Exit</th>
+                                <th class="py-3 px-3 text-center">Set 2 Re-entry</th>
+                                <th class="py-3 px-3 text-center">Set 2 Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="guard-dogs-table-body" class="divide-y divide-dark-border/60">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TOP 10 MOMENTUM STOCKS -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center">
+                            🏆 Top 10 Momentum Stocks (Dynamic Universe)
+                        </h2>
+                        <p class="text-xs text-slate-400 font-mono">Blended ROC (70% 232d / 30% 84d) with 20-day liquidity screen</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto isolate-horizontal-scroll rounded-xl border border-dark-border bg-dark-card">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-dark-surface text-slate-400 border-b border-dark-border text-[11px] uppercase tracking-wider">
+                            <tr>
+                                <th class="py-3 px-4 font-semibold text-white">Rank</th>
+                                <th class="py-3 px-4 font-semibold text-white">Ticker</th>
+                                <th class="py-3 px-4 text-right">Blended Score</th>
+                                <th class="py-3 px-4 text-right">Long ROC (232d)</th>
+                                <th class="py-3 px-4 text-right">Short ROC (84d)</th>
+                                <th class="py-3 px-4 text-right">Today Return</th>
+                            </tr>
+                        </thead>
+                        <tbody id="momentum-top-body" class="divide-y divide-dark-border/60">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RUNNER-UPS (NEXT 5) -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-300 flex items-center">
+                            🥈 Runner-Ups (Ranks 11–15)
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto isolate-horizontal-scroll rounded-xl border border-dark-border bg-dark-card">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-dark-surface text-slate-400 border-b border-dark-border text-[11px] uppercase tracking-wider">
+                            <tr>
+                                <th class="py-2.5 px-4 font-semibold text-white">Rank</th>
+                                <th class="py-2.5 px-4 font-semibold text-white">Ticker</th>
+                                <th class="py-2.5 px-4 text-right">Blended Score</th>
+                                <th class="py-2.5 px-4 text-right">Long ROC</th>
+                                <th class="py-2.5 px-4 text-right">Short ROC</th>
+                                <th class="py-2.5 px-4 text-right">Today Return</th>
+                            </tr>
+                        </thead>
+                        <tbody id="momentum-runners-body" class="divide-y divide-dark-border/60">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TAB 4: PERFORMANCE & ZOOMED CHARTS -->
+        <!-- ============================================================== -->
+        <section id="tab-charts" class="tab-pane space-y-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b border-dark-border">
+                <div>
+                    <h2 class="text-lg font-bold text-white">
+                        📈 Performance Profile & 200-Day Zoom Lens
+                    </h2>
+                    <p class="text-xs text-slate-400 font-mono">Normalized returns, absolute drawdown curves, and regime shading</p>
+                </div>
+            </div>
+
+            <!-- High-Res Zoomed Chart View from Drive -->
+            <div class="bg-dark-card border border-dark-border rounded-xl p-4 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-300 font-mono uppercase tracking-wider">Latest Run Visual Output</span>
+                    <a id="btn-open-chart" href="zoomed_chart.png" target="_blank" class="text-xs text-accent-blue hover:underline font-mono">Open Full Size ↗</a>
+                </div>
+                <div class="w-full flex items-center justify-center bg-black/40 rounded-lg overflow-hidden border border-dark-border/60 p-2">
+                    <img id="drive-zoomed-img" src="zoomed_chart.png" alt="200-Day Zoomed Lens Chart" class="max-w-full h-auto rounded border border-dark-border" onerror="this.src='latest_run.html';">
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TAB 5: STATE DUMP -->
+        <!-- ============================================================== -->
+        <section id="tab-state" class="tab-pane space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-dark-border">
+                <div>
+                    <h2 class="text-lg font-bold text-white">
+                        🔍 Strategy State Inspector
+                    </h2>
+                    <p class="text-xs text-slate-400 font-mono">Live portfolio state variables, pending transitions, and guard values</p>
+                </div>
+            </div>
+
+            <div id="state-cards-container" class="space-y-4">
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TAB 6: EXECUTION LOG -->
+        <!-- ============================================================== -->
+        <section id="tab-log" class="tab-pane space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-dark-border">
+                <div>
+                    <h2 class="text-lg font-bold text-white">
+                        📜 Raw Colab Execution Log
+                    </h2>
+                    <p class="text-xs text-slate-400 font-mono">Complete console HTML stream from latest execution run</p>
+                </div>
+                <a href="latest_run.html" target="_blank" class="text-xs text-accent-blue hover:underline font-mono">Open Raw Log ↗</a>
+            </div>
+
+            <div class="bg-dark-card border border-dark-border rounded-xl overflow-hidden">
+                <iframe id="raw-log-iframe" src="latest_run.html" class="w-full h-[650px] border-0 bg-[#121212]"></iframe>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TAB 7: SETTINGS & CLOUD SYNC -->
+        <!-- ============================================================== -->
+        <section id="tab-settings" class="tab-pane space-y-6">
+            <div class="pb-2 border-b border-dark-border">
+                <h2 class="text-lg font-bold text-white">
+                    ☁️ Cloud Sync & Configuration
+                </h2>
+                <p class="text-xs text-slate-400 font-mono">Google Drive integration, Firebase hosting status, and manual overrides</p>
+            </div>
+
+            <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-6 space-y-4">
+                <h3 class="text-sm font-semibold text-white">Google Drive Integration</h3>
+                <p class="text-xs text-slate-400">
+                    When signed in with your Google account, this webapp connects directly to your Google Drive to stream the newest execution logs, <code class="text-accent-blue font-mono">run_data.json</code>, and <code class="text-accent-emerald font-mono">momentum_data.json</code> immediately upon Colab execution.
+                </p>
+
+                <div class="p-3 bg-dark-base rounded-lg border border-dark-border space-y-2 text-xs font-mono">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Google Account:</span>
+                        <span id="settings-user-email" class="text-slate-200">Not connected</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Drive Target Folder:</span>
+                        <span class="text-accent-emerald">Switchblade_Live</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Sync Status:</span>
+                        <span id="settings-sync-status" class="text-accent-amber">Bundled Cache Mode</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3 pt-2">
+                    <button onclick="signInWithGoogle()" class="px-4 py-2 rounded-lg bg-accent-blue hover:bg-blue-600 text-white font-medium text-xs shadow transition">
+                        Connect Google Account
+                    </button>
+                    <button onclick="refreshDriveData()" class="px-4 py-2 rounded-lg bg-dark-elevated hover:bg-dark-hover border border-dark-border text-white text-xs transition">
+                        Force Refresh Now
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION (GEMINI.md Rule 3: Static & Gesture Isolated) -->
+    <nav class="bottom-nav md:hidden">
+        <div class="h-full flex items-center justify-around px-2 isolate-horizontal-scroll">
+            <button onclick="switchTab('overview')" class="mobile-nav-btn active flex flex-col items-center justify-center flex-1 py-1 text-accent-emerald transition" data-tab="overview">
+                <span class="text-base">⚡</span>
+                <span class="text-[10px] font-medium tracking-tight mt-0.5">Overview</span>
+            </button>
+            <button onclick="switchTab('league')" class="mobile-nav-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-white transition" data-tab="league">
+                <span class="text-base">🏆</span>
+                <span class="text-[10px] font-medium tracking-tight mt-0.5">League</span>
+            </button>
+            <button onclick="switchTab('momentum')" class="mobile-nav-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-white transition" data-tab="momentum">
+                <span class="text-base">🐕</span>
+                <span class="text-[10px] font-medium tracking-tight mt-0.5">Momentum</span>
+            </button>
+            <button onclick="switchTab('charts')" class="mobile-nav-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-white transition" data-tab="charts">
+                <span class="text-base">📈</span>
+                <span class="text-[10px] font-medium tracking-tight mt-0.5">Charts</span>
+            </button>
+            <button onclick="switchTab('log')" class="mobile-nav-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-white transition" data-tab="log">
+                <span class="text-base">📜</span>
+                <span class="text-[10px] font-medium tracking-tight mt-0.5">Log</span>
+            </button>
+            <button onclick="switchTab('settings')" class="mobile-nav-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-white transition" data-tab="settings">
+                <span class="text-base">⚙️</span>
+                <span class="text-[10px] font-medium tracking-tight mt-0.5">Sync</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- FIREBASE & DRIVE SYNC SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            projectId: "hokkaido-2027",
+            appId: "1:427505257376:web:4cb3f011f15fd85b4b72c5",
+            storageBucket: "hokkaido-2027.firebasestorage.app",
+            apiKey: "AIzaSyCGNzefUz5DuprZiVFNyAlAQpmTN7UFr40",
+            authDomain: "hokkaido-2027.firebaseapp.com",
+            messagingSenderId: "427505257376",
+            measurementId: "G-0795QT43WM",
+            projectNumber: "427505257376"
+        };
+
+        let app = null;
+        let auth = null;
+        let currentUser = null;
+        let googleAccessToken = null;
+
+        let runData = null;
+        let momentumData = null;
+
+        // Initialize Firebase
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('btn-auth-signin').classList.add('hidden');
+                    document.getElementById('auth-user-profile').classList.remove('hidden');
+                    document.getElementById('user-avatar').src = user.photoURL || '';
+                    document.getElementById('settings-user-email').textContent = user.email || 'Authenticated';
+                    
+                    // Attempt to connect to Google Drive if token available
+                    const savedToken = localStorage.getItem('sb_drive_token');
+                    if (savedToken) {
+                        googleAccessToken = savedToken;
+                        fetchFromGoogleDrive(googleAccessToken);
+                    }
+                } else {
+                    currentUser = null;
+                    document.getElementById('btn-auth-signin').classList.remove('hidden');
+                    document.getElementById('auth-user-profile').classList.add('hidden');
+                    document.getElementById('settings-user-email').textContent = 'Not connected';
+                }
+            });
+        } catch (e) {
+            console.warn("Firebase initialization skipped or failed:", e);
+        }
+
+        // Google Sign In with Google Drive Scope
+        window.signInWithGoogle = async function() {
+            if (!auth) return;
+            const provider = new GoogleAuthProvider();
+            provider.addScope('https://www.googleapis.com/auth/drive.readonly');
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                googleAccessToken = credential.accessToken;
+                if (googleAccessToken) {
+                    localStorage.setItem('sb_drive_token', googleAccessToken);
+                    await fetchFromGoogleDrive(googleAccessToken);
+                }
+            } catch (err) {
+                console.error("Sign in failed:", err);
+                alert("Sign-in error: " + err.message);
+            }
+        };
+
+        window.signOutUser = async function() {
+            if (!auth) return;
+            await signOut(auth);
+            localStorage.removeItem('sb_drive_token');
+            googleAccessToken = null;
+            location.reload();
+        };
+
+        // Query Google Drive API directly for Switchblade_Live folder
+        async function fetchFromGoogleDrive(token) {
+            try {
+                document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-blue mr-1.5 animate-pulse"></span> Querying Drive...`;
+                
+                // 1. Find Switchblade_Live folder
+                const folderQuery = encodeURIComponent("name = 'Switchblade_Live' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
+                const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${folderQuery}&fields=files(id,name)`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                
+                if (!folderRes.ok) throw new Error("Could not search Google Drive");
+                const folderData = await folderRes.json();
+                if (!folderData.files || folderData.files.length === 0) {
+                    throw new Error("Folder 'Switchblade_Live' not found in Drive");
+                }
+
+                const folderId = folderData.files[0].id;
+
+                // 2. Search for run_data.json and momentum_data.json in folder
+                const filesQuery = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
+                const filesRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${filesQuery}&fields=files(id,name,modifiedTime)`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const filesData = await filesRes.json();
+                
+                let runDataFile = filesData.files.find(f => f.name === 'run_data.json');
+                let momDataFile = filesData.files.find(f => f.name === 'momentum_data.json');
+                let chartFile = filesData.files.find(f => f.name === 'zoomed_chart.png');
+
+                if (runDataFile) {
+                    const rRes = await fetch(`https://www.googleapis.com/drive/v3/files/${runDataFile.id}?alt=media`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (rRes.ok) {
+                        runData = await rRes.json();
+                        renderRunData(runData);
+                    }
+                }
+
+                if (momDataFile) {
+                    const mRes = await fetch(`https://www.googleapis.com/drive/v3/files/${momDataFile.id}?alt=media`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (mRes.ok) {
+                        momentumData = await mRes.json();
+                        renderMomentumData(momentumData);
+                    }
+                }
+
+                if (chartFile) {
+                    const cRes = await fetch(`https://www.googleapis.com/drive/v3/files/${chartFile.id}?alt=media`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (cRes.ok) {
+                        const blob = await cRes.blob();
+                        const blobUrl = URL.createObjectURL(blob);
+                        document.getElementById('drive-zoomed-img').src = blobUrl;
+                        document.getElementById('btn-open-chart').href = blobUrl;
+                    }
+                }
+
+                // Update UI badges
+                document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-emerald mr-1.5"></span> Google Drive Live`;
+                document.getElementById('banner-title').textContent = "Google Drive Live Stream Active";
+                document.getElementById('settings-sync-status').textContent = "Connected & Active (Switchblade_Live)";
+                document.getElementById('settings-sync-status').className = "text-accent-emerald font-bold";
+
+            } catch (err) {
+                console.warn("Drive sync fallback:", err);
+                document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span> Bundled Cache`;
+            }
+        }
+
+        window.refreshDriveData = async function() {
+            if (googleAccessToken) {
+                await fetchFromGoogleDrive(googleAccessToken);
+            } else {
+                await loadBundledData();
+            }
+        };
+
+        // Load bundled fallback data
+        async function loadBundledData() {
+            try {
+                const [rRes, mRes] = await Promise.all([
+                    fetch(`data.json?t=${Date.now()}`),
+                    fetch(`momentum_data.json?t=${Date.now()}`)
+                ]);
+
+                if (rRes.ok) {
+                    runData = await rRes.json();
+                    renderRunData(runData);
+                }
+                if (mRes.ok) {
+                    momentumData = await mRes.json();
+                    renderMomentumData(momentumData);
+                }
+            } catch (e) {
+                console.error("Error loading bundled data:", e);
+            }
+        }
+
+        // Render Run Data (Strategies, Holdings, League Table)
+        function renderRunData(data) {
+            if (!data) return;
+
+            // Timestamp & Mode
+            if (data.timestamp) {
+                document.getElementById('banner-timestamp').textContent = `Run Date: ${data.timestamp}`;
+            }
+            if (data.mode) {
+                document.getElementById('execution-mode-badge').textContent = `Mode: ${data.mode}`;
+            }
+
+            // Strategies & Holdings
+            const strategies = data.strategies || [];
+            const tqqqStrat = strategies.find(s => s.name && s.name.includes('TQQQ')) || strategies[0];
+            const stdStrat = strategies.find(s => s.name && s.name.includes('Standard')) || strategies[1];
+
+            if (tqqqStrat) {
+                document.getElementById('tqqq-mode-display').textContent = tqqqStrat.current_mode || 'TQQQ';
+                document.getElementById('tqqq-regime-display').textContent = tqqqStrat.graduated_state || 'FIRMLY_BEARISH';
+                
+                // Colorize regime
+                const regEl = document.getElementById('tqqq-regime-display');
+                if ((tqqqStrat.graduated_state || '').includes('BULLISH')) {
+                    regEl.className = 'text-sm font-bold font-mono text-accent-emerald';
+                } else {
+                    regEl.className = 'text-sm font-bold font-mono text-accent-rose';
+                }
+
+                const tContainer = document.getElementById('tqqq-holdings-container');
+                tContainer.innerHTML = '';
+                const holdings = tqqqStrat.holdings || {};
+                const keys = Object.keys(holdings);
+                if (keys.length > 0) {
+                    keys.forEach(k => {
+                        const pill = document.createElement('div');
+                        pill.className = 'flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-accent-blue/15 border border-accent-blue/40 text-accent-blue font-mono font-bold text-sm shadow-sm';
+                        pill.innerHTML = `<span>${k}</span><span class="text-xs px-2 py-0.5 rounded-md bg-accent-blue/25 text-white font-semibold">${holdings[k]}</span>`;
+                        tContainer.appendChild(pill);
+                    });
+                    document.getElementById('tqqq-state-badge').textContent = `TQQQ: ${keys.join(', ')}`;
+                } else {
+                    tContainer.innerHTML = `<span class="text-xs text-slate-500 font-mono">No active holdings</span>`;
+                }
+            }
+
+            if (stdStrat) {
+                document.getElementById('standard-mode-display').textContent = stdStrat.current_mode || 'ALL_STOCKS';
+                document.getElementById('standard-regime-display').textContent = stdStrat.graduated_state || 'FIRMLY_BULLISH';
+                
+                const sContainer = document.getElementById('standard-holdings-container');
+                sContainer.innerHTML = '';
+                const holdings = stdStrat.holdings || {};
+                const keys = Object.keys(holdings);
+                if (keys.length > 0) {
+                    keys.forEach(k => {
+                        const item = document.createElement('div');
+                        item.className = 'flex items-center justify-between px-3 py-2 rounded-xl bg-dark-base border border-dark-border text-xs font-mono';
+                        item.innerHTML = `<span class="font-bold text-white">${k}</span><span class="text-accent-emerald">${holdings[k]}</span>`;
+                        sContainer.appendChild(item);
+                    });
+                } else {
+                    sContainer.innerHTML = `<span class="text-xs text-slate-500 font-mono">No active holdings</span>`;
+                }
+            }
+
+            // League Table
+            const league = data.league_table || [];
+            const lBody = document.getElementById('league-table-body');
+            lBody.innerHTML = '';
+
+            league.forEach((row, i) => {
+                const tr = document.createElement('tr');
+                tr.className = i % 2 === 0 ? 'bg-dark-card hover:bg-dark-hover transition' : 'bg-dark-surface/50 hover:bg-dark-hover transition';
+                
+                const isBench = (row.Strategy || '').includes('BENCHMARK');
+                const stratColor = isBench ? 'text-slate-400' : 'text-white font-bold';
+                const retColor = (row['Return %'] >= 0) ? 'text-accent-emerald' : 'text-accent-rose';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 ${stratColor}">${row.Strategy}</td>
+                    <td class="py-3 px-3 text-right font-bold ${retColor}">${row['Return %']?.toLocaleString()}%</td>
+                    <td class="py-3 px-3 text-right text-accent-rose">${row['MaxDD %']}%</td>
+                    <td class="py-3 px-3 text-right text-slate-300">${row['CurrDD %']}%</td>
+                    <td class="py-3 px-3 text-right text-slate-300">${row.Sharpe?.toFixed(2)}</td>
+                    <td class="py-3 px-3 text-right text-slate-300">${row.Sortino?.toFixed(2)}</td>
+                    <td class="py-3 px-3 text-right text-slate-300">${row.Calmar?.toFixed(2)}</td>
+                    <td class="py-3 px-3 text-right text-slate-400">${row.Trades}</td>
+                    <td class="py-3 px-3 text-right text-slate-400">${row.Switches}</td>
+                `;
+                lBody.appendChild(tr);
+
+                // Update KPI Cards from league
+                if (row.Strategy && row.Strategy.includes('TQQQ_ONLY')) {
+                    document.getElementById('kpi-top-return').textContent = `+${row['Return %']?.toLocaleString()}%`;
+                }
+                if (row.Strategy && row.Strategy.includes('Standard')) {
+                    document.getElementById('kpi-standard-return').textContent = `+${row['Return %']?.toLocaleString()}%`;
+                }
+                if (row.Strategy && row.Strategy.includes('BENCHMARK: TQQQ')) {
+                    document.getElementById('kpi-benchmark-return').textContent = `+${row['Return %']?.toLocaleString()}%`;
+                }
+                if (row.Strategy && row.Strategy.includes('BENCHMARK: SPY')) {
+                    document.getElementById('kpi-spy-return').textContent = `+${row['Return %']?.toLocaleString()}%`;
+                }
+            });
+
+            // State Dump Tab
+            const stateContainer = document.getElementById('state-cards-container');
+            stateContainer.innerHTML = '';
+            strategies.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'bg-dark-card border border-dark-border rounded-xl p-4 sm:p-5 space-y-3';
+                card.innerHTML = `
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 border-b border-dark-border gap-2">
+                        <div>
+                            <span class="text-xs font-mono text-accent-blue font-semibold uppercase tracking-wider">Strategy ${s.id}</span>
+                            <h3 class="text-base font-bold text-white">${s.name}</h3>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs font-mono">
+                            <span class="px-2.5 py-1 rounded bg-dark-base text-accent-emerald border border-dark-border">Mode: ${s.current_mode}</span>
+                            <span class="px-2.5 py-1 rounded bg-dark-base text-slate-300 border border-dark-border">Graduated: ${s.graduated_state}</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+                        <div><span class="text-slate-400">Confirm Counter:</span> <span class="text-white">${s.confirm_counter || 0}</span></div>
+                        <div><span class="text-slate-400">Rebalance Timer:</span> <span class="text-white">${s.timer || 0}</span></div>
+                        <div><span class="text-slate-400">Pending Mode:</span> <span class="text-white">${s.pending_mode || 'None'}</span></div>
+                        <div><span class="text-slate-400">Last Rebalanced:</span> <span class="text-white">${s.last_rebal_date || 'N/A'}</span></div>
+                    </div>
+                    <div class="pt-2">
+                        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider block mb-1">State JSON Payload:</span>
+                        <pre class="code-dump text-[11px] p-3 rounded-lg bg-dark-base border border-dark-border text-slate-300 font-mono">${JSON.stringify(s, null, 2)}</pre>
+                    </div>
+                `;
+                stateContainer.appendChild(card);
+            });
+        }
+
+        // Render Momentum & Guard Dogs Data
+        function renderMomentumData(data) {
+            if (!data) return;
+
+            // 1. Guard Dogs Table
+            const gdContainer = document.getElementById('guard-dogs-table-body');
+            gdContainer.innerHTML = '';
+            const etfs = (data.guard_dogs && data.guard_dogs.etfs) ? data.guard_dogs.etfs : {};
+
+            Object.keys(etfs).forEach((ticker, i) => {
+                const g = etfs[ticker];
+                const tr = document.createElement('tr');
+                tr.className = i % 2 === 0 ? 'bg-dark-card hover:bg-dark-hover transition' : 'bg-dark-surface/50 hover:bg-dark-hover transition';
+
+                const s1 = g.set_1 || {};
+                const s2 = g.set_2 || {};
+                const isBull1 = (s1.status || '').toUpperCase() === 'BULLISH';
+                const isBull2 = (s2.status || '').toUpperCase() === 'BULLISH';
+                const s1Color = isBull1 ? 'text-accent-emerald bg-accent-emerald/10 border-accent-emerald/30' : 'text-accent-rose bg-accent-rose/10 border-accent-rose/30';
+                const s2Color = isBull2 ? 'text-accent-emerald bg-accent-emerald/10 border-accent-emerald/30' : 'text-accent-rose bg-accent-rose/10 border-accent-rose/30';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-bold text-white">${ticker}</td>
+                    <td class="py-3 px-3 text-right font-mono">${g.price?.toFixed(2)}</td>
+                    <td class="py-3 px-3 text-right font-mono ${g.today_change_pct >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${g.today_change_pct >= 0 ? '+' : ''}${g.today_change_pct?.toFixed(2)}%</td>
+                    <td class="py-3 px-3 text-center font-mono">${s1.exit_sma} (${s1.dist_exit_pct > 0 ? '+' : ''}${s1.dist_exit_pct?.toFixed(2)}%)</td>
+                    <td class="py-3 px-3 text-center font-mono">${s1.reentry_sma} (${s1.dist_reentry_pct > 0 ? '+' : ''}${s1.dist_reentry_pct?.toFixed(2)}%)</td>
+                    <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${s1Color}">${s1.status || 'N/A'}</span></td>
+                    <td class="py-3 px-3 text-center font-mono">${s2.exit_sma} (${s2.dist_exit_pct > 0 ? '+' : ''}${s2.dist_exit_pct?.toFixed(2)}%)</td>
+                    <td class="py-3 px-3 text-center font-mono">${s2.reentry_sma} (${s2.dist_reentry_pct > 0 ? '+' : ''}${s2.dist_reentry_pct?.toFixed(2)}%)</td>
+                    <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${s2Color}">${s2.status || 'N/A'}</span></td>
+                `;
+                gdContainer.appendChild(tr);
+            });
+
+            // 2. Top 10 Momentum Picks
+            const topBody = document.getElementById('momentum-top-body');
+            topBody.innerHTML = '';
+            const topPicks = (data.momentum && data.momentum.top_picks) ? data.momentum.top_picks : [];
+
+            topPicks.forEach((p, i) => {
+                const tr = document.createElement('tr');
+                tr.className = i % 2 === 0 ? 'bg-dark-card hover:bg-dark-hover transition' : 'bg-dark-surface/50 hover:bg-dark-hover transition';
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-bold text-accent-blue">#${p.rank}</td>
+                    <td class="py-3 px-4 font-black text-white text-sm">${p.ticker}</td>
+                    <td class="py-3 px-4 text-right font-bold text-accent-emerald">${p.blended_score_pct?.toFixed(2)}%</td>
+                    <td class="py-3 px-4 text-right text-slate-300">${p.long_roc_pct?.toFixed(2)}%</td>
+                    <td class="py-3 px-4 text-right text-slate-300">${p.short_roc_pct?.toFixed(2)}%</td>
+                    <td class="py-3 px-4 text-right ${p.today_return_pct >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${p.today_return_pct >= 0 ? '+' : ''}${p.today_return_pct?.toFixed(2)}%</td>
+                `;
+                topBody.appendChild(tr);
+            });
+
+            // 3. Runner-Ups
+            const runnersBody = document.getElementById('momentum-runners-body');
+            runnersBody.innerHTML = '';
+            const runners = (data.momentum && data.momentum.runner_ups) ? data.momentum.runner_ups : [];
+
+            runners.forEach((p, i) => {
+                const tr = document.createElement('tr');
+                tr.className = i % 2 === 0 ? 'bg-dark-card hover:bg-dark-hover transition' : 'bg-dark-surface/50 hover:bg-dark-hover transition';
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4 font-semibold text-slate-400">#${p.rank}</td>
+                    <td class="py-2.5 px-4 font-bold text-slate-200">${p.ticker}</td>
+                    <td class="py-2.5 px-4 text-right text-slate-300">${p.blended_score_pct?.toFixed(2)}%</td>
+                    <td class="py-2.5 px-4 text-right text-slate-400">${p.long_roc_pct?.toFixed(2)}%</td>
+                    <td class="py-2.5 px-4 text-right text-slate-400">${p.short_roc_pct?.toFixed(2)}%</td>
+                    <td class="py-2.5 px-4 text-right ${p.today_return_pct >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${p.today_return_pct >= 0 ? '+' : ''}${p.today_return_pct?.toFixed(2)}%</td>
+                `;
+                runnersBody.appendChild(tr);
+            });
+        }
+
+        // Global Tab Switcher
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.add('active');
+
+            // Update desktop tabs
+            document.querySelectorAll('.nav-tab').forEach(b => {
+                if (b.dataset.tab === tabId) {
+                    b.className = 'nav-tab active px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition text-accent-emerald bg-accent-emerald/10 border border-accent-emerald/30';
+                } else {
+                    b.className = 'nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition text-slate-400 hover:text-white hover:bg-dark-surface';
+                }
+            });
+
+            // Update mobile bottom nav
+            document.querySelectorAll('.mobile-nav-btn').forEach(b => {
+                if (b.dataset.tab === tabId) {
+                    b.className = 'mobile-nav-btn active flex flex-col items-center justify-center flex-1 py-1 text-accent-emerald transition';
+                } else {
+                    b.className = 'mobile-nav-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-white transition';
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Initialize with bundled data
+        loadBundledData();
+    </script>
+</body>
+</html>
