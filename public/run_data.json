@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-11-05 19:46:44",
+  "timestamp": "2026-11-05 21:19:08",
   "date": "2026-11-05",
   "mode": "Backtest Mode",
   "strategies": [
     {
       "id": 1,
-      "name": "TQQQ_ONLY (sma 205/20)",
+      "name": "Strategy 1",
       "current_mode": "LONG_BOND",
       "graduated_state": "SLIGHTLY_BEARISH",
       "pending_mode": "GOLD",
@@ -17,52 +17,11 @@
       "holdings": {
         "TLT": "100.00%"
       },
-      "guards": {
-        "IWM": {
-          "px": 272.32,
-          "dist_ex": -1.92,
-          "dist_en": -1.75
-        },
-        "QQQ": {
-          "px": 655.29,
-          "dist_ex": -3.36,
-          "dist_en": -8.07
-        },
-        "SPY": {
-          "px": 738.25,
-          "dist_ex": 1.64,
-          "dist_en": -3.6
-        },
-        "XLG": {
-          "px": 59.71,
-          "dist_ex": -1.35,
-          "dist_en": -5.15
-        },
-        "GLD": {
-          "px": 376.21,
-          "dist_ex": -8.71,
-          "dist_en": 0.74
-        },
-        "TLT": {
-          "px": 82.07,
-          "dist_ex": -1.72,
-          "dist_en": 1.91
-        },
-        "IEF": {
-          "px": 92.01,
-          "dist_ex": -0.83,
-          "dist_en": 1.44
-        },
-        "BIL": {
-          "px": 91.43,
-          "dist_ex": 0.87,
-          "dist_en": -0.14
-        }
-      }
+      "guards": {}
     },
     {
       "id": 2,
-      "name": "Standard (sma 213/10, momo 230/84, 5)",
+      "name": "Strategy 2",
       "current_mode": "ALL_STOCKS",
       "graduated_state": "FIRMLY_BULLISH",
       "pending_mode": "CASH",
@@ -83,67 +42,26 @@
         "HPE": "10.00%",
         "RNG": "10.00%"
       },
-      "guards": {
-        "IWM": {
-          "px": 272.32,
-          "dist_ex": -1.62,
-          "dist_en": -2.49
-        },
-        "QQQ": {
-          "px": 655.29,
-          "dist_ex": -3.05,
-          "dist_en": -6.16
-        },
-        "SPY": {
-          "px": 738.25,
-          "dist_ex": 1.86,
-          "dist_en": -2.91
-        },
-        "XLG": {
-          "px": 59.71,
-          "dist_ex": -1.27,
-          "dist_en": -3.77
-        },
-        "GLD": {
-          "px": 376.21,
-          "dist_ex": -8.71,
-          "dist_en": 2.39
-        },
-        "TLT": {
-          "px": 82.07,
-          "dist_ex": -1.78,
-          "dist_en": 0.61
-        },
-        "IEF": {
-          "px": 92.01,
-          "dist_ex": -0.87,
-          "dist_en": 0.73
-        },
-        "BIL": {
-          "px": 91.43,
-          "dist_ex": 0.92,
-          "dist_en": -0.15
-        }
-      }
+      "guards": {}
     }
   ],
   "league_table": [
     {
       "Strategy": "Standard (sma 213/10, momo 230/84, 5)",
-      "Return %": 32827.17,
-      "MaxDD %": 41.55,
-      "CurrDD %": 41.55,
+      "Return %": 32500.11,
+      "MaxDD %": 42.13,
+      "CurrDD %": 42.13,
       "Sharpe": 1.2,
       "Sortino": 1.35,
-      "Calmar": 1.15,
+      "Calmar": 1.14,
       "Trades": 0,
       "Switches": 84
     },
     {
       "Strategy": "TQQQ_ONLY (sma 205/20)",
-      "Return %": 45086.24,
+      "Return %": 45036.26,
       "MaxDD %": 53.63,
-      "CurrDD %": 16.22,
+      "CurrDD %": 16.32,
       "Sharpe": 1.0,
       "Sortino": 1.06,
       "Calmar": 0.95,
@@ -152,9 +70,9 @@
     },
     {
       "Strategy": "BENCHMARK: SPY",
-      "Return %": 628.45,
+      "Return %": 625.68,
       "MaxDD %": 33.72,
-      "CurrDD %": 5.24,
+      "CurrDD %": 5.6,
       "Sharpe": 0.0,
       "Sortino": 0.82,
       "Calmar": 0.43,
@@ -163,9 +81,9 @@
     },
     {
       "Strategy": "BENCHMARK: QQQ",
-      "Return %": 1148.39,
+      "Return %": 1140.13,
       "MaxDD %": 35.12,
-      "CurrDD %": 13.74,
+      "CurrDD %": 14.31,
       "Sharpe": 0.0,
       "Sortino": 0.85,
       "Calmar": 0.53,
@@ -174,12 +92,12 @@
     },
     {
       "Strategy": "BENCHMARK: TQQQ",
-      "Return %": 12827.78,
+      "Return %": 12548.57,
       "MaxDD %": 81.66,
-      "CurrDD %": 39.75,
+      "CurrDD %": 41.05,
       "Sharpe": 0.0,
       "Sortino": 0.6,
-      "Calmar": 0.48,
+      "Calmar": 0.47,
       "Trades": 0,
       "Switches": 0
     }
