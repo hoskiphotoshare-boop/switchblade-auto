@@ -725,6 +725,7 @@
 
             const provider = new GoogleAuthProvider();
             provider.addScope('https://www.googleapis.com/auth/drive.readonly');
+            provider.setCustomParameters({ prompt: 'select_account' });
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
@@ -802,17 +803,53 @@
             }
         }
 
+        // Handle Drive token expiration cleanly
+        function handleDriveTokenExpired() {
+            console.warn("Google Drive OAuth access token has expired or is invalid.");
+            googleAccessToken = null;
+            localStorage.removeItem('sb_drive_token');
+
+            const pill = document.getElementById('sync-source-pill');
+            if (pill) {
+                pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span> Drive Token Expired`;
+            }
+            const bTitle = document.getElementById('banner-title');
+            if (bTitle) bTitle.textContent = "Google Drive Session Expired";
+            const bSub = document.getElementById('banner-subtext');
+            if (bSub) {
+                bSub.innerHTML = `Live stream token expired. <button onclick="reconnectDrive()" class="underline font-bold text-accent-blue ml-1">Click here to re-sync Drive</button> or view cached data below.`;
+            }
+            const dot = document.getElementById('status-indicator-dot');
+            if (dot) dot.className = "w-3 h-3 rounded-full bg-amber-400";
+            const sStatus = document.getElementById('settings-sync-status');
+            if (sStatus) {
+                sStatus.textContent = "Drive Token Expired (Click 'Sync Drive' to refresh)";
+                sStatus.className = "text-amber-400 font-bold";
+            }
+            loadBundledData();
+        }
+
         async function fetchFromGoogleDrive(token) {
+            if (!token) {
+                handleDriveTokenExpired();
+                return;
+            }
             try {
                 document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-blue mr-1.5 animate-pulse"></span> Querying Drive...`;
-                
+                const authHeaders = { Authorization: `Bearer ${token}` };
+
                 // 1. Locate Switchblade_Live folder
                 let folderId = LIVE_FOLDER_ID;
                 try {
                     const folderQuery = encodeURIComponent("name = 'Switchblade_Live' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
-                    const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${folderQuery}&fields=files(id,name)`, {
-                        headers: { Authorization: `Bearer ${token}` }
+                    const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${folderQuery}&fields=files(id,name)&t=${Date.now()}`, {
+                        headers: authHeaders,
+                        cache: 'no-store'
                     });
+                    if (folderRes.status === 401 || folderRes.status === 403) {
+                        handleDriveTokenExpired();
+                        return;
+                    }
                     if (folderRes.ok) {
                         const folderData = await folderRes.json();
                         if (folderData.files && folderData.files.length > 0) {
@@ -827,9 +864,14 @@
                 let filesList = [];
                 try {
                     const filesQuery = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
-                    const filesRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${filesQuery}&pageSize=100&fields=files(id,name,modifiedTime)`, {
-                        headers: { Authorization: `Bearer ${token}` }
+                    const filesRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${filesQuery}&pageSize=100&fields=files(id,name,modifiedTime)&t=${Date.now()}`, {
+                        headers: authHeaders,
+                        cache: 'no-store'
                     });
+                    if (filesRes.status === 401 || filesRes.status === 403) {
+                        handleDriveTokenExpired();
+                        return;
+                    }
                     if (filesRes.ok) {
                         const filesData = await filesRes.json();
                         filesList = filesData.files || [];
@@ -843,15 +885,23 @@
                 let chartFile = filesList.find(f => f.name === 'zoomed_chart.png') || { id: KNOWN_DRIVE_FILES.chart };
                 let logFile = filesList.find(f => f.name === 'latest_run.html') || { id: KNOWN_DRIVE_FILES.log };
 
+                let driveSuccess = false;
+
                 // 3. Fetch structured run data
                 if (runDataFile && runDataFile.id) {
                     try {
-                        const rRes = await fetch(`https://www.googleapis.com/drive/v3/files/${runDataFile.id}?alt=media`, {
-                            headers: { Authorization: `Bearer ${token}` }
+                        const rRes = await fetch(`https://www.googleapis.com/drive/v3/files/${runDataFile.id}?alt=media&t=${Date.now()}`, {
+                            headers: authHeaders,
+                            cache: 'no-store'
                         });
+                        if (rRes.status === 401 || rRes.status === 403) {
+                            handleDriveTokenExpired();
+                            return;
+                        }
                         if (rRes.ok) {
                             runData = await rRes.json();
                             renderRunData(runData, runDataFile.modifiedTime);
+                            driveSuccess = true;
                         }
                     } catch (e) {
                         console.warn("Could not fetch run_data from Drive:", e);
@@ -861,12 +911,18 @@
                 // 4. Fetch momentum & guard dogs data
                 if (momDataFile && momDataFile.id) {
                     try {
-                        const mRes = await fetch(`https://www.googleapis.com/drive/v3/files/${momDataFile.id}?alt=media`, {
-                            headers: { Authorization: `Bearer ${token}` }
+                        const mRes = await fetch(`https://www.googleapis.com/drive/v3/files/${momDataFile.id}?alt=media&t=${Date.now()}`, {
+                            headers: authHeaders,
+                            cache: 'no-store'
                         });
+                        if (mRes.status === 401 || mRes.status === 403) {
+                            handleDriveTokenExpired();
+                            return;
+                        }
                         if (mRes.ok) {
                             momentumData = await mRes.json();
                             renderMomentumData(momentumData, momDataFile.modifiedTime);
+                            driveSuccess = true;
                         }
                     } catch (e) {
                         console.warn("Could not fetch momentum from Drive:", e);
@@ -876,8 +932,9 @@
                 // 5. Fetch Zoomed 200-day chart
                 if (chartFile && chartFile.id) {
                     try {
-                        const cRes = await fetch(`https://www.googleapis.com/drive/v3/files/${chartFile.id}?alt=media`, {
-                            headers: { Authorization: `Bearer ${token}` }
+                        const cRes = await fetch(`https://www.googleapis.com/drive/v3/files/${chartFile.id}?alt=media&t=${Date.now()}`, {
+                            headers: authHeaders,
+                            cache: 'no-store'
                         });
                         if (cRes.ok) {
                             const blob = await cRes.blob();
@@ -886,6 +943,7 @@
                             const linkEl = document.getElementById('btn-open-chart');
                             if (imgEl) imgEl.src = blobUrl;
                             if (linkEl) linkEl.href = blobUrl;
+                            driveSuccess = true;
                         } else {
                             const imgEl = document.getElementById('drive-zoomed-img');
                             if (imgEl) imgEl.src = `zoomed_chart.png?t=${Date.now()}`;
@@ -900,12 +958,14 @@
                 // 6. Fetch Raw Execution Log
                 if (logFile && logFile.id) {
                     try {
-                        const lRes = await fetch(`https://www.googleapis.com/drive/v3/files/${logFile.id}?alt=media`, {
-                            headers: { Authorization: `Bearer ${token}` }
+                        const lRes = await fetch(`https://www.googleapis.com/drive/v3/files/${logFile.id}?alt=media&t=${Date.now()}`, {
+                            headers: authHeaders,
+                            cache: 'no-store'
                         });
                         if (lRes.ok) {
                             const logText = await lRes.text();
                             loadExecutionLog(logText);
+                            driveSuccess = true;
                         } else {
                             loadExecutionLog();
                         }
@@ -917,25 +977,31 @@
                     loadExecutionLog();
                 }
 
-                // Update UI badges
-                document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-emerald mr-1.5"></span> Google Drive Live`;
-                document.getElementById('banner-title').textContent = "Google Drive Live Stream Active";
-                document.getElementById('settings-sync-status').textContent = "Connected & Active (Switchblade_Live)";
-                document.getElementById('settings-sync-status').className = "text-accent-emerald font-bold";
+                if (driveSuccess) {
+                    // Update UI badges
+                    document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-emerald mr-1.5"></span> Google Drive Live`;
+                    document.getElementById('banner-title').textContent = "Google Drive Live Stream Active";
+                    document.getElementById('banner-subtext').innerHTML = `Colab Run artifacts connected live from <span class="font-mono text-accent-blue">MyDrive/Switchblade_Live</span>`;
+                    document.getElementById('status-indicator-dot').className = "w-3 h-3 rounded-full bg-accent-emerald animate-pulse";
+                    document.getElementById('settings-sync-status').textContent = "Connected & Active (Switchblade_Live)";
+                    document.getElementById('settings-sync-status').className = "text-accent-emerald font-bold";
+                } else {
+                    handleDriveTokenExpired();
+                }
 
             } catch (err) {
                 console.warn("Drive sync fallback:", err);
-                document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span> Bundled Cache`;
-                await loadBundledData();
+                handleDriveTokenExpired();
             }
         }
 
         window.refreshDriveData = async function() {
-            if (googleAccessToken) {
-                await fetchFromGoogleDrive(googleAccessToken);
-            } else {
-                await loadBundledData();
+            if (!googleAccessToken) {
+                console.log("Drive token expired or not set. Triggering interactive Google Sign-In...");
+                await signInWithGoogle();
+                return;
             }
+            await fetchFromGoogleDrive(googleAccessToken);
         };
 
         window.reconnectDrive = async function() {
@@ -975,6 +1041,23 @@
 
                 // Populate execution log iframe via srcdoc to prevent X-Frame-Options denial
                 loadExecutionLog();
+
+                // Update UI badges if not in active live mode
+                if (!googleAccessToken) {
+                    const pill = document.getElementById('sync-source-pill');
+                    if (pill) pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span> Bundled Cache`;
+                    const bTitle = document.getElementById('banner-title');
+                    if (bTitle) bTitle.textContent = "Switchblade Execution Snapshot";
+                    const bSub = document.getElementById('banner-subtext');
+                    if (bSub) bSub.innerHTML = `Showing bundled run data. <button onclick="signInWithGoogle()" class="underline font-bold text-accent-blue ml-1">Connect Google Drive</button> for real-time live streaming.`;
+                    const dot = document.getElementById('status-indicator-dot');
+                    if (dot) dot.className = "w-3 h-3 rounded-full bg-amber-400";
+                    const sStatus = document.getElementById('settings-sync-status');
+                    if (sStatus) {
+                        sStatus.textContent = "Bundled Snapshot (Drive Disconnected)";
+                        sStatus.className = "text-amber-400 font-semibold";
+                    }
+                }
             } catch (e) {
                 console.error("Error loading bundled data:", e);
             }
@@ -1036,10 +1119,10 @@
                 document.getElementById('execution-mode-badge').textContent = `Mode: ${data.mode}`;
             }
 
-            // Strategies & Holdings
+            // Strategies & Holdings (S1 = Standard Strat 213/10, S2 = TQQQ Strat 205/20)
             const strategies = data.strategies || [];
-            const tqqqStrat = strategies.find(s => s.name && s.name.includes('TQQQ')) || strategies[0];
-            const stdStrat = strategies.find(s => s.name && s.name.includes('Standard')) || strategies[1];
+            const stdStrat = strategies.find(s => s.id === 1 || (s.name && (s.name.includes('Standard') || s.name.includes('S1')))) || strategies[0];
+            const tqqqStrat = strategies.find(s => s.id === 2 || (s.name && (s.name.includes('TQQQ') || s.name.includes('S2')))) || strategies[1] || strategies[0];
 
             if (tqqqStrat) {
                 document.getElementById('tqqq-mode-display').textContent = tqqqStrat.current_mode || 'TQQQ';
@@ -1141,7 +1224,7 @@
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 border-b border-dark-border gap-2">
                         <div>
                             <span class="text-xs font-mono text-accent-blue font-semibold uppercase tracking-wider">Strategy ${s.id}</span>
-                            <h3 class="text-base font-bold text-white">${s.name}</h3>
+                            <h3 class="text-base font-bold text-white">${s.id === 1 ? 'Standard Strategy (213/10)' : (s.id === 2 ? 'TQQQ Strategy (205/20)' : s.name)}</h3>
                         </div>
                         <div class="flex items-center space-x-2 text-xs font-mono">
                             <span class="px-2.5 py-1 rounded bg-dark-base text-accent-emerald border border-dark-border">Mode: ${s.current_mode}</span>
