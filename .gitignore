@@ -4,3 +4,5 @@ __pycache__/
 .DS_Store
 .env
 .firebase/
+public/latest_run.html
+public/zoomed_chart.png
