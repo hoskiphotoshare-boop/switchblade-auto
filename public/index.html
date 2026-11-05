@@ -674,17 +674,20 @@
 
         // Firebase Web Config
         const firebaseConfig = {
-            apiKey: "AIzaSyDPsY-sample-dummy-key-auth",
-            authDomain: "switchblade-app.firebaseapp.com",
             projectId: "hokkaido-2027",
-            storageBucket: "hokkaido-2027.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef123456"
+            appId: "1:427505257376:web:4cb3f011f15fd85b4b72c5",
+            storageBucket: "hokkaido-2027.firebasestorage.app",
+            apiKey: "AIzaSyCGNzefUz5DuprZiVFNyAlAQpmTN7UFr40",
+            authDomain: "hokkaido-2027.firebaseapp.com",
+            messagingSenderId: "427505257376",
+            measurementId: "G-0795QT43WM",
+            projectNumber: "427505257376"
         };
 
         const AUTHORIZED_EMAIL = "michael.y.ho@gmail.com";
 
-        let app, auth;
+        let app = null, auth = null;
+        let authInitError = null;
         let currentUser = null;
         let googleAccessToken = null;
         let runData = null;
@@ -720,10 +723,14 @@
                     if (loginGate) loginGate.classList.add('hidden');
                     if (mainContent) mainContent.classList.remove('hidden');
 
-                    document.getElementById('btn-auth-signin').classList.add('hidden');
-                    document.getElementById('auth-user-profile').classList.remove('hidden');
-                    document.getElementById('user-avatar').src = user.photoURL || '';
-                    document.getElementById('settings-user-email').textContent = user.email || 'Authenticated';
+                    const btnSignIn = document.getElementById('btn-auth-signin');
+                    if (btnSignIn) btnSignIn.classList.add('hidden');
+                    const userProfile = document.getElementById('auth-user-profile');
+                    if (userProfile) userProfile.classList.remove('hidden');
+                    const userAvatar = document.getElementById('user-avatar');
+                    if (userAvatar) userAvatar.src = user.photoURL || '';
+                    const settingsEmail = document.getElementById('settings-user-email');
+                    if (settingsEmail) settingsEmail.textContent = user.email || 'Authenticated';
                     
                     // Attempt to connect to Google Drive if token available
                     const savedToken = localStorage.getItem('sb_drive_token');
@@ -738,18 +745,43 @@
                     googleAccessToken = null;
                     if (mainContent) mainContent.classList.add('hidden');
                     if (loginGate) loginGate.classList.remove('hidden');
-                    document.getElementById('btn-auth-signin').classList.remove('hidden');
-                    document.getElementById('auth-user-profile').classList.add('hidden');
-                    document.getElementById('settings-user-email').textContent = 'Not connected';
+                    const btnSignIn = document.getElementById('btn-auth-signin');
+                    if (btnSignIn) btnSignIn.classList.remove('hidden');
+                    const userProfile = document.getElementById('auth-user-profile');
+                    if (userProfile) userProfile.classList.add('hidden');
+                    const settingsEmail = document.getElementById('settings-user-email');
+                    if (settingsEmail) settingsEmail.textContent = 'Not connected';
                 }
             });
         } catch (e) {
-            console.warn("Firebase initialization skipped or failed:", e);
+            authInitError = e;
+            console.error("Firebase initialization skipped or failed:", e);
         }
 
         // Google Sign In with Google Drive Scope
         window.signInWithGoogle = async function() {
-            if (!auth) return;
+            const errBox = document.getElementById('login-error-msg');
+            if (errBox) errBox.classList.add('hidden');
+
+            if (!auth) {
+                const msg = "Authentication failed to initialize: " + (authInitError ? authInitError.message : "Firebase Auth unavailable");
+                console.error(msg);
+                if (errBox) {
+                    errBox.textContent = msg;
+                    errBox.classList.remove('hidden');
+                } else {
+                    alert(msg);
+                }
+                return;
+            }
+
+            const btn = document.querySelector('#login-gate button');
+            const originalBtnHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Opening Google Sign-In...</span>`;
+            }
+
             const provider = new GoogleAuthProvider();
             // Request read-only access to Drive files so the portal can live stream artifacts
             provider.addScope('https://www.googleapis.com/auth/drive.readonly');
@@ -760,9 +792,9 @@
                 const userEmail = (user.email || '').toLowerCase().trim();
 
                 if (userEmail !== AUTHORIZED_EMAIL.toLowerCase()) {
-                    if (errorBox) {
-                        errorBox.textContent = `Access Denied: Account '${userEmail}' is not authorized. Access is strictly limited to ${AUTHORIZED_EMAIL}.`;
-                        errorBox.classList.remove('hidden');
+                    if (errBox) {
+                        errBox.textContent = `Access Denied: Account '${userEmail}' is not authorized. Access is strictly limited to ${AUTHORIZED_EMAIL}.`;
+                        errBox.classList.remove('hidden');
                     }
                     await signOut(auth);
                     return;
@@ -778,11 +810,24 @@
                 }
             } catch (err) {
                 console.error("Sign in failed:", err);
-                if (errorBox) {
-                    errorBox.textContent = "Sign-in error: " + err.message;
-                    errorBox.classList.remove('hidden');
+                let message = err.message || "An unknown authentication error occurred.";
+                if (err.code === 'auth/popup-blocked') {
+                    message = "Popup was blocked by your browser. Please allow popups for switchblade-app.web.app and try again.";
+                } else if (err.code === 'auth/popup-closed-by-user') {
+                    message = "Sign-in popup was closed before completing.";
+                } else if (err.code === 'auth/unauthorized-domain') {
+                    message = "This domain is not authorized for OAuth operations in Firebase. Please check Firebase Console Authorized Domains.";
+                }
+                if (errBox) {
+                    errBox.textContent = message;
+                    errBox.classList.remove('hidden');
                 } else {
-                    alert("Sign-in error: " + err.message);
+                    alert(message);
+                }
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnHtml;
                 }
             }
         };
