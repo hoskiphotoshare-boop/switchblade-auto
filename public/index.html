@@ -183,6 +183,7 @@
                     </button>
                     <div id="auth-user-profile" class="hidden flex items-center space-x-2">
                         <img id="user-avatar" class="w-7 h-7 rounded-full border border-accent-emerald" src="" alt="avatar">
+                        <button onclick="reconnectDrive()" title="Re-sync Google Drive Token" class="px-2 py-1 rounded bg-accent-blue/15 hover:bg-accent-blue/25 text-accent-blue border border-accent-blue/30 text-[11px] font-mono transition">Sync Drive</button>
                         <button onclick="signOutUser()" title="Sign Out" class="text-xs text-slate-400 hover:text-white transition">Sign Out</button>
                     </div>
                 </div>
@@ -508,8 +509,8 @@
                     <span class="text-xs font-semibold text-slate-300 font-mono uppercase tracking-wider">Latest Run Visual Output</span>
                     <a id="btn-open-chart" href="zoomed_chart.png" target="_blank" class="text-xs text-accent-blue hover:underline font-mono">Open Full Size ↗</a>
                 </div>
-                <div class="w-full flex items-center justify-center bg-black/40 rounded-lg overflow-hidden border border-dark-border/60 p-2">
-                    <img id="drive-zoomed-img" src="zoomed_chart.png" alt="200-Day Zoomed Lens Chart" class="max-w-full h-auto rounded border border-dark-border" onerror="this.src='latest_run.html';">
+                <div class="w-full flex items-center justify-center bg-black/40 rounded-lg overflow-hidden border border-dark-border/60 p-2 min-h-[350px]">
+                    <img id="drive-zoomed-img" src="zoomed_chart.png" alt="200-Day Zoomed Lens Chart" class="max-w-full h-auto rounded border border-dark-border shadow-lg" onerror="this.onerror=null; console.warn('Chart image initial load failed; awaiting drive sync');">
                 </div>
             </div>
         </section>
@@ -771,64 +772,104 @@
         };
 
         // Query Google Drive API directly for Switchblade_Live folder
+        const LIVE_FOLDER_ID = '1_Sj65yOiX3FPdiZw8nHl_RGlYprYJA6Y';
+        const KNOWN_DRIVE_FILES = {
+            chart: '1zRcj2czA1DtqCmTW7xiIPBzOpBYCR5BG',
+            momentum: '19bw6H7Xc70EGb53BuJjH0v1KvDJS1vFv',
+            run_data: '12qaTZINTWfDclzcuiThxDQeX_R__GtKX'
+        };
+
         async function fetchFromGoogleDrive(token) {
             try {
                 document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-blue mr-1.5 animate-pulse"></span> Querying Drive...`;
                 
-                // 1. Find Switchblade_Live folder
-                const folderQuery = encodeURIComponent("name = 'Switchblade_Live' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
-                const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${folderQuery}&fields=files(id,name)`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                
-                if (!folderRes.ok) throw new Error("Could not search Google Drive");
-                const folderData = await folderRes.json();
-                if (!folderData.files || folderData.files.length === 0) {
-                    throw new Error("Folder 'Switchblade_Live' not found in Drive");
-                }
-
-                const folderId = folderData.files[0].id;
-
-                // 2. Search for run_data.json and momentum_data.json in folder
-                const filesQuery = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
-                const filesRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${filesQuery}&fields=files(id,name,modifiedTime)`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const filesData = await filesRes.json();
-                
-                let runDataFile = filesData.files.find(f => f.name === 'run_data.json');
-                let momDataFile = filesData.files.find(f => f.name === 'momentum_data.json');
-                let chartFile = filesData.files.find(f => f.name === 'zoomed_chart.png');
-
-                if (runDataFile) {
-                    const rRes = await fetch(`https://www.googleapis.com/drive/v3/files/${runDataFile.id}?alt=media`, {
+                // 1. Locate Switchblade_Live folder
+                let folderId = LIVE_FOLDER_ID;
+                try {
+                    const folderQuery = encodeURIComponent("name = 'Switchblade_Live' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
+                    const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${folderQuery}&fields=files(id,name)`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
-                    if (rRes.ok) {
-                        runData = await rRes.json();
-                        renderRunData(runData, runDataFile.modifiedTime);
+                    if (folderRes.ok) {
+                        const folderData = await folderRes.json();
+                        if (folderData.files && folderData.files.length > 0) {
+                            folderId = folderData.files[0].id;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Folder search query failed, using direct ID:", e);
+                }
+
+                // 2. Search for run_data.json, momentum_data.json, and zoomed_chart.png in folder
+                let filesList = [];
+                try {
+                    const filesQuery = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
+                    const filesRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${filesQuery}&pageSize=100&fields=files(id,name,modifiedTime)`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (filesRes.ok) {
+                        const filesData = await filesRes.json();
+                        filesList = filesData.files || [];
+                    }
+                } catch (e) {
+                    console.warn("Folder listing failed, will use known file IDs:", e);
+                }
+                
+                let runDataFile = filesList.find(f => f.name === 'run_data.json') || { id: KNOWN_DRIVE_FILES.run_data };
+                let momDataFile = filesList.find(f => f.name === 'momentum_data.json') || { id: KNOWN_DRIVE_FILES.momentum };
+                let chartFile = filesList.find(f => f.name === 'zoomed_chart.png') || { id: KNOWN_DRIVE_FILES.chart };
+
+                // 3. Fetch structured run data
+                if (runDataFile && runDataFile.id) {
+                    try {
+                        const rRes = await fetch(`https://www.googleapis.com/drive/v3/files/${runDataFile.id}?alt=media`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (rRes.ok) {
+                            runData = await rRes.json();
+                            renderRunData(runData, runDataFile.modifiedTime);
+                        }
+                    } catch (e) {
+                        console.warn("Could not fetch run_data from Drive:", e);
                     }
                 }
 
-                if (momDataFile) {
-                    const mRes = await fetch(`https://www.googleapis.com/drive/v3/files/${momDataFile.id}?alt=media`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    if (mRes.ok) {
-                        momentumData = await mRes.json();
-                        renderMomentumData(momentumData, momDataFile.modifiedTime);
+                // 4. Fetch momentum & guard dogs data
+                if (momDataFile && momDataFile.id) {
+                    try {
+                        const mRes = await fetch(`https://www.googleapis.com/drive/v3/files/${momDataFile.id}?alt=media`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (mRes.ok) {
+                            momentumData = await mRes.json();
+                            renderMomentumData(momentumData, momDataFile.modifiedTime);
+                        }
+                    } catch (e) {
+                        console.warn("Could not fetch momentum from Drive:", e);
                     }
                 }
 
-                if (chartFile) {
-                    const cRes = await fetch(`https://www.googleapis.com/drive/v3/files/${chartFile.id}?alt=media`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    if (cRes.ok) {
-                        const blob = await cRes.blob();
-                        const blobUrl = URL.createObjectURL(blob);
-                        document.getElementById('drive-zoomed-img').src = blobUrl;
-                        document.getElementById('btn-open-chart').href = blobUrl;
+                // 5. Fetch Zoomed 200-day chart
+                if (chartFile && chartFile.id) {
+                    try {
+                        const cRes = await fetch(`https://www.googleapis.com/drive/v3/files/${chartFile.id}?alt=media`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (cRes.ok) {
+                            const blob = await cRes.blob();
+                            const blobUrl = URL.createObjectURL(blob);
+                            const imgEl = document.getElementById('drive-zoomed-img');
+                            const linkEl = document.getElementById('btn-open-chart');
+                            if (imgEl) imgEl.src = blobUrl;
+                            if (linkEl) linkEl.href = blobUrl;
+                        } else {
+                            const imgEl = document.getElementById('drive-zoomed-img');
+                            if (imgEl) imgEl.src = `zoomed_chart.png?t=${Date.now()}`;
+                        }
+                    } catch (e) {
+                        console.warn("Could not stream chart blob from Drive:", e);
+                        const imgEl = document.getElementById('drive-zoomed-img');
+                        if (imgEl) imgEl.src = `zoomed_chart.png?t=${Date.now()}`;
                     }
                 }
 
@@ -841,7 +882,7 @@
             } catch (err) {
                 console.warn("Drive sync fallback:", err);
                 document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span> Bundled Cache`;
-                if (!runData) await loadBundledData();
+                await loadBundledData();
             }
         }
 
@@ -853,22 +894,40 @@
             }
         };
 
+        window.reconnectDrive = async function() {
+            await signInWithGoogle();
+        };
+
         // Load bundled fallback data
         async function loadBundledData() {
             try {
+                const ts = Date.now();
                 const [rRes, mRes] = await Promise.all([
-                    fetch(`data.json?t=${Date.now()}`),
-                    fetch(`momentum_data.json?t=${Date.now()}`)
+                    fetch(`run_data.json?t=${ts}`).catch(() => fetch(`data.json?t=${ts}`)),
+                    fetch(`momentum_data.json?t=${ts}`)
                 ]);
 
-                if (rRes.ok) {
+                if (rRes && rRes.ok) {
                     runData = await rRes.json();
                     renderRunData(runData);
+                } else {
+                    const fallbackRes = await fetch(`data.json?t=${ts}`);
+                    if (fallbackRes.ok) {
+                        runData = await fallbackRes.json();
+                        renderRunData(runData);
+                    }
                 }
-                if (mRes.ok) {
+
+                if (mRes && mRes.ok) {
                     momentumData = await mRes.json();
                     renderMomentumData(momentumData);
                 }
+
+                // Update zoomed chart image and link with cache-buster
+                const chartImg = document.getElementById('drive-zoomed-img');
+                const chartBtn = document.getElementById('btn-open-chart');
+                if (chartImg) chartImg.src = `zoomed_chart.png?t=${ts}`;
+                if (chartBtn) chartBtn.href = `zoomed_chart.png?t=${ts}`;
             } catch (e) {
                 console.error("Error loading bundled data:", e);
             }
@@ -1068,72 +1127,137 @@
 
             // 1. Guard Dogs Table
             const gdContainer = document.getElementById('guard-dogs-table-body');
-            gdContainer.innerHTML = '';
-            const etfs = (data.guard_dogs && data.guard_dogs.etfs) ? data.guard_dogs.etfs : {};
+            if (gdContainer) {
+                gdContainer.innerHTML = '';
+                const rawEtfs = (data.guard_dogs && data.guard_dogs.etfs) ? data.guard_dogs.etfs : {};
+                
+                const etfList = [];
+                if (Array.isArray(rawEtfs)) {
+                    rawEtfs.forEach(item => {
+                        const s1 = item.set_1 || item.set1 || {};
+                        const s2 = item.set_2 || item.set2 || {};
+                        etfList.push({
+                            ticker: item.ticker || 'ETF',
+                            price: item.price ?? 0,
+                            today_change_pct: item.today_change_pct ?? item.daily_return_pct ?? 0,
+                            s1: {
+                                exit_sma: s1.exit_sma ?? 0,
+                                dist_exit: s1.dist_exit_pct ?? s1.exit_dist_pct ?? 0,
+                                reentry_sma: s1.reentry_sma ?? 0,
+                                dist_reentry: s1.dist_reentry_pct ?? s1.reentry_dist_pct ?? 0,
+                                status: s1.status || 'N/A'
+                            },
+                            s2: {
+                                exit_sma: s2.exit_sma ?? 0,
+                                dist_exit: s2.dist_exit_pct ?? s2.exit_dist_pct ?? 0,
+                                reentry_sma: s2.reentry_sma ?? 0,
+                                dist_reentry: s2.dist_reentry_pct ?? s2.reentry_dist_pct ?? 0,
+                                status: s2.status || 'N/A'
+                            }
+                        });
+                    });
+                } else if (typeof rawEtfs === 'object' && rawEtfs !== null) {
+                    Object.keys(rawEtfs).forEach(ticker => {
+                        const g = rawEtfs[ticker] || {};
+                        const s1 = g.set_1 || g.set1 || {};
+                        const s2 = g.set_2 || g.set2 || {};
+                        etfList.push({
+                            ticker: ticker,
+                            price: g.price ?? 0,
+                            today_change_pct: g.today_change_pct ?? g.daily_return_pct ?? 0,
+                            s1: {
+                                exit_sma: s1.exit_sma ?? 0,
+                                dist_exit: s1.dist_exit_pct ?? s1.exit_dist_pct ?? 0,
+                                reentry_sma: s1.reentry_sma ?? 0,
+                                dist_reentry: s1.dist_reentry_pct ?? s1.reentry_dist_pct ?? 0,
+                                status: s1.status || 'N/A'
+                            },
+                            s2: {
+                                exit_sma: s2.exit_sma ?? 0,
+                                dist_exit: s2.dist_exit_pct ?? s2.exit_dist_pct ?? 0,
+                                reentry_sma: s2.reentry_sma ?? 0,
+                                dist_reentry: s2.dist_reentry_pct ?? s2.reentry_dist_pct ?? 0,
+                                status: s2.status || 'N/A'
+                            }
+                        });
+                    });
+                }
 
-            Object.keys(etfs).forEach((ticker, i) => {
-                const g = etfs[ticker];
-                const tr = document.createElement('tr');
-                tr.className = i % 2 === 0 ? 'bg-dark-card hover:bg-dark-hover transition' : 'bg-dark-surface/50 hover:bg-dark-hover transition';
+                etfList.forEach((g, i) => {
+                    const tr = document.createElement('tr');
+                    tr.className = i % 2 === 0 ? 'bg-dark-card hover:bg-dark-hover transition' : 'bg-dark-surface/50 hover:bg-dark-hover transition';
 
-                const s1 = g.set_1 || {};
-                const s2 = g.set_2 || {};
-                const isBull1 = (s1.status || '').toUpperCase() === 'BULLISH';
-                const isBull2 = (s2.status || '').toUpperCase() === 'BULLISH';
-                const s1Color = isBull1 ? 'text-accent-emerald bg-accent-emerald/10 border-accent-emerald/30' : 'text-accent-rose bg-accent-rose/10 border-accent-rose/30';
-                const s2Color = isBull2 ? 'text-accent-emerald bg-accent-emerald/10 border-accent-emerald/30' : 'text-accent-rose bg-accent-rose/10 border-accent-rose/30';
+                    const isBull1 = (g.s1.status || '').toUpperCase() === 'BULLISH';
+                    const isBull2 = (g.s2.status || '').toUpperCase() === 'BULLISH';
+                    const s1Color = isBull1 ? 'text-accent-emerald bg-accent-emerald/10 border-accent-emerald/30' : 'text-accent-rose bg-accent-rose/10 border-accent-rose/30';
+                    const s2Color = isBull2 ? 'text-accent-emerald bg-accent-emerald/10 border-accent-emerald/30' : 'text-accent-rose bg-accent-rose/10 border-accent-rose/30';
 
-                tr.innerHTML = `
-                    <td class="py-3 px-4 font-bold text-white">${ticker}</td>
-                    <td class="py-3 px-3 text-right font-mono">${g.price?.toFixed(2)}</td>
-                    <td class="py-3 px-3 text-right font-mono ${g.today_change_pct >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${g.today_change_pct >= 0 ? '+' : ''}${g.today_change_pct?.toFixed(2)}%</td>
-                    <td class="py-3 px-3 text-center font-mono">${s1.exit_sma} (${s1.dist_exit_pct > 0 ? '+' : ''}${s1.dist_exit_pct?.toFixed(2)}%)</td>
-                    <td class="py-3 px-3 text-center font-mono">${s1.reentry_sma} (${s1.dist_reentry_pct > 0 ? '+' : ''}${s1.dist_reentry_pct?.toFixed(2)}%)</td>
-                    <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${s1Color}">${s1.status || 'N/A'}</span></td>
-                    <td class="py-3 px-3 text-center font-mono">${s2.exit_sma} (${s2.dist_exit_pct > 0 ? '+' : ''}${s2.dist_exit_pct?.toFixed(2)}%)</td>
-                    <td class="py-3 px-3 text-center font-mono">${s2.reentry_sma} (${s2.dist_reentry_pct > 0 ? '+' : ''}${s2.dist_reentry_pct?.toFixed(2)}%)</td>
-                    <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${s2Color}">${s2.status || 'N/A'}</span></td>
-                `;
-                gdContainer.appendChild(tr);
-            });
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 font-bold text-white">${g.ticker}</td>
+                        <td class="py-3 px-3 text-right font-mono">${Number(g.price).toFixed(2)}</td>
+                        <td class="py-3 px-3 text-right font-mono ${g.today_change_pct >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${g.today_change_pct >= 0 ? '+' : ''}${Number(g.today_change_pct).toFixed(2)}%</td>
+                        <td class="py-3 px-3 text-center font-mono">${Number(g.s1.exit_sma).toFixed(2)} (${g.s1.dist_exit > 0 ? '+' : ''}${Number(g.s1.dist_exit).toFixed(2)}%)</td>
+                        <td class="py-3 px-3 text-center font-mono">${Number(g.s1.reentry_sma).toFixed(2)} (${g.s1.dist_reentry > 0 ? '+' : ''}${Number(g.s1.dist_reentry).toFixed(2)}%)</td>
+                        <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${s1Color}">${g.s1.status || 'N/A'}</span></td>
+                        <td class="py-3 px-3 text-center font-mono">${Number(g.s2.exit_sma).toFixed(2)} (${g.s2.dist_exit > 0 ? '+' : ''}${Number(g.s2.dist_exit).toFixed(2)}%)</td>
+                        <td class="py-3 px-3 text-center font-mono">${Number(g.s2.reentry_sma).toFixed(2)} (${g.s2.dist_reentry > 0 ? '+' : ''}${Number(g.s2.dist_reentry).toFixed(2)}%)</td>
+                        <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${s2Color}">${g.s2.status || 'N/A'}</span></td>
+                    `;
+                    gdContainer.appendChild(tr);
+                });
+            }
 
             // 2. Top 10 Momentum Picks
             const topBody = document.getElementById('momentum-top-body');
-            topBody.innerHTML = '';
-            const topPicks = (data.momentum && data.momentum.top_picks) ? data.momentum.top_picks : [];
+            if (topBody) {
+                topBody.innerHTML = '';
+                const topPicks = (data.momentum && (data.momentum.top_picks || data.momentum.top_10)) ? (data.momentum.top_picks || data.momentum.top_10) : [];
 
-            topPicks.forEach((p, i) => {
-                const tr = document.createElement('tr');
-                tr.className = i % 2 === 0 ? 'bg-dark-card hover:bg-dark-hover transition' : 'bg-dark-surface/50 hover:bg-dark-hover transition';
-                tr.innerHTML = `
-                    <td class="py-3 px-4 font-bold text-accent-blue">#${p.rank}</td>
-                    <td class="py-3 px-4 font-black text-white text-sm">${p.ticker}</td>
-                    <td class="py-3 px-4 text-right font-bold text-accent-emerald">${p.blended_score_pct?.toFixed(2)}%</td>
-                    <td class="py-3 px-4 text-right text-slate-300">${p.long_roc_pct?.toFixed(2)}%</td>
-                    <td class="py-3 px-4 text-right text-slate-300">${p.short_roc_pct?.toFixed(2)}%</td>
-                    <td class="py-3 px-4 text-right ${p.today_return_pct >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${p.today_return_pct >= 0 ? '+' : ''}${p.today_return_pct?.toFixed(2)}%</td>
-                `;
-                topBody.appendChild(tr);
-            });
+                topPicks.forEach((p, i) => {
+                    const tr = document.createElement('tr');
+                    tr.className = i % 2 === 0 ? 'bg-dark-card hover:bg-dark-hover transition' : 'bg-dark-surface/50 hover:bg-dark-hover transition';
+                    const longRoc = p.long_roc_pct ?? p.roc_long_pct ?? 0;
+                    const shortRoc = p.short_roc_pct ?? p.roc_short_pct ?? 0;
+                    const todayRet = p.today_return_pct ?? p.daily_return_pct ?? 0;
+                    const blended = p.blended_score_pct ?? 0;
+
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 font-bold text-accent-blue">#${p.rank || (i + 1)}</td>
+                        <td class="py-3 px-4 font-black text-white text-sm">${p.ticker}</td>
+                        <td class="py-3 px-4 text-right font-bold text-accent-emerald">${Number(blended).toFixed(2)}%</td>
+                        <td class="py-3 px-4 text-right text-slate-300">${Number(longRoc).toFixed(2)}%</td>
+                        <td class="py-3 px-4 text-right text-slate-300">${Number(shortRoc).toFixed(2)}%</td>
+                        <td class="py-3 px-4 text-right ${todayRet >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${todayRet >= 0 ? '+' : ''}${Number(todayRet).toFixed(2)}%</td>
+                    `;
+                    topBody.appendChild(tr);
+                });
+            }
 
             // 3. Runner-Ups
             const runnersBody = document.getElementById('momentum-runners-body');
-            runnersBody.innerHTML = '';
-            const runners = (data.momentum && data.momentum.runner_ups) ? data.momentum.runner_ups : [];
+            if (runnersBody) {
+                runnersBody.innerHTML = '';
+                const runners = (data.momentum && data.momentum.runner_ups) ? data.momentum.runner_ups : [];
 
-            runners.forEach((p, i) => {
-                const tr = document.createElement('tr');
-                tr.className = i % 2 === 0 ? 'bg-dark-card hover:bg-dark-hover transition' : 'bg-dark-surface/50 hover:bg-dark-hover transition';
-                tr.innerHTML = `
-                    <td class="py-2.5 px-4 font-semibold text-slate-400">#${p.rank}</td>
-                    <td class="py-2.5 px-4 font-bold text-slate-200">${p.ticker}</td>
-                    <td class="py-2.5 px-4 text-right text-slate-300">${p.blended_score_pct?.toFixed(2)}%</td>
-                    <td class="py-2.5 px-4 text-right text-slate-400">${p.long_roc_pct?.toFixed(2)}%</td>
-                    <td class="py-2.5 px-4 text-right text-slate-400">${p.short_roc_pct?.toFixed(2)}%</td>
-                    <td class="py-2.5 px-4 text-right ${p.today_return_pct >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${p.today_return_pct >= 0 ? '+' : ''}${p.today_return_pct?.toFixed(2)}%</td>
-                `;
-                runnersBody.appendChild(tr);
-            });
+                runners.forEach((p, i) => {
+                    const tr = document.createElement('tr');
+                    tr.className = i % 2 === 0 ? 'bg-dark-card hover:bg-dark-hover transition' : 'bg-dark-surface/50 hover:bg-dark-hover transition';
+                    const longRoc = p.long_roc_pct ?? p.roc_long_pct ?? 0;
+                    const shortRoc = p.short_roc_pct ?? p.roc_short_pct ?? 0;
+                    const todayRet = p.today_return_pct ?? p.daily_return_pct ?? 0;
+                    const blended = p.blended_score_pct ?? 0;
+
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-4 font-semibold text-slate-400">#${p.rank || (i + 11)}</td>
+                        <td class="py-2.5 px-4 font-bold text-slate-200">${p.ticker}</td>
+                        <td class="py-2.5 px-4 text-right text-slate-300">${Number(blended).toFixed(2)}%</td>
+                        <td class="py-2.5 px-4 text-right text-slate-400">${Number(longRoc).toFixed(2)}%</td>
+                        <td class="py-2.5 px-4 text-right text-slate-400">${Number(shortRoc).toFixed(2)}%</td>
+                        <td class="py-2.5 px-4 text-right ${todayRet >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${todayRet >= 0 ? '+' : ''}${Number(todayRet).toFixed(2)}%</td>
+                    `;
+                    runnersBody.appendChild(tr);
+                });
+            }
         }
 
         // Global Tab Switcher
