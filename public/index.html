@@ -405,7 +405,7 @@
                         <h2 class="text-lg font-bold text-white flex items-center">
                             🐕 Guard Dog ETF Regime Status
                         </h2>
-                        <p class="text-xs text-slate-400 font-mono">Distance vs Exit SMA & Re-entry SMA across dual parameter sets</p>
+                        <p class="text-xs text-slate-400 font-mono">Distance vs Exit SMA & Re-entry SMA across dual parameter sets <span id="momentum-vancouver-time" class="ml-2 text-accent-cyan font-semibold"></span></p>
                     </div>
                 </div>
 
@@ -579,6 +579,10 @@
                     <div class="flex justify-between">
                         <span class="text-slate-400">Sync Status:</span>
                         <span id="settings-sync-status" class="text-accent-amber">Bundled Cache Mode</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Run Time (Vancouver, BC):</span>
+                        <span id="settings-vancouver-time" class="text-slate-200">Pending...</span>
                     </div>
                 </div>
 
@@ -802,7 +806,7 @@
                     });
                     if (rRes.ok) {
                         runData = await rRes.json();
-                        renderRunData(runData);
+                        renderRunData(runData, runDataFile.modifiedTime);
                     }
                 }
 
@@ -812,7 +816,7 @@
                     });
                     if (mRes.ok) {
                         momentumData = await mRes.json();
-                        renderMomentumData(momentumData);
+                        renderMomentumData(momentumData, momDataFile.modifiedTime);
                     }
                 }
 
@@ -870,14 +874,58 @@
             }
         }
 
+        // Format timestamp in Vancouver, BC Time (America/Vancouver - PST/PDT)
+        function formatVancouverTime(rawTimestamp, fallbackDateStr) {
+            if (!rawTimestamp && !fallbackDateStr) return 'N/A';
+            const val = rawTimestamp || fallbackDateStr;
+
+            let d;
+            if (typeof val === 'string') {
+                const s = val.trim();
+                // If format like "YYYY-MM-DD HH:MM:SS" without TZ info, Colab server default is UTC
+                if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(s)) {
+                    d = new Date(s.replace(' ', 'T') + 'Z');
+                } else if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+                    return `${s} (PT)`;
+                } else {
+                    d = new Date(s);
+                }
+            } else if (val instanceof Date) {
+                d = val;
+            } else {
+                d = new Date(val);
+            }
+
+            if (!d || isNaN(d.getTime())) {
+                return String(val);
+            }
+
+            const options = {
+                timeZone: 'America/Vancouver',
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+                timeZoneName: 'short'
+            };
+
+            return new Intl.DateTimeFormat('en-US', options).format(d);
+        }
+
         // Render Run Data (Strategies, Holdings, League Table)
-        function renderRunData(data) {
+        function renderRunData(data, driveModifiedTime) {
             if (!data) return;
 
-            // Timestamp & Mode
-            if (data.timestamp) {
-                document.getElementById('banner-timestamp').textContent = `Run Date: ${data.timestamp}`;
-            }
+            // Timestamp & Mode formatted in Vancouver, BC Time
+            const vanTime = formatVancouverTime(driveModifiedTime || data.timestamp, data.date);
+            document.getElementById('banner-timestamp').innerHTML = `Run Date: <span class="text-white font-semibold">${vanTime}</span> <span class="text-[10px] text-accent-cyan font-mono">(Vancouver, BC)</span>`;
+            
+            const settingsVanEl = document.getElementById('settings-vancouver-time');
+            if (settingsVanEl) settingsVanEl.textContent = `${vanTime} (Vancouver, BC)`;
+
             if (data.mode) {
                 document.getElementById('execution-mode-badge').textContent = `Mode: ${data.mode}`;
             }
@@ -1010,8 +1058,13 @@
         }
 
         // Render Momentum & Guard Dogs Data
-        function renderMomentumData(data) {
+        function renderMomentumData(data, driveModifiedTime) {
             if (!data) return;
+
+            // Updated timestamp in Vancouver, BC Time
+            const momVanTime = formatVancouverTime(driveModifiedTime || data.timestamp || data.updated_at, data.date || data.as_of_date);
+            const mEl = document.getElementById('momentum-vancouver-time');
+            if (mEl) mEl.textContent = `• Updated: ${momVanTime} (Vancouver, BC)`;
 
             // 1. Guard Dogs Table
             const gdContainer = document.getElementById('guard-dogs-table-body');
