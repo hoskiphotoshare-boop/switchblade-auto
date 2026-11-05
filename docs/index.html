@@ -54,11 +54,16 @@
             color: #f1f5f9;
         }
 
-        /* Horizontal Gesture Containment */
+        /* Horizontal Gesture Containment with Vertical Scroll Passthrough */
         .isolate-horizontal-scroll {
             overscroll-behavior-x: contain;
-            touch-action: pan-x;
+            overscroll-behavior-y: auto;
+            touch-action: pan-x pan-y;
             -webkit-overflow-scrolling: touch;
+        }
+
+        .isolate-horizontal-scroll table {
+            touch-action: pan-x pan-y;
         }
 
         /* Preformatted text wrap rule */
@@ -636,7 +641,7 @@
     <!-- ============================================================== -->
     <!-- MOBILE BOTTOM NAVIGATION (Rule 3 Invariant) -->
     <!-- ============================================================== -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 z-[1000] bg-dark-surface/95 backdrop-blur-md border-t border-dark-border px-2 py-2 flex items-center justify-around text-[10px] font-mono isolate-horizontal-scroll">
+    <div class="md:hidden fixed bottom-0 left-0 right-0 z-[1000] bg-dark-surface/95 backdrop-blur-md border-t border-dark-border px-2 py-2 flex items-center justify-around text-[10px] font-mono" style="touch-action: pan-x; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;">
         <button onclick="switchTab('overview')" class="flex flex-col items-center py-1 px-2 text-accent-blue font-bold">
             <span class="text-base mb-0.5">📊</span>
             <span>Overview</span>
