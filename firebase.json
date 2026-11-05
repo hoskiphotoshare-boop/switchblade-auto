@@ -17,11 +17,33 @@
         ]
       },
       {
-        "source": "/latest_run.html",
+        "source": "**/*.html",
         "headers": [
-          { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
           { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
           { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
+        "source": "index.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
+        "source": "latest_run.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" },
+          { "key": "Content-Security-Policy", "value": "frame-ancestors 'self' https://switchblade-app.web.app https://switchblade-app.firebaseapp.com *" }
+        ]
+      },
+      {
+        "source": "/latest_run.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" },
+          { "key": "Content-Security-Policy", "value": "frame-ancestors 'self' https://switchblade-app.web.app https://switchblade-app.firebaseapp.com *" }
         ]
       },
       {
