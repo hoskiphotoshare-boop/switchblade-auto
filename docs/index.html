@@ -470,6 +470,7 @@
             <!-- VIEW: PROJECT CHRONOS DEEP ENSEMBLE -->
             <!-- ============================================================== -->
             <div id="view-chronos" class="script-view hidden space-y-6">
+                <!-- Summary Card -->
                 <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-purple/30 p-4 sm:p-6 card-glow">
                     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                         <div>
@@ -485,11 +486,11 @@
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
                                 <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Current Proxy</span>
-                                <span id="chronos-current-proxy" class="text-sm font-bold font-mono text-white">$592.50</span>
+                                <span id="chronos-current-proxy" class="text-sm font-bold font-mono text-white">$433.56</span>
                             </div>
                             <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
                                 <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">T+100 Target</span>
-                                <span id="chronos-t100-target" class="text-sm font-bold font-mono text-accent-emerald">$638.40 (+7.75%)</span>
+                                <span id="chronos-t100-target" class="text-sm font-bold font-mono text-accent-emerald">$470.99 (+8.72%)</span>
                             </div>
                         </div>
                     </div>
@@ -512,6 +513,31 @@
                                 <!-- Populated dynamically -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Neural Ensemble Trajectory Chart Card -->
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-semibold text-white flex items-center">
+                                <span class="mr-2">📈</span> 100-Day Neural Ensemble Trajectory Forecast
+                            </h3>
+                            <p class="text-xs text-slate-400">Deep neural projections: 1999 LSTM & LEAR, Modern LSTM & LEAR, and Ultimate Blend.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button id="btn-chronos-ensemble" onclick="window.switchChronosChart('ensemble')" class="px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-accent-purple/20 text-accent-purple border border-accent-purple/40">Ensemble Chart</button>
+                            <button id="btn-chronos-zoomed" onclick="window.switchChronosChart('zoomed')" class="px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-dark-surface text-slate-400 hover:text-white border border-dark-border">Zoomed Chart</button>
+                            <a id="btn-chronos-chart-link" href="chronos_ensemble_chart.png" target="_blank" class="px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-dark-surface text-slate-300 hover:text-white border border-dark-border flex items-center space-x-1">
+                                <span>Full Res ↗</span>
+                            </a>
+                            <a id="btn-chronos-html" href="#" target="_blank" class="hidden px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-accent-blue/20 text-accent-blue border border-accent-blue/40 flex items-center space-x-1">
+                                <span>Colab HTML Report ↗</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="w-full overflow-hidden rounded-xl bg-dark-base border border-dark-border flex items-center justify-center min-h-[300px]">
+                        <img id="chronos-chart-img" src="chronos_ensemble_chart.png" alt="Chronos Forecast Chart" class="w-full h-auto object-contain max-h-[600px] rounded-lg">
                     </div>
                 </div>
 
@@ -1610,7 +1636,7 @@
             if (bTitle) bTitle.textContent = "Google Drive Session Expired";
             const bSub = document.getElementById('banner-subtext');
             if (bSub) {
-                bSub.innerHTML = `Live stream token expired. <button onclick="reconnectDrive()" class="underline font-bold text-accent-blue ml-1">Click here to re-sync Drive</button> or view cached data below.`;
+                bSub.innerHTML = `Live stream token expired. <button onclick="signInWithGoogle()" class="underline font-bold text-accent-blue ml-1">Click here to re-authenticate Drive</button> or view cached data below.`;
             }
             const dot = document.getElementById('status-indicator-dot');
             if (dot) dot.className = "w-3 h-3 rounded-full bg-amber-400";
@@ -1619,10 +1645,7 @@
                 sStatus.textContent = "Drive Token Expired (Click 'Sync Drive' to refresh)";
                 sStatus.className = "text-amber-400 font-bold";
             }
-            // Initial render on DOM load
-        renderScriptDropdown();
-        selectScript(currentScriptId);
-
+            loadBundledData();
         }
 
         async function fetchFromGoogleDrive(token) {
@@ -1662,6 +1685,24 @@
                     }
                 }
 
+                // Substring fallback search if exact match failed
+                if (!folderId && scriptDef.folderName) {
+                    try {
+                        const stem = scriptDef.folderName.replace('_Live', '');
+                        const fuzzyQuery = encodeURIComponent(`name contains '${stem}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
+                        const fuzzyRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${fuzzyQuery}&fields=files(id,name)&t=${Date.now()}`, {
+                            headers: authHeaders,
+                            cache: 'no-store'
+                        });
+                        if (fuzzyRes.ok) {
+                            const fuzzyData = await fuzzyRes.json();
+                            if (fuzzyData.files && fuzzyData.files.length > 0) {
+                                folderId = fuzzyData.files[0].id;
+                            }
+                        }
+                    } catch (e) {}
+                }
+
                 // If folder not found and switchblade, use known default ID
                 if (!folderId && scriptDef.id === 'switchblade') {
                     folderId = '1_Sj65yOiX3FPdiZw8nHl_RGlYprYJA6Y';
@@ -1693,8 +1734,13 @@
                     console.warn("Folder listing failed:", e);
                 }
 
-                let runDataFile = filesList.find(f => f.name === 'run_data.json') || filesList.find(f => f.name.endsWith('.json'));
-                let chartFile = filesList.find(f => f.name === (scriptDef.chartFile || 'zoomed_chart.png')) || filesList.find(f => f.name.endsWith('.png'));
+                // Prioritize run_data.json, raw data json, while excluding feature files
+                let runDataFile = filesList.find(f => f.name === 'run_data.json') ||
+                                  filesList.find(f => f.name.startsWith('chronos_ultimate_raw_data')) ||
+                                  filesList.find(f => f.name.endsWith('.json') && !f.name.includes('feature_importance'));
+                
+                let chartFile = filesList.find(f => f.name === (scriptDef.chartFile || 'zoomed_chart.png')) ||
+                                filesList.find(f => f.name.endsWith('.png'));
                 let logFile = filesList.find(f => f.name === 'latest_run.html') || filesList.find(f => f.name.endsWith('.html'));
 
                 let driveSuccess = false;
@@ -1717,7 +1763,41 @@
                     }
                 }
 
-                // If Switchblade, also fetch momentum_data.json & full chart
+                // If Chronos, also fetch chronos_feature_importance.json and zoomed_chart
+                if (scriptDef.id === 'chronos') {
+                    let featFile = filesList.find(f => f.name === 'chronos_feature_importance.json');
+                    if (featFile && featFile.id) {
+                        try {
+                            const fRes = await fetch(`https://www.googleapis.com/drive/v3/files/${featFile.id}?alt=media&t=${Date.now()}`, {
+                                headers: authHeaders,
+                                cache: 'no-store'
+                            });
+                            if (fRes.ok) {
+                                const featData = await fRes.json();
+                                renderChronosDrivers(featData);
+                            }
+                        } catch (e) {
+                            console.warn("Could not fetch chronos feature importance:", e);
+                        }
+                    }
+
+                    // Check for zoomed chart
+                    let zFile = filesList.find(f => f.name === 'zoomed_chart.png' || f.name === 'chronos_zoomed_chart.png');
+                    if (zFile && zFile.id) {
+                        try {
+                            const zRes = await fetch(`https://www.googleapis.com/drive/v3/files/${zFile.id}?alt=media&t=${Date.now()}`, {
+                                headers: authHeaders,
+                                cache: 'no-store'
+                            });
+                            if (zRes.ok) {
+                                const zBlob = await zRes.blob();
+                                window.chronosZoomedBlobUrl = URL.createObjectURL(zBlob);
+                            }
+                        } catch (e) {}
+                    }
+                }
+
+                // If Switchblade, also fetch momentum_data.json
                 if (scriptDef.id === 'switchblade') {
                     let momFile = filesList.find(f => f.name === 'momentum_data.json');
                     if (momFile && momFile.id) {
@@ -1746,10 +1826,21 @@
                         if (cRes.ok) {
                             const blob = await cRes.blob();
                             const blobUrl = URL.createObjectURL(blob);
+                            
+                            // Switchblade chart
                             const imgEl = document.getElementById('drive-zoomed-img');
                             const linkEl = document.getElementById('btn-open-chart');
                             if (imgEl) imgEl.src = blobUrl;
                             if (linkEl) linkEl.href = blobUrl;
+
+                            // Chronos chart
+                            if (scriptDef.id === 'chronos') {
+                                window.chronosEnsembleBlobUrl = blobUrl;
+                                const cImg = document.getElementById('chronos-chart-img');
+                                const cLink = document.getElementById('btn-chronos-chart-link');
+                                if (cImg) cImg.src = blobUrl;
+                                if (cLink) cLink.href = blobUrl;
+                            }
                         }
                     } catch (e) {
                         console.warn("Chart stream failed:", e);
@@ -1766,6 +1857,14 @@
                         if (lRes.ok) {
                             const logText = await lRes.text();
                             loadExecutionLog(logText);
+                            if (scriptDef.id === 'chronos') {
+                                const btnH = document.getElementById('btn-chronos-html');
+                                if (btnH) {
+                                    const hBlob = new Blob([logText], { type: 'text/html' });
+                                    btnH.href = URL.createObjectURL(hBlob);
+                                    btnH.classList.remove('hidden');
+                                }
+                            }
                         }
                     } catch (e) {
                         loadExecutionLog();
@@ -1829,6 +1928,13 @@
                 const cPath = scriptDef.chartFile || 'zoomed_chart.png';
                 if (chartImg) chartImg.src = `${cPath}?t=${ts}`;
                 if (chartBtn) chartBtn.href = `${cPath}?t=${ts}`;
+
+                if (scriptDef.id === 'chronos') {
+                    const cImg = document.getElementById('chronos-chart-img');
+                    const cLink = document.getElementById('btn-chronos-chart-link');
+                    if (cImg) cImg.src = `chronos_ensemble_chart.png?t=${ts}`;
+                    if (cLink) cLink.href = `chronos_ensemble_chart.png?t=${ts}`;
+                }
 
                 loadExecutionLog();
 
@@ -2463,59 +2569,180 @@
             }
         }
 
+        window.switchChronosChart = function(type) {
+            const img = document.getElementById('chronos-chart-img');
+            const link = document.getElementById('btn-chronos-chart-link');
+            const btnEns = document.getElementById('btn-chronos-ensemble');
+            const btnZoom = document.getElementById('btn-chronos-zoomed');
+            if (!img) return;
+
+            if (type === 'ensemble') {
+                const url = window.chronosEnsembleBlobUrl || 'chronos_ensemble_chart.png';
+                img.src = url;
+                if (link) link.href = url;
+                if (btnEns) btnEns.className = "px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-accent-purple/20 text-accent-purple border border-accent-purple/40";
+                if (btnZoom) btnZoom.className = "px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-dark-surface text-slate-400 hover:text-white border border-dark-border";
+            } else {
+                const url = window.chronosZoomedBlobUrl || 'chronos_zoomed_chart.png';
+                img.src = url;
+                if (link) link.href = url;
+                if (btnZoom) btnZoom.className = "px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-accent-purple/20 text-accent-purple border border-accent-purple/40";
+                if (btnEns) btnEns.className = "px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-dark-surface text-slate-400 hover:text-white border border-dark-border";
+            }
+        };
+
+        function renderChronosDrivers(featData) {
+            if (!featData) return;
+            const dContainer = document.getElementById('chronos-drivers-container');
+            if (!dContainer) return;
+
+            let drivers = [];
+            if (Array.isArray(featData)) {
+                drivers = featData;
+            } else if (featData.top_drivers) {
+                drivers = featData.top_drivers;
+            } else {
+                const modLear = (featData.drivers_modern_lear || []).slice(0, 3).map(d => ({
+                    feature: d.Feature,
+                    model: 'Modern LEAR',
+                    impact: (d.Current_Local_Impact >= 0) ? 'UP' : 'DOWN',
+                    score: d.Current_Local_Impact || 0
+                }));
+                const modLstm = (featData.drivers_modern_lstm || []).slice(0, 3).map(d => ({
+                    feature: d.Feature,
+                    model: 'Modern LSTM',
+                    impact: (d.Latest_Scaled_Value >= 0) ? 'UP' : 'DOWN',
+                    score: d.Saliency_Sensitivity || 0
+                }));
+                const l1999Lear = (featData.drivers_1999_lear || []).slice(0, 2).map(d => ({
+                    feature: d.Feature,
+                    model: '1999 LEAR',
+                    impact: (d.Current_Local_Impact >= 0) ? 'UP' : 'DOWN',
+                    score: d.Current_Local_Impact || 0
+                }));
+                const l1999Lstm = (featData.drivers_1999_lstm || []).slice(0, 2).map(d => ({
+                    feature: d.Feature,
+                    model: '1999 LSTM',
+                    impact: (d.Latest_Scaled_Value >= 0) ? 'UP' : 'DOWN',
+                    score: d.Saliency_Sensitivity || 0
+                }));
+                drivers = [...modLear, ...modLstm, ...l1999Lear, ...l1999Lstm];
+            }
+
+            dContainer.innerHTML = '';
+            drivers.forEach(d => {
+                const isUp = d.impact === 'UP';
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border flex items-center justify-between text-xs font-mono ${
+                    isUp ? 'bg-accent-emerald/10 border-accent-emerald/30' : 'bg-accent-rose/10 border-accent-rose/30'
+                }`;
+                card.innerHTML = `
+                    <div>
+                        <span class="font-bold text-white block">${d.feature}</span>
+                        <span class="text-[10px] text-slate-400">${d.model}</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isUp ? 'bg-accent-emerald/20 text-accent-emerald' : 'bg-accent-rose/20 text-accent-rose'}">
+                        ${isUp ? '▲ Pushing UP' : '▼ Pulling DOWN'} (${Math.abs(Number(d.score)).toFixed(4)})
+                    </span>
+                `;
+                dContainer.appendChild(card);
+            });
+        }
+
         function renderChronosData(data) {
             if (!data) return;
             const meta = data.metadata || {};
             const eDate = document.getElementById('chronos-eval-date');
-            if (eDate) eDate.textContent = `Forecast Horizon: ${meta.timestamp || 'T+0'}`;
+            if (eDate) eDate.textContent = `Forecast Horizon: ${meta.eval_date || meta.timestamp || 'T+0'}`;
 
+            const currPrice = meta.current_proxy_price != null ? Number(meta.current_proxy_price) : 433.56;
             const cProxy = document.getElementById('chronos-current-proxy');
-            if (cProxy) cProxy.textContent = `$${meta.current_proxy_price?.toFixed(2) || '592.50'}`;
+            if (cProxy) cProxy.textContent = `$${currPrice.toFixed(2)}`;
+
+            // Extract T+100 Target and Return %
+            let t100Target = meta.ultimate_t100_target;
+            let t100Return = meta.projected_return_t100_pct;
+
+            if (data.price_trajectories && data.price_trajectories.ultimate_blend) {
+                const uBlend = data.price_trajectories.ultimate_blend;
+                t100Target = uBlend[uBlend.length - 1];
+            }
+            if (data.cumulative_returns_pct && data.cumulative_returns_pct.ultimate_blend) {
+                const uRets = data.cumulative_returns_pct.ultimate_blend;
+                t100Return = uRets[uRets.length - 1];
+            }
+
+            t100Target = t100Target != null ? Number(t100Target) : (currPrice * (1 + (t100Return || 8.72) / 100));
+            t100Return = t100Return != null ? Number(t100Return) : 8.72;
 
             const tTarget = document.getElementById('chronos-t100-target');
-            if (tTarget) tTarget.textContent = `$${meta.ultimate_t100_target?.toFixed(2) || '638.40'} (+${meta.projected_return_t100_pct || 7.75}%)`;
+            if (tTarget) {
+                const sign = t100Return >= 0 ? '+' : '';
+                tTarget.textContent = `$${t100Target.toFixed(2)} (${sign}${t100Return.toFixed(2)}%)`;
+                tTarget.className = `text-sm font-bold font-mono ${t100Return >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}`;
+            }
+
+            // Derive milestone horizons if not precomputed
+            let horizons = data.horizons;
+            if (!horizons && data.price_trajectories && data.cumulative_returns_pct) {
+                const p = data.price_trajectories;
+                const r = data.cumulative_returns_pct;
+                const milestones = [
+                    { label: 'T+5', idx: 4 },
+                    { label: 'T+10', idx: 9 },
+                    { label: 'T+20', idx: 19 },
+                    { label: 'T+50', idx: 49 },
+                    { label: 'T+100', idx: 99 }
+                ];
+                horizons = milestones.map(m => {
+                    const i = Math.min(m.idx, (p.ultimate_blend?.length || 1) - 1);
+                    return {
+                        horizon: m.label,
+                        days: m.idx + 1,
+                        lstm_1999: p['1999_lstm'] ? p['1999_lstm'][i] : null,
+                        lear_1999: p['1999_lear'] ? p['1999_lear'][i] : null,
+                        lstm_modern: p['modern_lstm'] ? p['modern_lstm'][i] : null,
+                        lear_modern: p['modern_lear'] ? p['modern_lear'][i] : null,
+                        ultimate_blend: p['ultimate_blend'] ? p['ultimate_blend'][i] : null,
+                        return_pct: r['ultimate_blend'] ? r['ultimate_blend'][i] : null
+                    };
+                });
+            }
 
             // Horizons Table
             const tbody = document.getElementById('chronos-horizons-tbody');
-            if (tbody) {
+            if (tbody && horizons) {
                 tbody.innerHTML = '';
-                (data.horizons || []).forEach(h => {
+                horizons.forEach(h => {
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-dark-hover/50 transition';
+                    const ret = h.return_pct != null ? Number(h.return_pct) : 0;
+                    const retClass = ret >= 0 ? 'text-accent-emerald' : 'text-accent-rose';
+                    const retSign = ret >= 0 ? '+' : '';
                     tr.innerHTML = `
-                        <td class="py-2 px-3 font-bold text-white">${h.horizon}</td>
-                        <td class="py-2 px-3 text-slate-300">$${h.lstm_1999?.toFixed(2)}</td>
-                        <td class="py-2 px-3 text-slate-300">$${h.lear_1999?.toFixed(2)}</td>
-                        <td class="py-2 px-3 text-slate-300">$${h.lstm_modern?.toFixed(2)}</td>
-                        <td class="py-2 px-3 text-slate-300">$${h.lear_modern?.toFixed(2)}</td>
-                        <td class="py-2 px-3 font-bold text-accent-cyan">$${h.ultimate_blend?.toFixed(2)}</td>
-                        <td class="py-2 px-3 text-right text-accent-emerald font-semibold">+${h.return_pct?.toFixed(2)}%</td>
+                        <td class="py-2.5 px-3 font-bold text-white">${h.horizon}</td>
+                        <td class="py-2.5 px-3 text-slate-300">$${h.lstm_1999 != null ? Number(h.lstm_1999).toFixed(2) : '-'}</td>
+                        <td class="py-2.5 px-3 text-slate-300">$${h.lear_1999 != null ? Number(h.lear_1999).toFixed(2) : '-'}</td>
+                        <td class="py-2.5 px-3 text-slate-300">$${h.lstm_modern != null ? Number(h.lstm_modern).toFixed(2) : '-'}</td>
+                        <td class="py-2.5 px-3 text-slate-300">$${h.lear_modern != null ? Number(h.lear_modern).toFixed(2) : '-'}</td>
+                        <td class="py-2.5 px-3 font-bold text-accent-cyan">$${h.ultimate_blend != null ? Number(h.ultimate_blend).toFixed(2) : '-'}</td>
+                        <td class="py-2.5 px-3 text-right font-semibold ${retClass}">${retSign}${ret.toFixed(2)}%</td>
                     `;
                     tbody.appendChild(tr);
                 });
             }
 
-            // Drivers Container
-            const dContainer = document.getElementById('chronos-drivers-container');
-            if (dContainer) {
-                dContainer.innerHTML = '';
-                (data.top_drivers || []).forEach(d => {
-                    const isUp = d.impact === 'UP';
-                    const card = document.createElement('div');
-                    card.className = `p-3 rounded-xl border flex items-center justify-between text-xs font-mono ${
-                        isUp ? 'bg-accent-emerald/10 border-accent-emerald/30' : 'bg-accent-rose/10 border-accent-rose/30'
-                    }`;
-                    card.innerHTML = `
-                        <div>
-                            <span class="font-bold text-white block">${d.feature}</span>
-                            <span class="text-[10px] text-slate-400">${d.model}</span>
-                        </div>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isUp ? 'bg-accent-emerald/20 text-accent-emerald' : 'bg-accent-rose/20 text-accent-rose'}">
-                            ${isUp ? '▲ Pushing UP' : '▼ Pulling DOWN'} (${Math.abs(d.score).toFixed(3)})
-                        </span>
-                    `;
-                    dContainer.appendChild(card);
-                });
+            // Render drivers if available
+            if (data.top_drivers) {
+                renderChronosDrivers(data.top_drivers);
+            } else if (data.features) {
+                renderChronosDrivers(data.features);
+            }
+
+            // Update chart img if not already blob-streamed
+            const cImg = document.getElementById('chronos-chart-img');
+            if (cImg && !cImg.src.startsWith('blob:')) {
+                cImg.src = `chronos_ensemble_chart.png?t=${Date.now()}`;
             }
         }
 
