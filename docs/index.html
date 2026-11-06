@@ -219,7 +219,7 @@
                     <span class="text-base animate-pulse">⚠️</span>
                     <div>
                         <span class="font-bold text-amber-300 block sm:inline">Google Drive Session Expired:</span>
-                        <span class="text-amber-200/90 ml-0 sm:ml-1">Showing cached Nov 5 snapshot. Reconnect Google Drive now to stream today's live Colab execution run.</span>
+                        <span id="drive-reconnect-msg" class="text-amber-200/90 ml-0 sm:ml-1">Showing cached Nov 5 snapshot. Reconnect Google Drive now to stream today's live Colab execution run.</span>
                     </div>
                 </div>
                 <button onclick="reconnectDrive()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-dark-base font-bold text-xs shadow-md transition flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
@@ -1660,6 +1660,7 @@
         let authInitError = null;
         let currentUser = null;
         let googleAccessToken = null;
+        let isExplicitlyAuthenticating = false;
         let runData = null;
         let momentumData = null;
 
@@ -1702,6 +1703,12 @@
                     const settingsEmail = document.getElementById('settings-user-email');
                     if (settingsEmail) settingsEmail.textContent = user.email || 'Authenticated';
                     
+                    // If explicit user sign-in popup is in flight, let signInWithGoogle handle Drive sync
+                    if (isExplicitlyAuthenticating) {
+                        console.log("[Omni-X Auth] Explicit sign-in active, deferring Drive sync to signInWithGoogle.");
+                        return;
+                    }
+
                     // Attempt to connect to Google Drive if token available & fresh
                     const savedToken = localStorage.getItem('sb_drive_token');
                     const savedTokenTime = parseInt(localStorage.getItem('sb_drive_token_time') || '0', 10);
@@ -1754,10 +1761,16 @@
                 btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Opening Google Sign-In...</span>`;
             }
 
+            isExplicitlyAuthenticating = true;
             const provider = new GoogleAuthProvider();
             // Request read-only access to Drive files so the portal can live stream artifacts
             provider.addScope('https://www.googleapis.com/auth/drive.readonly');
-            provider.setCustomParameters({ prompt: 'select_account' });
+            // Force Google consent screen so user can grant Drive permissions
+            provider.setCustomParameters({ 
+                prompt: 'consent select_account',
+                access_type: 'offline'
+            });
+
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
@@ -1773,7 +1786,12 @@
                 }
 
                 const credential = GoogleAuthProvider.credentialFromResult(result);
-                googleAccessToken = credential ? credential.accessToken : null;
+                googleAccessToken = (credential && credential.accessToken) 
+                    ? credential.accessToken 
+                    : (result._tokenResponse && result._tokenResponse.oauthAccessToken ? result._tokenResponse.oauthAccessToken : null);
+
+                console.log("[Omni-X Auth] Google Access Token received:", googleAccessToken ? `YES (${googleAccessToken.substring(0, 10)}...)` : "NO");
+
                 if (googleAccessToken) {
                     localStorage.setItem('sb_drive_token', googleAccessToken);
                     localStorage.setItem('sb_drive_token_time', Date.now().toString());
@@ -1781,6 +1799,7 @@
                     if (alertBox) alertBox.classList.add('hidden');
                     await fetchFromGoogleDrive(googleAccessToken);
                 } else {
+                    console.warn("[Omni-X Auth] No Google OAuth Access Token was returned by signInWithPopup.");
                     await loadBundledData();
                 }
             } catch (err) {
@@ -1800,6 +1819,7 @@
                     alert(message);
                 }
             } finally {
+                isExplicitlyAuthenticating = false;
                 if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = originalBtnHtml;
@@ -2273,8 +2293,8 @@
             `;
         }
 
-        function handleDriveTokenExpired() {
-            console.warn("Google Drive OAuth access token has expired or is invalid.");
+        function handleDriveAuthError(status, errDetail) {
+            console.error(`[Omni-X Drive Error] HTTP ${status}:`, errDetail);
             googleAccessToken = null;
             localStorage.removeItem('sb_drive_token');
             localStorage.removeItem('sb_drive_token_time');
@@ -2283,20 +2303,42 @@
             if (pill) {
                 pill.className = "px-2.5 py-1 rounded-full text-[11px] font-mono border border-amber-500/50 bg-amber-500/20 text-amber-300 flex items-center cursor-pointer hover:bg-amber-500/30 transition shadow";
                 pill.onclick = () => reconnectDrive();
-                pill.title = "Google Drive access token expired. Click to reconnect and stream today's live Colab run.";
-                pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-ping"></span> <span class="font-bold underline">Drive Expired (Click to Reconnect)</span>`;
+                pill.title = "Google Drive access error. Click to reconnect.";
+                const pillLabel = status === 403 ? "Drive Permission Needed" : "Drive Expired";
+                pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-ping"></span> <span class="font-bold underline">${pillLabel} (Click to Reconnect)</span>`;
             }
             const dot = document.getElementById('status-indicator-dot');
             if (dot) dot.className = "w-3 h-3 rounded-full bg-amber-400";
             const sStatus = document.getElementById('settings-sync-status');
             if (sStatus) {
-                sStatus.textContent = "OAuth Session Expired (Reconnect below)";
+                sStatus.textContent = status === 403 ? "Drive Permission Denied (Reconnect below)" : "OAuth Session Expired (Reconnect below)";
                 sStatus.className = "text-amber-400 font-semibold";
             }
             const alertBox = document.getElementById('drive-reconnect-alert');
-            if (alertBox) alertBox.classList.remove('hidden');
+            if (alertBox) {
+                alertBox.classList.remove('hidden');
+                let userMsg = "Showing cached Nov 5 snapshot. Reconnect Google Drive now to stream today's live Colab execution run.";
+                if (status === 403) {
+                    const low = (errDetail || '').toLowerCase();
+                    if (low.includes('insufficient') || low.includes('scope')) {
+                        userMsg = "Google Drive access permissions not granted. Click 'Reconnect Google Drive' and make sure to click 'Allow' on the Google Drive permissions screen.";
+                    } else if (low.includes('disabled') || low.includes('not been used')) {
+                        userMsg = "Google Drive API is disabled in project hokkaido-2027. Please enable the Google Drive API in Google Cloud Console.";
+                    } else {
+                        userMsg = `Google Drive returned 403 Forbidden: ${errDetail || 'Access denied'}. Click 'Reconnect Google Drive' to grant permissions.`;
+                    }
+                } else if (status === 401) {
+                    userMsg = "Google Drive session expired (1-hour token limit). Reconnect Google Drive to stream today's live Colab execution run.";
+                }
+                const msgSpan = document.getElementById('drive-reconnect-msg');
+                if (msgSpan) msgSpan.textContent = userMsg;
+            }
 
             loadBundledData();
+        }
+
+        function handleDriveTokenExpired() {
+            handleDriveAuthError(401, "Token expired");
         }
 
         async function fetchFromGoogleDrive(token) {
@@ -2321,7 +2363,12 @@
                             cache: 'no-store'
                         });
                         if (folderRes.status === 401 || folderRes.status === 403) {
-                            handleDriveTokenExpired();
+                            let detail = "";
+                            try {
+                                const errData = await folderRes.json();
+                                detail = errData.error ? errData.error.message : "";
+                            } catch(e) {}
+                            handleDriveAuthError(folderRes.status, detail);
                             return;
                         }
                         if (folderRes.ok) {
@@ -2374,7 +2421,12 @@
                         cache: 'no-store'
                     });
                     if (filesRes.status === 401 || filesRes.status === 403) {
-                        handleDriveTokenExpired();
+                        let detail = "";
+                        try {
+                            const errData = await filesRes.json();
+                            detail = errData.error ? errData.error.message : "";
+                        } catch(e) {}
+                        handleDriveAuthError(filesRes.status, detail);
                         return;
                     }
                     if (filesRes.ok) {
@@ -2393,6 +2445,13 @@
                 let chartFile = filesList.find(f => f.name === (scriptDef.chartFile || 'zoomed_chart.png')) ||
                                 filesList.find(f => f.name.endsWith('.png'));
                 let logFile = filesList.find(f => f.name === 'latest_run.html') || filesList.find(f => f.name.endsWith('.html'));
+
+                // Switchblade known direct ID fallback if search returned no files
+                if (scriptDef.id === 'switchblade') {
+                    if (!runDataFile) runDataFile = { id: '12qaTZINTWfDclzcuiThxDQeX_R__GtKX', name: 'run_data.json' };
+                    if (!chartFile) chartFile = { id: '1zRcj2czA1DtqCmTW7xiIPBzOpBYCR5BG', name: 'zoomed_chart.png' };
+                    if (!logFile) logFile = { id: 'latest_run.html' };
+                }
 
                 let driveSuccess = false;
 
