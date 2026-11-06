@@ -2509,7 +2509,7 @@
                     if (!fName) continue;
                     try {
                         const folderQuery = encodeURIComponent(`name = '${fName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
-                        const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${folderQuery}&fields=files(id,name)&t=${Date.now()}`, {
+                        const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${folderQuery}&orderBy=modifiedTime%20desc&pageSize=10&fields=files(id,name,modifiedTime)&t=${Date.now()}`, {
                             headers: authHeaders,
                             cache: 'no-store'
                         });
@@ -2539,7 +2539,7 @@
                     try {
                         const stem = scriptDef.folderName.replace('_Live', '');
                         const fuzzyQuery = encodeURIComponent(`name contains '${stem}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
-                        const fuzzyRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${fuzzyQuery}&fields=files(id,name)&t=${Date.now()}`, {
+                        const fuzzyRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${fuzzyQuery}&orderBy=modifiedTime%20desc&pageSize=10&fields=files(id,name,modifiedTime)&t=${Date.now()}`, {
                             headers: authHeaders,
                             cache: 'no-store'
                         });
@@ -2552,56 +2552,100 @@
                     } catch (e) {}
                 }
 
-                // If folder not found and switchblade, use known default ID
-                if (!folderId && scriptDef.id === 'switchblade') {
-                    folderId = '1_Sj65yOiX3FPdiZw8nHl_RGlYprYJA6Y';
-                }
-
-                if (!folderId) {
-                    console.log(`Folder for ${scriptDef.name} not found yet on Drive. Falling back to cached snapshot.`);
-                    await loadBundledData();
-                    return;
-                }
-
-                // 2. List files in designated folder
+                // 2. List files in designated folder (if found)
                 let filesList = [];
-                try {
-                    const filesQuery = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
-                    const filesRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${filesQuery}&pageSize=100&orderBy=modifiedTime%20desc&fields=files(id,name,modifiedTime)&t=${Date.now()}`, {
-                        headers: authHeaders,
-                        cache: 'no-store'
-                    });
-                    if (filesRes.status === 401 || filesRes.status === 403) {
-                        let detail = "";
-                        try {
-                            const errData = await filesRes.json();
-                            detail = errData.error ? errData.error.message : "";
-                        } catch(e) {}
-                        handleDriveAuthError(filesRes.status, detail);
-                        return;
+                if (folderId) {
+                    try {
+                        const filesQuery = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
+                        const filesRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${filesQuery}&pageSize=100&orderBy=modifiedTime%20desc&fields=files(id,name,modifiedTime)&t=${Date.now()}`, {
+                            headers: authHeaders,
+                            cache: 'no-store'
+                        });
+                        if (filesRes.status === 401 || filesRes.status === 403) {
+                            let detail = "";
+                            try {
+                                const errData = await filesRes.json();
+                                detail = errData.error ? errData.error.message : "";
+                            } catch(e) {}
+                            handleDriveAuthError(filesRes.status, detail);
+                            return;
+                        }
+                        if (filesRes.ok) {
+                            const filesData = await filesRes.json();
+                            filesList = filesData.files || [];
+                        }
+                    } catch (e) {
+                        console.warn("Folder listing failed:", e);
                     }
-                    if (filesRes.ok) {
-                        const filesData = await filesRes.json();
-                        filesList = filesData.files || [];
-                    }
-                } catch (e) {
-                    console.warn("Folder listing failed:", e);
                 }
 
                 // Prioritize run_data.json, raw data json, while excluding feature files
-                let runDataFile = filesList.find(f => f.name === 'run_data.json') ||
+                let runDataFile = filesList.find(f => f.name === (scriptDef.dataFile || 'run_data.json')) ||
+                                  filesList.find(f => f.name === 'run_data.json') ||
                                   filesList.find(f => f.name.startsWith('chronos_ultimate_raw_data')) ||
-                                  filesList.find(f => f.name.endsWith('.json') && !f.name.includes('feature_importance'));
-                
+                                  filesList.find(f => f.name.endsWith('.json') && !f.name.includes('feature_importance') && !f.name.includes('momentum'));
+
+                // Global search for freshest run_data across Drive (handles duplicate folders or root placement)
+                try {
+                    const targetDataName = scriptDef.dataFile || 'run_data.json';
+                    const globalRunQuery = encodeURIComponent(`name = '${targetDataName}' and trashed = false`);
+                    const globalRunRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${globalRunQuery}&orderBy=modifiedTime%20desc&pageSize=5&fields=files(id,name,modifiedTime,parents)&t=${Date.now()}`, {
+                        headers: authHeaders,
+                        cache: 'no-store'
+                    });
+                    if (globalRunRes.ok) {
+                        const gData = await globalRunRes.json();
+                        if (gData.files && gData.files.length > 0) {
+                            const freshestRun = gData.files[0];
+                            const currTime = runDataFile && runDataFile.modifiedTime ? new Date(runDataFile.modifiedTime).getTime() : 0;
+                            const freshTime = freshestRun.modifiedTime ? new Date(freshestRun.modifiedTime).getTime() : 0;
+                            if (freshTime > currTime || !runDataFile) {
+                                console.log(`[Drive] Using freshest global ${freshestRun.name} (${freshestRun.id}, modified: ${freshestRun.modifiedTime})`);
+                                runDataFile = freshestRun;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Global runDataFile search failed:", e);
+                }
+
                 let chartFile = filesList.find(f => f.name === (scriptDef.chartFile || 'zoomed_chart.png')) ||
                                 filesList.find(f => f.name.endsWith('.png'));
+
+                // Global search for freshest chart across Drive
+                try {
+                    const targetChartName = scriptDef.chartFile || 'zoomed_chart.png';
+                    const globalChartQuery = encodeURIComponent(`name = '${targetChartName}' and trashed = false`);
+                    const globalChartRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${globalChartQuery}&orderBy=modifiedTime%20desc&pageSize=5&fields=files(id,name,modifiedTime)&t=${Date.now()}`, {
+                        headers: authHeaders,
+                        cache: 'no-store'
+                    });
+                    if (globalChartRes.ok) {
+                        const gcData = await globalChartRes.json();
+                        if (gcData.files && gcData.files.length > 0) {
+                            const freshestChart = gcData.files[0];
+                            const currChartTime = chartFile && chartFile.modifiedTime ? new Date(chartFile.modifiedTime).getTime() : 0;
+                            const freshChartTime = freshestChart.modifiedTime ? new Date(freshestChart.modifiedTime).getTime() : 0;
+                            if (freshChartTime > currChartTime || !chartFile) {
+                                chartFile = freshestChart;
+                            }
+                        }
+                    }
+                } catch (e) {}
+
                 let logFile = filesList.find(f => f.name === 'latest_run.html') || filesList.find(f => f.name.endsWith('.html'));
 
-                // Switchblade known direct ID fallback if search returned no files
+                // Direct fallback IDs ONLY as last resort if nothing found on Drive at all
                 if (scriptDef.id === 'switchblade') {
-                    if (!runDataFile) runDataFile = { id: '12qaTZINTWfDclzcuiThxDQeX_R__GtKX', name: 'run_data.json' };
-                    if (!chartFile) chartFile = { id: '1zRcj2czA1DtqCmTW7xiIPBzOpBYCR5BG', name: 'zoomed_chart.png' };
-                    if (!logFile) logFile = { id: 'latest_run.html' };
+                    if (!runDataFile && !folderId) runDataFile = { id: '12qaTZINTWfDclzcuiThxDQeX_R__GtKX', name: 'run_data.json' };
+                    if (!chartFile && !folderId) chartFile = { id: '1zRcj2czA1DtqCmTW7xiIPBzOpBYCR5BG', name: 'zoomed_chart.png' };
+                    if (!logFile && !folderId) logFile = { id: 'latest_run.html' };
+                }
+
+                if (!folderId && !runDataFile) {
+                    console.log(`Folder and data files for ${scriptDef.name} not found yet on Drive. Falling back to cached snapshot.`);
+                    await loadBundledData();
+                    return;
                 }
 
                 let driveSuccess = false;
@@ -2684,6 +2728,30 @@
                 // If Switchblade, also fetch momentum_data.json
                 if (scriptDef.id === 'switchblade') {
                     let momFile = filesList.find(f => f.name === 'momentum_data.json');
+
+                    // Dedicated global search for freshest momentum_data.json across Drive
+                    try {
+                        const globalMomQuery = encodeURIComponent(`name = 'momentum_data.json' and trashed = false`);
+                        const globalMomRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${globalMomQuery}&orderBy=modifiedTime%20desc&pageSize=5&fields=files(id,name,modifiedTime,parents)&t=${Date.now()}`, {
+                            headers: authHeaders,
+                            cache: 'no-store'
+                        });
+                        if (globalMomRes.ok) {
+                            const gMomData = await globalMomRes.json();
+                            if (gMomData.files && gMomData.files.length > 0) {
+                                const freshestMom = gMomData.files[0];
+                                const currMomTime = momFile && momFile.modifiedTime ? new Date(momFile.modifiedTime).getTime() : 0;
+                                const freshMomTime = freshestMom.modifiedTime ? new Date(freshestMom.modifiedTime).getTime() : 0;
+                                if (freshMomTime > currMomTime || !momFile) {
+                                    console.log(`[Drive] Using freshest global momentum_data.json (${freshestMom.id}, modified: ${freshestMom.modifiedTime})`);
+                                    momFile = freshestMom;
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.warn("Global momentum search failed:", e);
+                    }
+
                     if (momFile && momFile.id) {
                         try {
                             const mRes = await fetch(`https://www.googleapis.com/drive/v3/files/${momFile.id}?alt=media&t=${Date.now()}`, {
@@ -2692,6 +2760,7 @@
                             });
                             if (mRes.ok) {
                                 momentumData = await mRes.json();
+                                window.lastMomentumDriveTime = momFile.modifiedTime;
                                 renderMomentumData(momentumData, momFile.modifiedTime);
                             }
                         } catch (e) {
@@ -2938,18 +3007,67 @@
         }
         window.setChartView = setChartView;
 
+        function parseDateRobust(val) {
+            if (!val) return null;
+            if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
+            let s = String(val).trim();
+            if (!s) return null;
+
+            let d = new Date(s);
+            if (!isNaN(d.getTime())) return d;
+
+            let norm = s
+                .replace(/\bEDT\b/gi, "-04:00")
+                .replace(/\bEST\b/gi, "-05:00")
+                .replace(/\bPDT\b/gi, "-07:00")
+                .replace(/\bPST\b/gi, "-08:00")
+                .replace(/\bCDT\b/gi, "-05:00")
+                .replace(/\bCST\b/gi, "-06:00")
+                .replace(/\bMDT\b/gi, "-06:00")
+                .replace(/\bMST\b/gi, "-07:00")
+                .replace(/\bUTC\b/gi, "Z");
+            
+            norm = norm.replace(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}(?::\d{2})?)/, "$1T$2");
+            d = new Date(norm);
+            if (!isNaN(d.getTime())) return d;
+
+            if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+                d = new Date(`${s}T16:00:00Z`);
+                if (!isNaN(d.getTime())) return d;
+            }
+            return null;
+        }
+
+        function getFreshestDate(candidates, fallbackDateStr) {
+            let bestDate = null;
+            let bestMs = -Infinity;
+            for (const c of (candidates || [])) {
+                if (!c) continue;
+                const d = parseDateRobust(c);
+                if (d && !isNaN(d.getTime())) {
+                    if (d.getTime() > bestMs) {
+                        bestMs = d.getTime();
+                        bestDate = d;
+                    }
+                }
+            }
+            if (!bestDate && fallbackDateStr) {
+                bestDate = parseDateRobust(`${fallbackDateStr}T16:00:00Z`);
+            }
+            return bestDate || new Date();
+        }
+
         function formatVancouverTime(isoOrDateStr, fallbackDateStr) {
             try {
                 let d = null;
-                if (isoOrDateStr) {
-                    d = new Date(isoOrDateStr);
-                    if (isNaN(d.getTime())) {
-                        d = new Date(isoOrDateStr.replace(' ', 'T'));
-                    }
+                if (isoOrDateStr instanceof Date) {
+                    d = isNaN(isoOrDateStr.getTime()) ? null : isoOrDateStr;
+                } else if (isoOrDateStr) {
+                    d = parseDateRobust(isoOrDateStr);
                 }
                 if (!d || isNaN(d.getTime())) {
                     if (fallbackDateStr) {
-                        d = new Date(`${fallbackDateStr}T16:00:00Z`);
+                        d = parseDateRobust(`${fallbackDateStr}T16:00:00Z`);
                     } else {
                         d = new Date();
                     }
@@ -2965,7 +3083,7 @@
                     hour12: true
                 }).format(d);
             } catch (e) {
-                return isoOrDateStr || fallbackDateStr || 'Latest';
+                return String(isoOrDateStr || fallbackDateStr || 'Latest');
             }
         }
 
@@ -2975,7 +3093,15 @@
         function renderRunData(data, driveModifiedTime) {
             if (!data) return;
 
-            const vanTime = formatVancouverTime(driveModifiedTime || data.timestamp, data.date);
+            const candidates = [
+                driveModifiedTime,
+                data.timestamp,
+                data.updated_at,
+                data.date ? `${data.date} 16:00:00 EST` : null
+            ];
+            const fallbackDate = data.date || data.as_of_date;
+            const bestDate = getFreshestDate(candidates, fallbackDate);
+            const vanTime = formatVancouverTime(bestDate, fallbackDate);
             const bTime = document.getElementById('banner-timestamp');
             if (bTime) bTime.innerHTML = `Run Date: <span class="text-white font-semibold">${vanTime}</span> <span class="text-[10px] text-accent-cyan font-mono">(Vancouver, BC)</span>`;
             
@@ -3237,7 +3363,15 @@
             if (!data) return;
             const momTimeEl = document.getElementById('momentum-vancouver-time');
             if (momTimeEl) {
-                momTimeEl.textContent = `${formatVancouverTime(driveModifiedTime || data.timestamp, data.date)} (Vancouver, BC)`;
+                const candidates = [
+                    data.updated_at,
+                    data.timestamp,
+                    driveModifiedTime,
+                    window.lastMomentumDriveTime
+                ];
+                const fallbackDate = data.as_of_date || data.date;
+                const bestDate = getFreshestDate(candidates, fallbackDate);
+                momTimeEl.textContent = `${formatVancouverTime(bestDate, fallbackDate)} (Vancouver, BC)`;
             }
 
             const guardBody = document.getElementById('guard-dogs-table-body');
@@ -4239,14 +4373,23 @@
         function renderActiveScriptData(data, modifiedTime) {
             if (!data) return;
 
-            const vanTime = formatVancouverTime(modifiedTime || data.timestamp || data.report_date || data.metadata?.timestamp);
+            const candidates = [
+                modifiedTime,
+                data.timestamp,
+                data.updated_at,
+                data.report_date,
+                data.metadata?.timestamp
+            ];
+            const fallbackDate = data.date || data.as_of_date || data.report_date;
+            const bestDate = getFreshestDate(candidates, fallbackDate);
+            const vanTime = formatVancouverTime(bestDate, fallbackDate);
             const bTime = document.getElementById('banner-timestamp');
             if (bTime) bTime.innerHTML = `Run Date: <span class="text-white font-semibold">${vanTime}</span> <span class="text-[10px] text-accent-cyan font-mono">(Vancouver, BC)</span>`;
 
             if (currentScriptId === 'switchblade') {
                 renderRunData(data, modifiedTime);
                 if (momentumData) {
-                    renderMomentumData(momentumData);
+                    renderMomentumData(momentumData, window.lastMomentumDriveTime);
                 }
             } else if (currentScriptId === 'citadel') {
                 renderCitadelData(data);
