@@ -2283,6 +2283,12 @@
             if (menu) menu.classList.add('hidden');
             if (arrow) arrow.style.transform = 'rotate(0deg)';
 
+            // Clean state inspector display before new script load
+            const sCont = document.getElementById('state-cards-container');
+            if (sCont) sCont.innerHTML = '';
+            const sView = document.getElementById('state-json-viewer');
+            if (sView) sView.textContent = 'Loading state telemetry for ' + scriptDef.name + '...';
+
             // 1. Switch active view in Tab 1 (Overview)
             document.querySelectorAll('.script-view').forEach(el => el.classList.add('hidden'));
             const targetView = document.getElementById(`view-${scriptId}`);
@@ -2368,6 +2374,9 @@
             }
 
             renderScriptDropdown();
+
+            // Clear previous script payload to prevent cross-script telemetry leakage
+            currentScriptData = null;
 
             // Refresh data for selected script
             if (googleAccessToken) {
@@ -2502,8 +2511,8 @@
                 document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-blue mr-1.5 animate-pulse"></span> Querying ${scriptDef.folderName}...`;
                 const authHeaders = { Authorization: `Bearer ${token}` };
 
-                // 1. Locate designated script folder (or fallback folder)
-                let folderId = null;
+                // 1. Locate designated script folder(s) - collect ALL matching folders
+                let matchingFolderIds = [];
                 const foldersToTry = [scriptDef.folderName, scriptDef.fallbackFolder];
                 for (const fName of foldersToTry) {
                     if (!fName) continue;
@@ -2525,8 +2534,11 @@
                         if (folderRes.ok) {
                             const folderData = await folderRes.json();
                             if (folderData.files && folderData.files.length > 0) {
-                                folderId = folderData.files[0].id;
-                                break;
+                                folderData.files.forEach(f => {
+                                    if (f.id && !matchingFolderIds.includes(f.id)) {
+                                        matchingFolderIds.push(f.id);
+                                    }
+                                });
                             }
                         }
                     } catch (e) {
@@ -2535,7 +2547,7 @@
                 }
 
                 // Substring fallback search if exact match failed
-                if (!folderId && scriptDef.folderName) {
+                if (matchingFolderIds.length === 0 && scriptDef.folderName) {
                     try {
                         const stem = scriptDef.folderName.replace('_Live', '');
                         const fuzzyQuery = encodeURIComponent(`name contains '${stem}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
@@ -2546,17 +2558,26 @@
                         if (fuzzyRes.ok) {
                             const fuzzyData = await fuzzyRes.json();
                             if (fuzzyData.files && fuzzyData.files.length > 0) {
-                                folderId = fuzzyData.files[0].id;
+                                fuzzyData.files.forEach(f => {
+                                    if (f.id && !matchingFolderIds.includes(f.id)) {
+                                        matchingFolderIds.push(f.id);
+                                    }
+                                });
                             }
                         }
                     } catch (e) {}
                 }
 
-                // 2. List files in designated folder (if found)
+                // Known direct folder fallback for Switchblade if search returned none
+                if (matchingFolderIds.length === 0 && scriptDef.id === 'switchblade') {
+                    matchingFolderIds.push('1_Sj65yOiX3FPdiZw8nHl_RGlYprYJA6Y');
+                }
+
+                // 2. List files strictly within the active script's matching folder(s)
                 let filesList = [];
-                if (folderId) {
+                for (const fId of matchingFolderIds) {
                     try {
-                        const filesQuery = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
+                        const filesQuery = encodeURIComponent(`'${fId}' in parents and trashed = false`);
                         const filesRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${filesQuery}&pageSize=100&orderBy=modifiedTime%20desc&fields=files(id,name,modifiedTime)&t=${Date.now()}`, {
                             headers: authHeaders,
                             cache: 'no-store'
@@ -2572,77 +2593,45 @@
                         }
                         if (filesRes.ok) {
                             const filesData = await filesRes.json();
-                            filesList = filesData.files || [];
+                            if (filesData.files && filesData.files.length > 0) {
+                                filesList.push(...filesData.files);
+                            }
                         }
                     } catch (e) {
-                        console.warn("Folder listing failed:", e);
+                        console.warn(`Files listing failed for folder ${fId}:`, e);
                     }
                 }
 
-                // Prioritize run_data.json, raw data json, while excluding feature files
-                let runDataFile = filesList.find(f => f.name === (scriptDef.dataFile || 'run_data.json')) ||
-                                  filesList.find(f => f.name === 'run_data.json') ||
+                // Identify files strictly from active script's folder(s)
+                const targetDataName = scriptDef.dataFile || 'run_data.json';
+                const runDataMatches = filesList.filter(f => f.name === targetDataName || f.name === 'run_data.json');
+                runDataMatches.sort((a, b) => new Date(b.modifiedTime || 0) - new Date(a.modifiedTime || 0));
+                let runDataFile = runDataMatches[0] ||
                                   filesList.find(f => f.name.startsWith('chronos_ultimate_raw_data')) ||
                                   filesList.find(f => f.name.endsWith('.json') && !f.name.includes('feature_importance') && !f.name.includes('momentum'));
 
-                // Global search for freshest run_data across Drive (handles duplicate folders or root placement)
-                try {
-                    const targetDataName = scriptDef.dataFile || 'run_data.json';
-                    const globalRunQuery = encodeURIComponent(`name = '${targetDataName}' and trashed = false`);
-                    const globalRunRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${globalRunQuery}&orderBy=modifiedTime%20desc&pageSize=5&fields=files(id,name,modifiedTime,parents)&t=${Date.now()}`, {
-                        headers: authHeaders,
-                        cache: 'no-store'
-                    });
-                    if (globalRunRes.ok) {
-                        const gData = await globalRunRes.json();
-                        if (gData.files && gData.files.length > 0) {
-                            const freshestRun = gData.files[0];
-                            const currTime = runDataFile && runDataFile.modifiedTime ? new Date(runDataFile.modifiedTime).getTime() : 0;
-                            const freshTime = freshestRun.modifiedTime ? new Date(freshestRun.modifiedTime).getTime() : 0;
-                            if (freshTime > currTime || !runDataFile) {
-                                console.log(`[Drive] Using freshest global ${freshestRun.name} (${freshestRun.id}, modified: ${freshestRun.modifiedTime})`);
-                                runDataFile = freshestRun;
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.warn("Global runDataFile search failed:", e);
-                }
+                // Switchblade 200-day zoom lens chart
+                const zoomedMatches = filesList.filter(f => f.name === 'zoomed_chart.png' || f.name === (scriptDef.chartFile || 'zoomed_chart.png'));
+                zoomedMatches.sort((a, b) => new Date(b.modifiedTime || 0) - new Date(a.modifiedTime || 0));
+                let chartZoomedFile = zoomedMatches[0] || filesList.find(f => f.name.includes('zoomed') && f.name.endsWith('.png'));
 
-                let chartFile = filesList.find(f => f.name === (scriptDef.chartFile || 'zoomed_chart.png')) ||
-                                filesList.find(f => f.name.endsWith('.png'));
+                // Switchblade all-time full backtest chart
+                const fullMatches = filesList.filter(f => f.name === 'full_backtest_chart.png');
+                fullMatches.sort((a, b) => new Date(b.modifiedTime || 0) - new Date(a.modifiedTime || 0));
+                let chartFullFile = fullMatches[0];
 
-                // Global search for freshest chart across Drive
-                try {
-                    const targetChartName = scriptDef.chartFile || 'zoomed_chart.png';
-                    const globalChartQuery = encodeURIComponent(`name = '${targetChartName}' and trashed = false`);
-                    const globalChartRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${globalChartQuery}&orderBy=modifiedTime%20desc&pageSize=5&fields=files(id,name,modifiedTime)&t=${Date.now()}`, {
-                        headers: authHeaders,
-                        cache: 'no-store'
-                    });
-                    if (globalChartRes.ok) {
-                        const gcData = await globalChartRes.json();
-                        if (gcData.files && gcData.files.length > 0) {
-                            const freshestChart = gcData.files[0];
-                            const currChartTime = chartFile && chartFile.modifiedTime ? new Date(chartFile.modifiedTime).getTime() : 0;
-                            const freshChartTime = freshestChart.modifiedTime ? new Date(freshestChart.modifiedTime).getTime() : 0;
-                            if (freshChartTime > currChartTime || !chartFile) {
-                                chartFile = freshestChart;
-                            }
-                        }
-                    }
-                } catch (e) {}
+                let logMatches = filesList.filter(f => f.name === 'latest_run.html' || f.name.endsWith('.html'));
+                logMatches.sort((a, b) => new Date(b.modifiedTime || 0) - new Date(a.modifiedTime || 0));
+                let logFile = logMatches[0];
 
-                let logFile = filesList.find(f => f.name === 'latest_run.html') || filesList.find(f => f.name.endsWith('.html'));
-
-                // Direct fallback IDs ONLY as last resort if nothing found on Drive at all
+                // Direct fallback IDs ONLY as last resort if search returned no files at all
                 if (scriptDef.id === 'switchblade') {
-                    if (!runDataFile && !folderId) runDataFile = { id: '12qaTZINTWfDclzcuiThxDQeX_R__GtKX', name: 'run_data.json' };
-                    if (!chartFile && !folderId) chartFile = { id: '1zRcj2czA1DtqCmTW7xiIPBzOpBYCR5BG', name: 'zoomed_chart.png' };
-                    if (!logFile && !folderId) logFile = { id: 'latest_run.html' };
+                    if (!runDataFile && matchingFolderIds.length === 0) runDataFile = { id: '12qaTZINTWfDclzcuiThxDQeX_R__GtKX', name: 'run_data.json' };
+                    if (!chartZoomedFile && matchingFolderIds.length === 0) chartZoomedFile = { id: '1zRcj2czA1DtqCmTW7xiIPBzOpBYCR5BG', name: 'zoomed_chart.png' };
+                    if (!logFile && matchingFolderIds.length === 0) logFile = { id: 'latest_run.html' };
                 }
 
-                if (!folderId && !runDataFile) {
+                if (matchingFolderIds.length === 0 && !runDataFile) {
                     console.log(`Folder and data files for ${scriptDef.name} not found yet on Drive. Falling back to cached snapshot.`);
                     await loadBundledData();
                     return;
@@ -2650,7 +2639,7 @@
 
                 let driveSuccess = false;
 
-                // Fetch run data JSON
+                // 1. Fetch Run Data JSON strictly for active script
                 if (runDataFile && runDataFile.id) {
                     try {
                         const rRes = await fetch(`https://www.googleapis.com/drive/v3/files/${runDataFile.id}?alt=media&t=${Date.now()}`, {
@@ -2668,7 +2657,7 @@
                     }
                 }
 
-                // If Chronos, also fetch chronos_feature_importance.json and zoomed_chart
+                // 2. If Chronos, also fetch chronos_feature_importance.json and zoomed_chart
                 if (scriptDef.id === 'chronos') {
                     let featFile = filesList.find(f => f.name === 'chronos_feature_importance.json');
                     if (featFile && featFile.id) {
@@ -2725,32 +2714,11 @@
                     }
                 }
 
-                // If Switchblade, also fetch momentum_data.json
+                // 3. If Switchblade, also fetch momentum_data.json strictly from Switchblade_Live folders
                 if (scriptDef.id === 'switchblade') {
-                    let momFile = filesList.find(f => f.name === 'momentum_data.json');
-
-                    // Dedicated global search for freshest momentum_data.json across Drive
-                    try {
-                        const globalMomQuery = encodeURIComponent(`name = 'momentum_data.json' and trashed = false`);
-                        const globalMomRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${globalMomQuery}&orderBy=modifiedTime%20desc&pageSize=5&fields=files(id,name,modifiedTime,parents)&t=${Date.now()}`, {
-                            headers: authHeaders,
-                            cache: 'no-store'
-                        });
-                        if (globalMomRes.ok) {
-                            const gMomData = await globalMomRes.json();
-                            if (gMomData.files && gMomData.files.length > 0) {
-                                const freshestMom = gMomData.files[0];
-                                const currMomTime = momFile && momFile.modifiedTime ? new Date(momFile.modifiedTime).getTime() : 0;
-                                const freshMomTime = freshestMom.modifiedTime ? new Date(freshestMom.modifiedTime).getTime() : 0;
-                                if (freshMomTime > currMomTime || !momFile) {
-                                    console.log(`[Drive] Using freshest global momentum_data.json (${freshestMom.id}, modified: ${freshestMom.modifiedTime})`);
-                                    momFile = freshestMom;
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        console.warn("Global momentum search failed:", e);
-                    }
+                    const momMatches = filesList.filter(f => f.name === 'momentum_data.json');
+                    momMatches.sort((a, b) => new Date(b.modifiedTime || 0) - new Date(a.modifiedTime || 0));
+                    let momFile = momMatches[0];
 
                     if (momFile && momFile.id) {
                         try {
@@ -2769,25 +2737,57 @@
                     }
                 }
 
-                // Stream Chart Image
-                if (chartFile && chartFile.id) {
-                    try {
-                        const cRes = await fetch(`https://www.googleapis.com/drive/v3/files/${chartFile.id}?alt=media&t=${Date.now()}`, {
-                            headers: authHeaders,
-                            cache: 'no-store'
-                        });
-                        if (cRes.ok) {
-                            const blob = await cRes.blob();
-                            const blobUrl = URL.createObjectURL(blob);
-                            
-                            // Switchblade chart
-                            const imgEl = document.getElementById('drive-zoomed-img');
-                            const linkEl = document.getElementById('btn-open-chart');
-                            if (imgEl) imgEl.src = blobUrl;
-                            if (linkEl) linkEl.href = blobUrl;
+                // 4. Stream Chart Images strictly for active script
+                if (scriptDef.id === 'switchblade') {
+                    // Switchblade 200-day zoom lens
+                    if (chartZoomedFile && chartZoomedFile.id) {
+                        try {
+                            const cRes = await fetch(`https://www.googleapis.com/drive/v3/files/${chartZoomedFile.id}?alt=media&t=${Date.now()}`, {
+                                headers: authHeaders,
+                                cache: 'no-store'
+                            });
+                            if (cRes.ok) {
+                                const blob = await cRes.blob();
+                                const blobUrl = URL.createObjectURL(blob);
+                                const imgEl = document.getElementById('drive-zoomed-img');
+                                const linkEl = document.getElementById('btn-open-chart');
+                                if (imgEl) imgEl.src = blobUrl;
+                                if (linkEl) linkEl.href = blobUrl;
+                            }
+                        } catch (e) {
+                            console.warn("Switchblade zoom chart stream failed:", e);
+                        }
+                    }
 
-                            // Chronos chart
-                            if (scriptDef.id === 'chronos') {
+                    // Switchblade full all-time backtest chart
+                    if (chartFullFile && chartFullFile.id) {
+                        try {
+                            const fRes = await fetch(`https://www.googleapis.com/drive/v3/files/${chartFullFile.id}?alt=media&t=${Date.now()}`, {
+                                headers: authHeaders,
+                                cache: 'no-store'
+                            });
+                            if (fRes.ok) {
+                                const fBlob = await fRes.blob();
+                                const fBlobUrl = URL.createObjectURL(fBlob);
+                                const fullImg = document.getElementById('drive-full-img');
+                                const fullLink = document.getElementById('btn-open-full-chart');
+                                if (fullImg) fullImg.src = fBlobUrl;
+                                if (fullLink) fullLink.href = fBlobUrl;
+                            }
+                        } catch (e) {
+                            console.warn("Switchblade full chart stream failed:", e);
+                        }
+                    }
+                } else if (scriptDef.id === 'chronos') {
+                    if (chartZoomedFile && chartZoomedFile.id) {
+                        try {
+                            const cRes = await fetch(`https://www.googleapis.com/drive/v3/files/${chartZoomedFile.id}?alt=media&t=${Date.now()}`, {
+                                headers: authHeaders,
+                                cache: 'no-store'
+                            });
+                            if (cRes.ok) {
+                                const blob = await cRes.blob();
+                                const blobUrl = URL.createObjectURL(blob);
                                 window.chronosEnsembleBlobUrl = blobUrl;
                                 const cImg = document.getElementById('chronos-chart-img');
                                 const cLink = document.getElementById('btn-chronos-chart-link');
@@ -2799,21 +2799,28 @@
                                 if (ensImg) ensImg.src = blobUrl;
                                 if (ensLink) ensLink.href = blobUrl;
                             }
-
-                            // Corporate Class chart
-                            if (scriptDef.id === 'corporate_class') {
+                        } catch (e) {}
+                    }
+                } else if (scriptDef.id === 'corporate_class') {
+                    if (chartZoomedFile && chartZoomedFile.id) {
+                        try {
+                            const cRes = await fetch(`https://www.googleapis.com/drive/v3/files/${chartZoomedFile.id}?alt=media&t=${Date.now()}`, {
+                                headers: authHeaders,
+                                cache: 'no-store'
+                            });
+                            if (cRes.ok) {
+                                const blob = await cRes.blob();
+                                const blobUrl = URL.createObjectURL(blob);
                                 const ccImg = document.getElementById('charts-corporate-class-img');
                                 const ccLink = document.getElementById('btn-charts-corp-link');
                                 if (ccImg) ccImg.src = blobUrl;
                                 if (ccLink) ccLink.href = blobUrl;
                             }
-                        }
-                    } catch (e) {
-                        console.warn("Chart stream failed:", e);
+                        } catch (e) {}
                     }
                 }
 
-                // Stream Execution Log
+                // 5. Stream Execution Log
                 if (logFile && logFile.id) {
                     try {
                         const lRes = await fetch(`https://www.googleapis.com/drive/v3/files/${logFile.id}?alt=media&t=${Date.now()}`, {
@@ -2907,12 +2914,18 @@
                     }
                 }
 
-                // Update chart fallbacks
-                const chartImg = document.getElementById('drive-zoomed-img');
-                const chartBtn = document.getElementById('btn-open-chart');
-                const cPath = scriptDef.chartFile || 'zoomed_chart.png';
-                if (chartImg) chartImg.src = `${cPath}?t=${ts}`;
-                if (chartBtn) chartBtn.href = `${cPath}?t=${ts}`;
+                // Update chart fallbacks strictly for active script
+                if (scriptDef.id === 'switchblade') {
+                    const chartImg = document.getElementById('drive-zoomed-img');
+                    const chartBtn = document.getElementById('btn-open-chart');
+                    if (chartImg) chartImg.src = `zoomed_chart.png?t=${ts}`;
+                    if (chartBtn) chartBtn.href = `zoomed_chart.png?t=${ts}`;
+
+                    const fullImg = document.getElementById('drive-full-img');
+                    const fullBtn = document.getElementById('btn-open-full-chart');
+                    if (fullImg) fullImg.src = `full_backtest_chart.png?t=${ts}`;
+                    if (fullBtn) fullBtn.href = `full_backtest_chart.png?t=${ts}`;
+                }
 
                 if (scriptDef.id === 'chronos') {
                     const cImg = document.getElementById('chronos-chart-img');
@@ -4181,8 +4194,22 @@
 
             if (scriptId === 'switchblade') {
                 const strategies = (data && data.strategies) || [];
-                const stdStrat = strategies.find(s => (s.name && (s.name.includes('Standard') || s.name.includes('S1'))) || s.current_mode === 'ALL_STOCKS' || Object.keys(s.holdings || {}).length > 1) || strategies[1] || strategies[0] || {};
-                const tqqqStrat = strategies.find(s => (s.name && (s.name.includes('TQQQ') || s.name.includes('S2'))) || s.current_mode === 'TQQQ' || s.current_mode === 'LONG_BOND') || strategies[0] || {};
+                const stdStrat = strategies.find(s => (s.name && (s.name.includes('Standard') || s.name.includes('S1'))) || s.current_mode === 'ALL_STOCKS' || Object.keys(s.holdings || {}).length > 1) || strategies[1] || strategies[0] || {
+                    current_mode: 'ALL_STOCKS',
+                    graduated_state: 'FIRMLY_BULLISH',
+                    confirm_counter: 0,
+                    timer: 0,
+                    pending_mode: 'None',
+                    last_rebal_date: data?.date || 'N/A'
+                };
+                const tqqqStrat = strategies.find(s => (s.name && (s.name.includes('TQQQ') || s.name.includes('S2'))) || s.current_mode === 'TQQQ' || s.current_mode === 'LONG_BOND') || strategies[0] || {
+                    current_mode: 'LONG_BOND',
+                    graduated_state: 'SLIGHTLY_BEARISH',
+                    confirm_counter: 0,
+                    timer: 0,
+                    pending_mode: 'None',
+                    last_rebal_date: data?.date || 'N/A'
+                };
 
                 [stdStrat, tqqqStrat].forEach((s, idx) => {
                     if (!s || !s.current_mode) return;
