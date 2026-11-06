@@ -869,6 +869,9 @@
                 return;
             }
             try {
+                if (!iframe.srcdoc || iframe.srcdoc.length < 50) {
+                    iframe.srcdoc = `<div style="color:#38bdf8;font-family:monospace;padding:24px;background:#0d1117;display:flex;align-items:center;"><span style="display:inline-block;width:14px;height:14px;border:2px solid #38bdf8;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;margin-right:12px;"></span>Loading execution log...</div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+                }
                 const res = await fetch(`latest_run.html?t=${Date.now()}`);
                 if (res.ok) {
                     const text = await res.text();
@@ -1352,7 +1355,7 @@
                 }
             }
 
-            // 3. Render Strategy Final State Dump Table in Overview Tab
+            // 3. Render Strategy Final State Dump Comparison Table in Overview Tab
             renderOverviewStateDump(stdStrat, tqqqStrat, data.league_table || []);
 
             // 4. League Table
@@ -1684,12 +1687,23 @@
                 targetNav.classList.add('active', 'bg-accent-blue', 'text-white');
                 targetNav.classList.remove('text-slate-400');
             }
+
+            if (tabId === 'log') {
+                const iframe = document.getElementById('raw-log-iframe');
+                if (iframe && (!iframe.srcdoc || iframe.srcdoc.length < 100)) {
+                    loadExecutionLog();
+                }
+            }
         };
 
-        // Initialize on DOM load
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initialize on DOM load or immediately if already interactive
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                loadBundledData();
+            });
+        } else {
             loadBundledData();
-        });
+        }
     </script>
 </body>
 </html>
