@@ -194,21 +194,38 @@
         </nav>
 
         <!-- STATUS BANNER -->
-        <div id="drive-status-banner" class="rounded-xl bg-dark-card border border-dark-border p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
-            <div class="flex items-center space-x-3">
-                <div id="status-indicator-dot" class="w-3 h-3 rounded-full bg-accent-emerald animate-pulse"></div>
-                <div>
-                    <div class="flex items-center space-x-2">
-                        <span id="banner-title" class="text-sm font-semibold text-white">Google Drive Synced</span>
-                        <span id="banner-timestamp" class="text-xs font-mono text-slate-400">Loading timestamp...</span>
+        <div id="drive-status-banner-container" class="space-y-2">
+            <div id="drive-status-banner" class="rounded-xl bg-dark-card border border-dark-border p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+                <div class="flex items-center space-x-3">
+                    <div id="status-indicator-dot" class="w-3 h-3 rounded-full bg-accent-emerald animate-pulse"></div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span id="banner-title" class="text-sm font-semibold text-white">Google Drive Synced</span>
+                            <span id="banner-timestamp" class="text-xs font-mono text-slate-400">Loading timestamp...</span>
+                        </div>
+                        <p id="banner-subtext" class="text-xs text-slate-400">Colab Run artifacts connected from <span class="font-mono text-accent-blue">MyDrive/Switchblade_Live</span></p>
                     </div>
-                    <p id="banner-subtext" class="text-xs text-slate-400">Colab Run artifacts connected from <span class="font-mono text-accent-blue">MyDrive/Switchblade_Live</span></p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
+                    <span id="execution-mode-badge" class="px-2.5 py-1 rounded-md bg-dark-elevated text-slate-300 border border-dark-border">Mode: Backtest</span>
+                    <span id="standard-state-badge" class="px-2.5 py-1 rounded-md bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-bold">Strategy 1: ALL_STOCKS</span>
+                    <span id="tqqq-state-badge" class="px-2.5 py-1 rounded-md bg-accent-blue/20 text-accent-blue border border-accent-blue/40 font-bold">Strategy 2: TLT</span>
                 </div>
             </div>
-            <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
-                <span id="execution-mode-badge" class="px-2.5 py-1 rounded-md bg-dark-elevated text-slate-300 border border-dark-border">Mode: Backtest</span>
-                <span id="standard-state-badge" class="px-2.5 py-1 rounded-md bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-bold">Strategy 1: ALL_STOCKS</span>
-                <span id="tqqq-state-badge" class="px-2.5 py-1 rounded-md bg-accent-blue/20 text-accent-blue border border-accent-blue/40 font-bold">Strategy 2: TLT</span>
+
+            <!-- Reconnection Alert Banner (Shown when Drive Token Expired) -->
+            <div id="drive-reconnect-alert" class="hidden px-4 py-3 rounded-xl bg-gradient-to-r from-amber-950/70 via-amber-900/40 to-amber-950/70 border border-amber-500/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+                <div class="flex items-center space-x-2.5 text-xs text-amber-200">
+                    <span class="text-base animate-pulse">⚠️</span>
+                    <div>
+                        <span class="font-bold text-amber-300 block sm:inline">Google Drive Session Expired:</span>
+                        <span class="text-amber-200/90 ml-0 sm:ml-1">Showing cached Nov 5 snapshot. Reconnect Google Drive now to stream today's live Colab execution run.</span>
+                    </div>
+                </div>
+                <button onclick="reconnectDrive()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-dark-base font-bold text-xs shadow-md transition flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span>Reconnect Google Drive</span>
+                </button>
             </div>
         </div>
 
@@ -1685,13 +1702,15 @@
                     const settingsEmail = document.getElementById('settings-user-email');
                     if (settingsEmail) settingsEmail.textContent = user.email || 'Authenticated';
                     
-                    // Attempt to connect to Google Drive if token available
+                    // Attempt to connect to Google Drive if token available & fresh
                     const savedToken = localStorage.getItem('sb_drive_token');
-                    if (savedToken) {
+                    const savedTokenTime = parseInt(localStorage.getItem('sb_drive_token_time') || '0', 10);
+                    const isExpired = !savedTokenTime || (Date.now() - savedTokenTime > 55 * 60 * 1000);
+                    if (savedToken && !isExpired) {
                         googleAccessToken = savedToken;
                         fetchFromGoogleDrive(googleAccessToken);
                     } else {
-                        await loadBundledData();
+                        handleDriveTokenExpired();
                     }
                 } else {
                     currentUser = null;
@@ -1757,6 +1776,9 @@
                 googleAccessToken = credential ? credential.accessToken : null;
                 if (googleAccessToken) {
                     localStorage.setItem('sb_drive_token', googleAccessToken);
+                    localStorage.setItem('sb_drive_token_time', Date.now().toString());
+                    const alertBox = document.getElementById('drive-reconnect-alert');
+                    if (alertBox) alertBox.classList.add('hidden');
                     await fetchFromGoogleDrive(googleAccessToken);
                 } else {
                     await loadBundledData();
@@ -2076,6 +2098,11 @@
             if (nameEl) nameEl.textContent = scriptDef.name;
             if (badgeEl) badgeEl.textContent = scriptDef.badge;
 
+            const bTitle = document.getElementById('banner-title');
+            if (bTitle) {
+                bTitle.textContent = googleAccessToken ? `${scriptDef.name} Active` : `${scriptDef.name} Snapshot`;
+            }
+
             // Close script selector menu
             const menu = document.getElementById('script-dropdown-menu');
             const arrow = document.getElementById('script-dropdown-arrow');
@@ -2250,10 +2277,14 @@
             console.warn("Google Drive OAuth access token has expired or is invalid.");
             googleAccessToken = null;
             localStorage.removeItem('sb_drive_token');
+            localStorage.removeItem('sb_drive_token_time');
 
             const pill = document.getElementById('sync-source-pill');
             if (pill) {
-                pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span> Drive Token Expired`;
+                pill.className = "px-2.5 py-1 rounded-full text-[11px] font-mono border border-amber-500/50 bg-amber-500/20 text-amber-300 flex items-center cursor-pointer hover:bg-amber-500/30 transition shadow";
+                pill.onclick = () => reconnectDrive();
+                pill.title = "Google Drive access token expired. Click to reconnect and stream today's live Colab run.";
+                pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-ping"></span> <span class="font-bold underline">Drive Expired (Click to Reconnect)</span>`;
             }
             const dot = document.getElementById('status-indicator-dot');
             if (dot) dot.className = "w-3 h-3 rounded-full bg-amber-400";
@@ -2262,6 +2293,10 @@
                 sStatus.textContent = "OAuth Session Expired (Reconnect below)";
                 sStatus.className = "text-amber-400 font-semibold";
             }
+            const alertBox = document.getElementById('drive-reconnect-alert');
+            if (alertBox) alertBox.classList.remove('hidden');
+
+            loadBundledData();
         }
 
         async function fetchFromGoogleDrive(token) {
@@ -2334,7 +2369,7 @@
                 let filesList = [];
                 try {
                     const filesQuery = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
-                    const filesRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${filesQuery}&pageSize=100&fields=files(id,name,modifiedTime)&t=${Date.now()}`, {
+                    const filesRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${filesQuery}&pageSize=100&orderBy=modifiedTime%20desc&fields=files(id,name,modifiedTime)&t=${Date.now()}`, {
                         headers: authHeaders,
                         cache: 'no-store'
                     });
@@ -2523,7 +2558,15 @@
                 }
 
                 if (driveSuccess) {
-                    document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-emerald mr-1.5 animate-pulse"></span> Google Drive Live (${scriptDef.folderName})`;
+                    const alertBox = document.getElementById('drive-reconnect-alert');
+                    if (alertBox) alertBox.classList.add('hidden');
+                    const pill = document.getElementById('sync-source-pill');
+                    if (pill) {
+                        pill.className = "px-2.5 py-1 rounded-full text-[11px] font-mono border border-dark-border bg-dark-elevated text-slate-300 flex items-center";
+                        pill.onclick = null;
+                        pill.title = "Google Drive live sync active";
+                        pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-emerald mr-1.5 animate-pulse"></span> Google Drive Live (${scriptDef.folderName})`;
+                    }
                     document.getElementById('banner-title').textContent = `${scriptDef.name} Active`;
                     document.getElementById('banner-subtext').innerHTML = `Live Colab stream synchronized from Google Drive (<span class="font-mono text-accent-blue">MyDrive/${scriptDef.folderName}</span>). Updates automatically after every market run.`;
                     document.getElementById('status-indicator-dot').className = "w-3 h-3 rounded-full bg-accent-emerald";
@@ -2555,13 +2598,14 @@
             if (googleAccessToken) {
                 fetchFromGoogleDrive(googleAccessToken).finally(onComplete);
             } else {
-                loadBundledData().finally(onComplete);
+                // If token is expired or disconnected, prompt Google Drive reconnection to stream today's live run!
+                reconnectDrive().finally(onComplete);
             }
         }
         window.refreshDriveData = refreshDriveData;
 
-        function reconnectDrive() {
-            signInWithGoogle();
+        async function reconnectDrive() {
+            return await signInWithGoogle();
         }
         window.reconnectDrive = reconnectDrive;
 
