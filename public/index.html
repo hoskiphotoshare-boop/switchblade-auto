@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>Switchblade V3.0 | Quantitative Strategy & Execution Portal</title>
+    <title>Omni-X | Master Quantitative & Strategy Execution Portal</title>
     
     <!-- Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -99,9 +99,9 @@
             
             <div class="space-y-2">
                 <h2 class="text-2xl font-black text-white tracking-wider flex items-center justify-center">
-                    SWITCHBLADE <span class="ml-2 text-xs px-2 py-0.5 rounded-full bg-accent-blue/20 text-accent-blue border border-accent-blue/40 font-mono">V3.0</span>
+                    OMNI-X <span class="ml-2 text-xs px-2.5 py-0.5 rounded-full bg-accent-blue/20 text-accent-blue border border-accent-blue/40 font-mono font-bold tracking-normal">MASTER</span>
                 </h2>
-                <p class="text-xs text-slate-400 font-mono">Restricted Quantitative Execution & Strategy Portal</p>
+                <p class="text-xs text-slate-400 font-mono">Autonomous Quantitative Suite & Multi-Script Command Portal</p>
             </div>
 
             <!-- Login button -->
@@ -132,10 +132,10 @@
                 </div>
                 <div>
                     <div class="flex items-center space-x-2">
-                        <h1 class="text-lg sm:text-xl font-black text-white tracking-tight">SWITCHBLADE</h1>
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-accent-blue/20 text-accent-blue border border-accent-blue/40 font-mono">V3.0</span>
+                        <h1 class="text-lg sm:text-xl font-black text-white tracking-tight">OMNI-X</h1>
+                        <span class="text-xs px-2.5 py-0.5 rounded-full bg-accent-blue/20 text-accent-blue border border-accent-blue/40 font-mono font-bold">MASTER</span>
                     </div>
-                    <p class="text-xs text-slate-400 font-mono">Automated Quantitative Regime Switch Portal</p>
+                    <p class="text-xs text-slate-400 font-mono">Autonomous Multi-Script Quantitative Command Center</p>
                 </div>
             </div>
 
@@ -265,9 +265,9 @@
                 <div class="mt-5 pt-4 border-t border-dark-border/60">
                     <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2 font-mono">Final Holdings Allocation:</span>
                     <div id="tqqq-holdings-container" class="flex flex-wrap items-center gap-3">
-                        <div class="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-accent-blue/15 border border-accent-blue/40 text-accent-blue font-mono font-bold text-sm">
+                        <div class="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-accent-blue/15 border border-accent-blue/40 text-accent-blue font-mono font-bold text-sm shadow-sm">
                             <span>TLT</span>
-                            <span class="text-xs px-2 py-0.5 rounded-md bg-accent-blue/25 text-white">100.00%</span>
+                            <span class="text-xs px-2 py-0.5 rounded-md bg-accent-blue/25 text-white font-semibold">${holdings[k]}</span>
                         </div>
                     </div>
                 </div>
@@ -1161,7 +1161,7 @@
                     const pill = document.getElementById('sync-source-pill');
                     if (pill) pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span> Bundled Cache`;
                     const bTitle = document.getElementById('banner-title');
-                    if (bTitle) bTitle.textContent = "Switchblade Execution Snapshot";
+                    if (bTitle) bTitle.textContent = "Omni-X Execution Snapshot";
                     const bSub = document.getElementById('banner-subtext');
                     if (bSub) bSub.innerHTML = `Showing bundled run data. <button onclick="signInWithGoogle()" class="underline font-bold text-accent-blue ml-1">Connect Google Drive</button> for real-time live streaming.`;
                     const dot = document.getElementById('status-indicator-dot');
