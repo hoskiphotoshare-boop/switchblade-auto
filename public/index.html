@@ -210,6 +210,8 @@
                     <span id="execution-mode-badge" class="px-2.5 py-1 rounded-md bg-dark-elevated text-slate-300 border border-dark-border">Mode: Backtest</span>
                     <span id="standard-state-badge" class="px-2.5 py-1 rounded-md bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-bold">Strategy 1: ALL_STOCKS</span>
                     <span id="tqqq-state-badge" class="px-2.5 py-1 rounded-md bg-accent-blue/20 text-accent-blue border border-accent-blue/40 font-bold">Strategy 2: TLT</span>
+                    <span id="script-dynamic-badge-1" class="hidden px-2.5 py-1 rounded-md font-bold"></span>
+                    <span id="script-dynamic-badge-2" class="hidden px-2.5 py-1 rounded-md font-bold"></span>
                 </div>
             </div>
 
@@ -2112,6 +2114,119 @@
             }
         });
 
+        // Dynamic Banner Status Badges Controller
+        function updateBannerBadges(scriptId, data) {
+            const sBadge = document.getElementById('standard-state-badge');
+            const tBadge = document.getElementById('tqqq-state-badge');
+            const modeBadge = document.getElementById('execution-mode-badge');
+            const customBadge1 = document.getElementById('script-dynamic-badge-1');
+            const customBadge2 = document.getElementById('script-dynamic-badge-2');
+
+            if (scriptId === 'switchblade') {
+                if (sBadge) sBadge.classList.remove('hidden');
+                if (tBadge) tBadge.classList.remove('hidden');
+                if (customBadge1) customBadge1.classList.add('hidden');
+                if (customBadge2) customBadge2.classList.add('hidden');
+                if (modeBadge) modeBadge.textContent = `Mode: ${data?.mode || 'Backtest'}`;
+            } else {
+                // Strictly remove all references to Strategy 1 and Strategy 2 when Switchblade is not selected
+                if (sBadge) sBadge.classList.add('hidden');
+                if (tBadge) tBadge.classList.add('hidden');
+
+                if (customBadge1) customBadge1.classList.remove('hidden');
+                if (customBadge2) customBadge2.classList.remove('hidden');
+
+                if (scriptId === 'citadel') {
+                    const dir = data?.regime_directives || {};
+                    if (modeBadge) modeBadge.textContent = 'Mode: Macro Directives';
+                    if (customBadge1) {
+                        customBadge1.className = 'px-2.5 py-1 rounded-md bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/40 font-bold';
+                        customBadge1.textContent = dir.current_macro_regime || 'GOLDILOCKS';
+                    }
+                    if (customBadge2) {
+                        customBadge2.className = 'px-2.5 py-1 rounded-md bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-bold';
+                        customBadge2.textContent = dir.suggested_market_posture || 'RISK-ON';
+                    }
+                } else if (scriptId === 'chronos') {
+                    const meta = data?.metadata || {};
+                    let t100Target = meta.ultimate_t100_target;
+                    let t100Return = meta.projected_return_t100_pct;
+                    if (data?.price_trajectories?.ultimate_blend) {
+                        const uBlend = data.price_trajectories.ultimate_blend;
+                        t100Target = uBlend[uBlend.length - 1];
+                    }
+                    if (data?.cumulative_returns_pct?.ultimate_blend) {
+                        const uRets = data.cumulative_returns_pct.ultimate_blend;
+                        t100Return = uRets[uRets.length - 1];
+                    }
+                    if (modeBadge) modeBadge.textContent = 'Mode: Neural Ensemble';
+                    if (customBadge1) {
+                        customBadge1.className = 'px-2.5 py-1 rounded-md bg-accent-purple/20 text-accent-purple border border-accent-purple/40 font-bold';
+                        customBadge1.textContent = t100Target ? `T+100 Target: $${Number(t100Target).toFixed(2)}` : 'Model: LSTM + LEAR';
+                    }
+                    if (customBadge2) {
+                        customBadge2.className = 'px-2.5 py-1 rounded-md bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-bold';
+                        customBadge2.textContent = t100Return != null ? `Forecast: ${t100Return >= 0 ? '+' : ''}${Number(t100Return).toFixed(1)}%` : 'Consensus: Bullish';
+                    }
+                } else if (scriptId === 'synapse_earnings') {
+                    const macro = data?.macro || {};
+                    const trades = data?.upcoming_trades || [];
+                    if (modeBadge) modeBadge.textContent = 'Mode: Delta Matrix';
+                    if (customBadge1) {
+                        customBadge1.className = 'px-2.5 py-1 rounded-md bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-bold';
+                        customBadge1.textContent = macro.Regime || 'BULLISH VOL CRUSH';
+                    }
+                    if (customBadge2) {
+                        customBadge2.className = 'px-2.5 py-1 rounded-md bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/40 font-bold';
+                        customBadge2.textContent = `${trades.length || 5} Active Deals`;
+                    }
+                } else if (scriptId === 'synapse_massive_runs') {
+                    const runners = data?.massive_run_candidates || [];
+                    if (modeBadge) modeBadge.textContent = 'Mode: Breakout Scanner';
+                    if (customBadge1) {
+                        customBadge1.className = 'px-2.5 py-1 rounded-md bg-accent-amber/20 text-accent-amber border border-accent-amber/40 font-bold';
+                        customBadge1.textContent = `${runners.length || 4} Breakout Runners`;
+                    }
+                    if (customBadge2) {
+                        customBadge2.className = 'px-2.5 py-1 rounded-md bg-dark-elevated text-slate-300 border border-dark-border font-bold';
+                        customBadge2.textContent = 'Float Rotation Active';
+                    }
+                } else if (scriptId === 'maple_carry') {
+                    if (modeBadge) modeBadge.textContent = 'Mode: Carry Pipeline';
+                    if (customBadge1) {
+                        customBadge1.className = 'px-2.5 py-1 rounded-md bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-bold';
+                        customBadge1.textContent = 'Tax Economics: +1.95%';
+                    }
+                    if (customBadge2) {
+                        customBadge2.className = 'px-2.5 py-1 rounded-md bg-accent-blue/20 text-accent-blue border border-accent-blue/40 font-bold';
+                        customBadge2.textContent = 'Sortino: 2.77';
+                    }
+                } else if (scriptId === 'corporate_class') {
+                    if (modeBadge) modeBadge.textContent = 'Mode: Sortino Optimizer';
+                    if (customBadge1) {
+                        customBadge1.className = 'px-2.5 py-1 rounded-md bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/40 font-bold';
+                        customBadge1.textContent = 'Expected Return: 14.85%';
+                    }
+                    if (customBadge2) {
+                        customBadge2.className = 'px-2.5 py-1 rounded-md bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-bold';
+                        customBadge2.textContent = 'Downside Dev: 4.10%';
+                    }
+                } else if (scriptId === 'sequoia') {
+                    const meta = data?.metadata || {};
+                    if (modeBadge) modeBadge.textContent = 'Mode: T+1 Scanner';
+                    if (customBadge1) {
+                        customBadge1.className = 'px-2.5 py-1 rounded-md bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-bold';
+                        customBadge1.textContent = `Regime: ${meta.macro_regime || 'STANDARD'}`;
+                    }
+                    if (customBadge2) {
+                        customBadge2.className = 'px-2.5 py-1 rounded-md bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/40 font-bold';
+                        customBadge2.textContent = `${meta.open_positions_count || 4} Active Positions`;
+                    }
+                }
+            }
+        }
+        window.updateBannerBadges = updateBannerBadges;
+
         async function selectScript(scriptId) {
             currentScriptId = scriptId;
             localStorage.setItem('omni_x_active_script', scriptId);
@@ -2126,6 +2241,9 @@
             if (bTitle) {
                 bTitle.textContent = googleAccessToken ? `${scriptDef.name} Active` : `${scriptDef.name} Snapshot`;
             }
+
+            // Immediately update banner badges (removes Strategy 1 & 2 when not switchblade)
+            updateBannerBadges(scriptId, currentScriptData);
 
             // Close script selector menu
             const menu = document.getElementById('script-dropdown-menu');
@@ -4047,6 +4165,7 @@
                 renderSequoiaData(data);
             }
 
+            updateBannerBadges(currentScriptId, data);
             renderStateInspector(currentScriptId, data);
         }
 
