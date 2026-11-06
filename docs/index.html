@@ -3026,40 +3026,72 @@
             let s = String(val).trim();
             if (!s) return null;
 
-            let d = new Date(s);
-            if (!isNaN(d.getTime())) return d;
+            // If string already has explicit UTC 'Z' or timezone offset (+HH:mm or -HH:mm)
+            if (/(?:Z|[+-]\d{2}:\d{2})$/i.test(s)) {
+                let d = new Date(s);
+                if (!isNaN(d.getTime())) return d;
+            }
 
-            let norm = s
-                .replace(/\bEDT\b/gi, "-04:00")
-                .replace(/\bEST\b/gi, "-05:00")
-                .replace(/\bPDT\b/gi, "-07:00")
-                .replace(/\bPST\b/gi, "-08:00")
-                .replace(/\bCDT\b/gi, "-05:00")
-                .replace(/\bCST\b/gi, "-06:00")
-                .replace(/\bMDT\b/gi, "-06:00")
-                .replace(/\bMST\b/gi, "-07:00")
-                .replace(/\bUTC\b/gi, "Z");
+            // Normalization for named timezone abbreviations
+            let hasNamedTz = false;
+            let norm = s.replace(/\b(EDT|EST|PDT|PST|CDT|CST|MDT|MST|UTC)\b/gi, (match) => {
+                hasNamedTz = true;
+                const m = match.toUpperCase();
+                if (m === 'EDT') return '-04:00';
+                if (m === 'EST') return '-05:00';
+                if (m === 'PDT') return '-07:00';
+                if (m === 'PST') return '-08:00';
+                if (m === 'CDT') return '-05:00';
+                if (m === 'CST') return '-06:00';
+                if (m === 'MDT') return '-06:00';
+                if (m === 'MST') return '-07:00';
+                if (m === 'UTC') return 'Z';
+                return match;
+            });
             
+            // Standardize "YYYY-MM-DD HH:mm:ss" to "YYYY-MM-DDTHH:mm:ss"
             norm = norm.replace(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}(?::\d{2})?)/, "$1T$2");
-            d = new Date(norm);
-            if (!isNaN(d.getTime())) return d;
+            
+            // If it had a named timezone or now has numeric offset, parse directly
+            if (hasNamedTz || /(?:Z|[+-]\d{2}:\d{2})$/.test(norm)) {
+                let d = new Date(norm);
+                if (!isNaN(d.getTime())) return d;
+            }
 
+            // If date-time string without timezone (e.g. "2026-11-06T19:22:00" from Colab UTC environment):
+            // Default to UTC by appending 'Z' since Colab / GitHub Actions execution runners run in UTC!
+            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?$/.test(norm)) {
+                let d = new Date(`${norm}Z`);
+                if (!isNaN(d.getTime())) return d;
+            }
+
+            // Plain date string "YYYY-MM-DD"
             if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
                 d = new Date(`${s}T16:00:00Z`);
                 if (!isNaN(d.getTime())) return d;
             }
-            return null;
+
+            let fallbackD = new Date(s);
+            return isNaN(fallbackD.getTime()) ? null : fallbackD;
         }
 
         function getFreshestDate(candidates, fallbackDateStr) {
             let bestDate = null;
             let bestMs = -Infinity;
+            const maxValidMs = Date.now() + 5 * 60 * 1000; // Reject any future timestamps beyond 5m clock skew
+
             for (const c of (candidates || [])) {
                 if (!c) continue;
                 const d = parseDateRobust(c);
                 if (d && !isNaN(d.getTime())) {
-                    if (d.getTime() > bestMs) {
-                        bestMs = d.getTime();
+                    const ms = d.getTime();
+                    // Reject future timestamps
+                    if (ms > maxValidMs) {
+                        console.warn("[Omni-X] Rejecting future timestamp:", c, d.toISOString());
+                        continue;
+                    }
+                    if (ms > bestMs) {
+                        bestMs = ms;
                         bestDate = d;
                     }
                 }
