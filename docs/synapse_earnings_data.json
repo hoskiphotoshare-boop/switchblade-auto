@@ -1,1 +1,12 @@
-{"macro": {"VIX": 14.82, "10Y": 4.38, "Regime": 0}, "meta": {"timestamp": "2026-11-05T20:30:00Z", "model_source": "V3.1_DELTA_LASSO"}, "upcoming_trades": [{"ticker": "NVDA", "company": "NVIDIA Corporation", "earnings_date": "2026-11-19", "timing": "AMC", "implied_move_pct": 8.2, "predicted_direction": "BULLISH", "massive_prob": 0.81, "up_prob": 0.84, "conviction": "VERY HIGH", "strategy": "Long Call Diagonal", "strike_setup": "145 / 155 Calls", "max_risk": "$480", "target_gain": "+145%", "status": "STAGED"}, {"ticker": "PANW", "company": "Palo Alto Networks", "earnings_date": "2026-11-20", "timing": "AMC", "implied_move_pct": 7.5, "predicted_direction": "BULLISH", "massive_prob": 0.74, "up_prob": 0.79, "conviction": "HIGH", "strategy": "Bull Put Spread", "strike_setup": "355 / 345 Puts", "max_risk": "$320", "target_gain": "+68%", "status": "STAGED"}, {"ticker": "SNOW", "company": "Snowflake Inc.", "earnings_date": "2026-11-25", "timing": "AMC", "implied_move_pct": 11.4, "predicted_direction": "NEUTRAL / VOL SURGE", "massive_prob": 0.68, "up_prob": 0.52, "conviction": "MEDIUM", "strategy": "Long Straddle", "strike_setup": "125 Straddle", "max_risk": "$620", "target_gain": "+110%", "status": "ANALYZING"}, {"ticker": "TGT", "company": "Target Corp.", "earnings_date": "2026-11-19", "timing": "BMO", "implied_move_pct": 6.8, "predicted_direction": "BEARISH", "massive_prob": 0.71, "up_prob": 0.28, "conviction": "HIGH", "strategy": "Bear Call Spread", "strike_setup": "155 / 165 Calls", "max_risk": "$290", "target_gain": "+72%", "status": "STAGED"}]}
+{
+    "macro": {
+        "VIX": 16.61,
+        "10Y": 4.9,
+        "Regime": 0
+    },
+    "meta": {
+        "timestamp": "2026-11-06T15:34:52.180015+00:00",
+        "model_source": "V3.1_DELTA_LASSO_2026-10-30 22:02:36"
+    },
+    "upcoming_trades": []
+}

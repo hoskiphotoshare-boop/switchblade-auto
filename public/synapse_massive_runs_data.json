@@ -1,1 +1,12 @@
-{"macro": {"VIX": 14.82, "10Y": 4.38}, "meta": {"timestamp": "2026-11-05T20:30:00Z", "applied_threshold": 0.65}, "massive_run_candidates": [{"ticker": "PLTR", "company": "Palantir Technologies", "massive_run_probability": 0.91, "current_price": 58.4, "breakout_trigger": 59.8, "target_gain_pct": 42.5, "stop_loss": 54.2, "volume_surge_pct": 280, "sector": "Software/AI"}, {"ticker": "APP", "company": "AppLovin Corp.", "massive_run_probability": 0.86, "current_price": 285.5, "breakout_trigger": 292.0, "target_gain_pct": 35.0, "stop_loss": 268.0, "volume_surge_pct": 210, "sector": "AdTech/AI"}, {"ticker": "ASTS", "company": "AST SpaceMobile", "massive_run_probability": 0.79, "current_price": 26.8, "breakout_trigger": 28.5, "target_gain_pct": 65.0, "stop_loss": 23.5, "volume_surge_pct": 340, "sector": "Space Telecommunications"}, {"ticker": "RDDT", "company": "Reddit Inc.", "massive_run_probability": 0.74, "current_price": 122.4, "breakout_trigger": 126.0, "target_gain_pct": 28.0, "stop_loss": 114.0, "volume_surge_pct": 195, "sector": "Social Media/AI"}]}
+{
+    "macro": {
+        "VIX": 24.05,
+        "10Y": 4.9
+    },
+    "meta": {
+        "timestamp": "2026-11-06T15:38:57.029305+00:00",
+        "model_source": "MASSIVE_RUNS_V1_2026-10-30 22:57:44",
+        "applied_threshold": 0.85
+    },
+    "massive_run_candidates": []
+}

@@ -1,1 +1,1325 @@
-{"metadata": {"timestamp": "2026-11-05 16:30:00", "macro_regime": "STANDARD (BULLISH)", "open_positions_count": 4, "pending_orders_count": 2, "closed_trades_count": 28, "candidates_count": 3}, "open_trades": [{"ticker": "AMD", "entry_date": "2026-10-18", "entry_p": 151.2, "current_p": 164.8, "floating_pnl": 8.99, "sl_price": 146.5, "tp_price": 178.0, "highest_h": 166.4}, {"ticker": "CRWD", "entry_date": "2026-10-22", "entry_p": 308.5, "current_p": 324.1, "floating_pnl": 5.06, "sl_price": 298.0, "tp_price": 345.0, "highest_h": 326.8}, {"ticker": "UBER", "entry_date": "2026-10-29", "entry_p": 72.4, "current_p": 76.8, "floating_pnl": 6.08, "sl_price": 69.5, "tp_price": 84.0, "highest_h": 77.2}, {"ticker": "ARM", "entry_date": "2026-11-01", "entry_p": 142.0, "current_p": 149.5, "floating_pnl": 5.28, "sl_price": 136.0, "tp_price": 165.0, "highest_h": 151.0}], "pending_orders": [{"ticker": "NET", "order_type": "BUY_STOP", "trigger_p": 94.5, "generated_date": "2026-11-04", "expiry_date": "2026-11-07"}, {"ticker": "NOW", "order_type": "BUY_LIMIT", "trigger_p": 915.0, "generated_date": "2026-11-05", "expiry_date": "2026-11-08"}], "closed_trades": [{"ticker": "TSLA", "entry_date": "2026-10-02", "exit_date": "2026-10-25", "entry_p": 218.0, "exit_p": 268.5, "pnl_pct": 23.16, "status": "TAKE_PROFIT"}, {"ticker": "NVDA", "entry_date": "2026-09-18", "exit_date": "2026-10-15", "entry_p": 118.5, "exit_p": 135.2, "pnl_pct": 14.09, "status": "TRAILING_STOP"}], "candidates": [{"ticker": "PANW", "entry_p": 364.5, "current_p": 362.1, "conf": 0.88, "Macro_Regime": "STANDARD", "sl_price": 348.0, "tp_price": 402.0, "time_stop_date": "2026-11-28"}, {"ticker": "SNPS", "entry_p": 548.0, "current_p": 544.5, "conf": 0.84, "Macro_Regime": "STANDARD", "sl_price": 526.0, "tp_price": 598.0, "time_stop_date": "2026-11-26"}, {"ticker": "ANET", "entry_p": 398.0, "current_p": 394.8, "conf": 0.81, "Macro_Regime": "STANDARD", "sl_price": 382.0, "tp_price": 435.0, "time_stop_date": "2026-11-25"}]}
+{
+    "metadata": {
+        "timestamp": "2026-11-06 15:34:06",
+        "open_positions_count": 14,
+        "pending_orders_count": 46,
+        "closed_trades_count": 26,
+        "candidates_count": 54
+    },
+    "open_trades": [
+        {
+            "ticker": "LASE",
+            "Macro_Regime": "RISK_ON",
+            "entry_date": "2026-09-11",
+            "entry_p": 0.71,
+            "current_p": 0.5378000140190125,
+            "highest_h": 0.71,
+            "floating_pnl": -0.2425351915225176,
+            "sl_price": 0.4928109999999999,
+            "tp_price": 1.7437955,
+            "bars_held": 39,
+            "conf": "64.64%",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "ADCT",
+            "Macro_Regime": "RISK_ON",
+            "entry_date": "2026-09-14",
+            "entry_p": 1.07,
+            "current_p": 1.5549999475479126,
+            "highest_h": 1.6397000551223757,
+            "floating_pnl": 0.4532709790167407,
+            "sl_price": 0.742687,
+            "tp_price": 2.6279735000000004,
+            "bars_held": 38,
+            "conf": "74.54%",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "FLYX",
+            "Macro_Regime": "RISK_ON",
+            "entry_date": "2026-09-15",
+            "entry_p": 1.12,
+            "current_p": 1.0700000524520874,
+            "highest_h": 1.12,
+            "floating_pnl": -0.0446428103106363,
+            "sl_price": 0.777392,
+            "tp_price": 2.750776000000001,
+            "bars_held": 37,
+            "conf": "62.29%",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "CVGI",
+            "Macro_Regime": "RISK_ON",
+            "entry_date": "2026-09-15",
+            "entry_p": 3.13,
+            "current_p": 3.289999961853028,
+            "highest_h": 3.3499999046325684,
+            "floating_pnl": 0.0511181986750886,
+            "sl_price": 2.172533,
+            "tp_price": 7.6874365,
+            "bars_held": 37,
+            "conf": "62.28%",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "CAMP",
+            "Macro_Regime": "RISK_ON",
+            "entry_date": "2026-09-17",
+            "entry_p": 3.86,
+            "current_p": 3.674999952316284,
+            "highest_h": 3.86,
+            "floating_pnl": -0.0479274734931906,
+            "sl_price": 2.679226,
+            "tp_price": 9.480353,
+            "bars_held": 35,
+            "conf": "66.91%",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "RENT",
+            "Macro_Regime": "RISK_ON",
+            "entry_date": "2026-09-17",
+            "entry_p": 1.94,
+            "current_p": 2.255000114440918,
+            "highest_h": 2.3561999797821045,
+            "floating_pnl": 0.1623711930107824,
+            "sl_price": 1.3465539999999998,
+            "tp_price": 4.764737,
+            "bars_held": 35,
+            "conf": "61.43%",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "OKUR",
+            "Macro_Regime": "RISK_ON",
+            "entry_date": "2026-09-18",
+            "entry_p": 2.96,
+            "current_p": 2.400000095367432,
+            "highest_h": 2.96,
+            "floating_pnl": -0.1891891569704622,
+            "sl_price": 2.054536,
+            "tp_price": 7.269908000000001,
+            "bars_held": 34,
+            "conf": "56.60%",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "NMTC",
+            "Macro_Regime": "RISK_ON",
+            "entry_date": "2026-10-08",
+            "entry_p": 1.11,
+            "current_p": 0.8600999712944031,
+            "highest_h": 1.11,
+            "floating_pnl": -0.2251351609960333,
+            "sl_price": 0.770451,
+            "tp_price": 2.7262155000000003,
+            "bars_held": 20,
+            "conf": "70.05%",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "PYXS",
+            "Macro_Regime": "RISK_ON",
+            "entry_date": "2026-10-12",
+            "entry_p": 2.03,
+            "current_p": 1.684999942779541,
+            "highest_h": 2.03,
+            "floating_pnl": -0.1699507671036743,
+            "sl_price": 1.4090229999999997,
+            "tp_price": 4.9857815,
+            "bars_held": 18,
+            "conf": "67.34%",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "THRY",
+            "Macro_Regime": "RISK_ON",
+            "entry_date": "2026-10-15",
+            "entry_p": 1.23,
+            "current_p": 1.1200000047683716,
+            "highest_h": 1.23,
+            "floating_pnl": -0.0894308904322182,
+            "sl_price": 0.8537429999999999,
+            "tp_price": 3.0209415,
+            "bars_held": 15,
+            "conf": "0.6665",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "STEM",
+            "Macro_Regime": "RISK_ON",
+            "entry_date": "2026-10-27",
+            "entry_p": 3.01,
+            "current_p": 2.240000009536743,
+            "highest_h": 3.01,
+            "floating_pnl": -0.2558139503200188,
+            "sl_price": 2.0892409999999995,
+            "tp_price": 7.392710500000001,
+            "bars_held": 7,
+            "conf": "0.74",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "PLCE",
+            "Macro_Regime": "RISK_OFF",
+            "entry_date": "2026-11-06",
+            "entry_p": 0.3100000023841858,
+            "current_p": 0.3073999881744385,
+            "highest_h": 0.3190000057220459,
+            "floating_pnl": -0.0083871425475832,
+            "sl_price": 0.2151710016548633,
+            "tp_price": 0.7613755058556796,
+            "bars_held": 0,
+            "conf": "0.8494423031806946",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "GUTS",
+            "Macro_Regime": "RISK_OFF",
+            "entry_date": "2026-11-06",
+            "entry_p": 0.8824999928474426,
+            "current_p": 0.9304999709129332,
+            "highest_h": 0.9484000205993652,
+            "floating_pnl": 0.0543909104300564,
+            "sl_price": 0.6125432450354099,
+            "tp_price": 2.167464107432962,
+            "bars_held": 0,
+            "conf": "0.7874594330787659",
+            "last_check_date": "2026-11-05"
+        },
+        {
+            "ticker": "ABOS",
+            "Macro_Regime": "RISK_OFF",
+            "entry_date": "2026-11-06",
+            "entry_p": 0.2120999991893768,
+            "current_p": 0.2164999991655349,
+            "highest_h": 0.2222999930381775,
+            "floating_pnl": 0.020744931602897,
+            "sl_price": 0.1472186094373464,
+            "tp_price": 0.5209282030090691,
+            "bars_held": 0,
+            "conf": "0.7685404419898987",
+            "last_check_date": "2026-11-05"
+        }
+    ],
+    "pending_orders": [
+        {
+            "ticker": "PROK",
+            "conf": 0.7935072779655457,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "WRAP",
+            "conf": 0.7581208944320679,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "ZNTL",
+            "conf": 0.7525357604026794,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "VUZI",
+            "conf": 0.733199954032898,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "DGXX",
+            "conf": 0.7245368957519531,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "INMB",
+            "conf": 0.7226933240890503,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "MBOT",
+            "conf": 0.7171327471733093,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "CLRB",
+            "conf": 0.7081908583641052,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "UPB",
+            "conf": 0.7053456902503967,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "KLRS",
+            "conf": 0.6845728754997253,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "CVRX",
+            "conf": 0.662818968296051,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "AUTL",
+            "conf": 0.6609238386154175,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "LRMR",
+            "conf": 0.6481900811195374,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "BGDE",
+            "conf": 0.6473583579063416,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "INDI",
+            "conf": 0.6457618474960327,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "OCC",
+            "conf": 0.6444925665855408,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "JELD",
+            "conf": 0.6393826007843018,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "AVD",
+            "conf": 0.6319956183433533,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "CVM",
+            "conf": 0.6202960014343262,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "CATX",
+            "conf": 0.6174830794334412,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "METCB",
+            "conf": 0.6135711073875427,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "EQ",
+            "conf": 0.613348126411438,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "GEMI",
+            "conf": 0.6101288795471191,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "KLXE",
+            "conf": 0.6019226312637329,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "NNBR",
+            "conf": 0.5779726505279541,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "FHTX",
+            "conf": 0.563086211681366,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "PEPG",
+            "conf": 0.5624603033065796,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "ACRV",
+            "conf": 0.5575399398803711,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "ANVS",
+            "conf": 0.5559718608856201,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "DOMH",
+            "conf": 0.5531326532363892,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "NTHI",
+            "conf": 0.5526223182678223,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "HYLN",
+            "conf": 0.551717221736908,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "SSII",
+            "conf": 0.547917366027832,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "TDUP",
+            "conf": 0.545869767665863,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "PMVP",
+            "conf": 0.5445193648338318,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "QSI",
+            "conf": 0.5386450886726379,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "LXEO",
+            "conf": 0.5370237827301025,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "VERU",
+            "conf": 0.527026355266571,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "MCRB",
+            "conf": 0.5269221663475037,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "FTCI",
+            "conf": 0.5217307806015015,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "NRXP",
+            "conf": 0.5195655226707458,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "ANTX",
+            "conf": 0.5194376707077026,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "RXST",
+            "conf": 0.515706479549408,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "SUIG",
+            "conf": 0.5152760148048401,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "SPRO",
+            "conf": 0.5135178565979004,
+            "generated_date": "2026-11-05"
+        },
+        {
+            "ticker": "ATOS",
+            "conf": 0.5127809047698975,
+            "generated_date": "2026-11-05"
+        }
+    ],
+    "closed_trades": [
+        {
+            "ticker": "NMRA",
+            "entry_date": "2026-09-10",
+            "entry_p": 1.2000000476837158,
+            "exit_date": "2026-09-25",
+            "exit_p": 0.6480000257492066,
+            "pnl": -0.4599999999999999,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "BAER",
+            "entry_date": "2026-09-10",
+            "entry_p": 1.0800000429153442,
+            "exit_date": "2026-09-29",
+            "exit_p": 0.5832000231742859,
+            "pnl": -0.46,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "LTRN",
+            "entry_date": "2026-09-14",
+            "entry_p": 1.74000001,
+            "exit_date": "2026-10-02",
+            "exit_p": 0.8375490048135,
+            "pnl": -0.5186499999999999,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "INV",
+            "entry_date": "2026-09-18",
+            "entry_p": 0.6877999902,
+            "exit_date": "2026-10-07",
+            "exit_p": 0.3310725253,
+            "pnl": -0.5186499999749492,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "LTRN",
+            "entry_date": "2026-09-14",
+            "entry_p": 1.71,
+            "exit_date": "2026-10-09",
+            "exit_p": 0.8231085000000001,
+            "pnl": -0.5186499999999999,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "BAER",
+            "entry_date": "2026-09-10",
+            "entry_p": 1.09,
+            "exit_date": "2026-10-14",
+            "exit_p": 0.5246715000000001,
+            "pnl": -0.5186499999999999,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "KLRS",
+            "entry_date": "2026-09-10",
+            "entry_p": 3.549999952,
+            "exit_date": "2026-10-19",
+            "exit_p": 1.916999974,
+            "pnl": -0.4600000000225351,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "TVRD",
+            "entry_date": "2026-09-14",
+            "entry_p": 1.870000005,
+            "exit_date": "2026-10-26",
+            "exit_p": 0.9001245024067501,
+            "pnl": -0.5186499999999999,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "RPID",
+            "entry_date": "2026-09-11",
+            "entry_p": 1.220000029,
+            "exit_date": "2026-11-02",
+            "exit_p": 0.7599999904632568,
+            "pnl": -0.3770492029527182,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "EU",
+            "entry_date": "2026-09-11",
+            "entry_p": 1.169999957,
+            "exit_date": "2026-11-02",
+            "exit_p": 0.7358999848365784,
+            "pnl": -0.3710256308696784,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "OPAD",
+            "entry_date": "2026-09-15",
+            "entry_p": 3.730000019,
+            "exit_date": "2026-11-02",
+            "exit_p": 2.119999885559082,
+            "pnl": -0.4316354223163123,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "BTCT",
+            "entry_date": "2026-09-16",
+            "entry_p": 1.169999957,
+            "exit_date": "2026-11-02",
+            "exit_p": 0.6899999976158142,
+            "pnl": -0.4102563906198381,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "CNTB",
+            "entry_date": "2026-09-16",
+            "entry_p": 1.139999986,
+            "exit_date": "2026-11-02",
+            "exit_p": 0.7912739902826,
+            "pnl": -0.3059,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "PROK",
+            "entry_date": "2026-09-16",
+            "entry_p": 1.789999962,
+            "exit_date": "2026-11-02",
+            "exit_p": 1.2424389736242,
+            "pnl": -0.3059,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "ZNTL",
+            "entry_date": "2026-09-17",
+            "entry_p": 3.180000067,
+            "exit_date": "2026-11-02",
+            "exit_p": 1.950000047683716,
+            "pnl": -0.3867924507550911,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "PLCE",
+            "entry_date": "2026-11-02",
+            "entry_p": 0.4225000143051147,
+            "exit_date": "2026-11-03",
+            "exit_p": 0.2932572599291801,
+            "pnl": -0.3059,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "KLRS",
+            "entry_date": "2026-09-10",
+            "entry_p": 3.47,
+            "exit_date": "2026-11-05",
+            "exit_p": 2.390000104904175,
+            "pnl": -0.3112391628518228,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "RPID",
+            "entry_date": "2026-09-11",
+            "entry_p": 1.2,
+            "exit_date": "2026-11-05",
+            "exit_p": 0.6265000104904175,
+            "pnl": -0.4779166579246521,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "EU",
+            "entry_date": "2026-09-11",
+            "entry_p": 1.15,
+            "exit_date": "2026-11-05",
+            "exit_p": 0.6700000166893005,
+            "pnl": -0.4173912898353908,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "OPAD",
+            "entry_date": "2026-09-15",
+            "entry_p": 3.63,
+            "exit_date": "2026-11-05",
+            "exit_p": 2.2528998851776123,
+            "pnl": -0.3793664228160847,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "BTCT",
+            "entry_date": "2026-09-16",
+            "entry_p": 1.24,
+            "exit_date": "2026-11-05",
+            "exit_p": 0.6599000096321106,
+            "pnl": -0.4678225728773301,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "CNTB",
+            "entry_date": "2026-09-16",
+            "entry_p": 1.17,
+            "exit_date": "2026-11-05",
+            "exit_p": 0.7531999945640564,
+            "pnl": -0.3562393208854218,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "PROK",
+            "entry_date": "2026-09-16",
+            "entry_p": 1.74,
+            "exit_date": "2026-11-05",
+            "exit_p": 1.0499999523162842,
+            "pnl": -0.3965517515423654,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "ZNTL",
+            "entry_date": "2026-09-17",
+            "entry_p": 3.1,
+            "exit_date": "2026-11-05",
+            "exit_p": 1.7200000286102295,
+            "pnl": -0.4451612810934743,
+            "reason": "Trail/SL (Gap)"
+        },
+        {
+            "ticker": "MVIS",
+            "entry_date": "2026-09-18",
+            "entry_p": 1.63,
+            "exit_date": "2026-11-05",
+            "exit_p": 1.1313829999999998,
+            "pnl": -0.3059,
+            "reason": "Trail/SL"
+        },
+        {
+            "ticker": "CVRX",
+            "entry_date": "2026-10-02",
+            "entry_p": 1.53,
+            "exit_date": "2026-11-05",
+            "exit_p": 1.0619729999999998,
+            "pnl": -0.3059000000000001,
+            "reason": "Trail/SL"
+        }
+    ],
+    "candidates": [
+        {
+            "ticker": "PLCE",
+            "entry_date": "2026-11-06",
+            "entry_p": 0.34,
+            "current_p": 0.34,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.23,
+            "tp_price": 0.83,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.8494,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "FLYX",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.02,
+            "current_p": 1.02,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.71,
+            "tp_price": 2.51,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.8322,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "PROK",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.07,
+            "current_p": 1.07,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.74,
+            "tp_price": 2.62,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7935,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "GUTS",
+            "entry_date": "2026-11-06",
+            "entry_p": 0.9,
+            "current_p": 0.9,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.62,
+            "tp_price": 2.2,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7875,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "ABOS",
+            "entry_date": "2026-11-06",
+            "entry_p": 0.21,
+            "current_p": 0.21,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.15,
+            "tp_price": 0.53,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7685,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "WRAP",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.02,
+            "current_p": 1.02,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.71,
+            "tp_price": 2.51,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7581,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "ZNTL",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.71,
+            "current_p": 1.71,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.19,
+            "tp_price": 4.2,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7525,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "VUZI",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.83,
+            "current_p": 1.83,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.27,
+            "tp_price": 4.49,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7332,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "DGXX",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.9,
+            "current_p": 1.9,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.32,
+            "tp_price": 4.67,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7245,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "INMB",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.17,
+            "current_p": 1.17,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.82,
+            "tp_price": 2.89,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7227,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "MBOT",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.07,
+            "current_p": 1.07,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.74,
+            "tp_price": 2.63,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7171,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "CLRB",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.15,
+            "current_p": 1.15,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.8,
+            "tp_price": 2.82,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7082,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "UPB",
+            "entry_date": "2026-11-06",
+            "entry_p": 3.21,
+            "current_p": 3.21,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 2.23,
+            "tp_price": 7.88,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7053,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "STEM",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.18,
+            "current_p": 2.18,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.51,
+            "tp_price": 5.35,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.7051,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "KLRS",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.36,
+            "current_p": 2.36,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.64,
+            "tp_price": 5.8,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6846,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "CVRX",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.47,
+            "current_p": 1.47,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.02,
+            "tp_price": 3.61,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6628,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "AUTL",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.26,
+            "current_p": 1.26,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.87,
+            "tp_price": 3.09,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6609,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "LRMR",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.32,
+            "current_p": 2.32,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.61,
+            "tp_price": 5.7,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6482,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "BGDE",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.64,
+            "current_p": 2.64,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.83,
+            "tp_price": 6.48,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6474,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "INDI",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.36,
+            "current_p": 1.36,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.94,
+            "tp_price": 3.33,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6458,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "OKUR",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.53,
+            "current_p": 2.53,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.75,
+            "tp_price": 6.2,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6447,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "OCC",
+            "entry_date": "2026-11-06",
+            "entry_p": 8.96,
+            "current_p": 8.96,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 6.22,
+            "tp_price": 22.01,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6445,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "JELD",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.01,
+            "current_p": 1.01,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.7,
+            "tp_price": 2.48,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6394,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "AVD",
+            "entry_date": "2026-11-06",
+            "entry_p": 0.95,
+            "current_p": 0.95,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.66,
+            "tp_price": 2.33,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.632,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "CVM",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.37,
+            "current_p": 1.37,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.95,
+            "tp_price": 3.36,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6203,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "CATX",
+            "entry_date": "2026-11-06",
+            "entry_p": 0.79,
+            "current_p": 0.79,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.55,
+            "tp_price": 1.94,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6175,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "METCB",
+            "entry_date": "2026-11-06",
+            "entry_p": 3.68,
+            "current_p": 3.68,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 2.55,
+            "tp_price": 9.04,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6136,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "EQ",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.33,
+            "current_p": 1.33,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.92,
+            "tp_price": 3.27,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6133,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "CAMP",
+            "entry_date": "2026-11-06",
+            "entry_p": 3.72,
+            "current_p": 3.72,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 2.58,
+            "tp_price": 9.14,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6106,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "GEMI",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.39,
+            "current_p": 2.39,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.66,
+            "tp_price": 5.87,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6101,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "CVGI",
+            "entry_date": "2026-11-06",
+            "entry_p": 3.27,
+            "current_p": 3.27,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 2.27,
+            "tp_price": 8.03,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6042,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "KLXE",
+            "entry_date": "2026-11-06",
+            "entry_p": 0.96,
+            "current_p": 0.96,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.67,
+            "tp_price": 2.35,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.6019,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "NNBR",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.67,
+            "current_p": 2.67,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.85,
+            "tp_price": 6.56,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.578,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "FHTX",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.9,
+            "current_p": 1.9,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.32,
+            "tp_price": 4.68,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5631,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "PEPG",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.32,
+            "current_p": 2.32,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.61,
+            "tp_price": 5.7,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5625,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "ACRV",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.57,
+            "current_p": 1.57,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.09,
+            "tp_price": 3.86,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5575,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "ANVS",
+            "entry_date": "2026-11-06",
+            "entry_p": 0.67,
+            "current_p": 0.67,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.46,
+            "tp_price": 1.64,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.556,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "DOMH",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.45,
+            "current_p": 1.45,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.0,
+            "tp_price": 3.55,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5531,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "NTHI",
+            "entry_date": "2026-11-06",
+            "entry_p": 3.2,
+            "current_p": 3.2,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 2.22,
+            "tp_price": 7.86,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5526,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "HYLN",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.63,
+            "current_p": 2.63,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.83,
+            "tp_price": 6.46,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5517,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "SSII",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.9,
+            "current_p": 1.9,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.32,
+            "tp_price": 4.67,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5479,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "TDUP",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.45,
+            "current_p": 1.45,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.01,
+            "tp_price": 3.56,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5459,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "PMVP",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.27,
+            "current_p": 1.27,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.88,
+            "tp_price": 3.13,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5445,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "QSI",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.17,
+            "current_p": 1.17,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.81,
+            "tp_price": 2.87,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5386,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "LXEO",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.9,
+            "current_p": 2.9,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 2.02,
+            "tp_price": 7.13,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.537,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "VERU",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.06,
+            "current_p": 2.06,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.43,
+            "tp_price": 5.06,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.527,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "MCRB",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.09,
+            "current_p": 2.09,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.45,
+            "tp_price": 5.13,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5269,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "FTCI",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.28,
+            "current_p": 1.28,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.89,
+            "tp_price": 3.14,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5217,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "NRXP",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.27,
+            "current_p": 2.27,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.58,
+            "tp_price": 5.58,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5196,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "ANTX",
+            "entry_date": "2026-11-06",
+            "entry_p": 3.95,
+            "current_p": 3.95,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 2.75,
+            "tp_price": 9.71,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5194,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "RXST",
+            "entry_date": "2026-11-06",
+            "entry_p": 4.54,
+            "current_p": 4.54,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 3.15,
+            "tp_price": 11.15,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5157,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "SUIG",
+            "entry_date": "2026-11-06",
+            "entry_p": 0.92,
+            "current_p": 0.92,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.64,
+            "tp_price": 2.27,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5153,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "SPRO",
+            "entry_date": "2026-11-06",
+            "entry_p": 1.02,
+            "current_p": 1.02,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 0.71,
+            "tp_price": 2.51,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5135,
+            "Macro_Regime": "RISK_OFF"
+        },
+        {
+            "ticker": "ATOS",
+            "entry_date": "2026-11-06",
+            "entry_p": 2.02,
+            "current_p": 2.02,
+            "trailing_stop_pct": 0.15,
+            "sl_price": 1.4,
+            "tp_price": 4.96,
+            "time_stop_date": "2027-11-05",
+            "conf": 0.5128,
+            "Macro_Regime": "RISK_OFF"
+        }
+    ]
+}

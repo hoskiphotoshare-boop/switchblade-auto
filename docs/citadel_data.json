@@ -1,1 +1,244 @@
-{"report_date": "2026-11-05", "regime_directives": {"current_macro_regime": "GOLDILOCKS (High Growth, Low Inflation)", "suggested_market_posture": "AGGRESSIVE RISK-ON / HIGH BETA", "vix_term_structure": "CONTANGO (NORMAL)", "liquidity_environment": "EXPANSIVE", "equity_risk_premium_proxy": 0.0245, "dark_pool_dix": 0.448}, "breadth_summary": {"BULLISH": 14, "BEARISH": 3, "NEUTRAL": 3}, "macro_environment": {"spx_close": 5920.4, "spx_200dma": 5480.2, "spx_200dma_dist_pct": 8.03, "us10y": 4.38, "us2y": 4.19, "yield_curve_10y_2y": 0.19, "vix": 14.82, "vix_3m": 16.95, "crude_oil": 70.4, "gold": 2745.8, "copper": 4.38, "dxy": 104.25, "hyg_oas": 3.12, "nfci": -0.42}, "trend_matrix": {"core_equity": {"SPY": {"current_price": 591.2, "trend_status": "BULLISH", "50_dma": 580.4, "200_dma": 545.1, "momentum_20d_pct": 3.45}, "QQQ": {"current_price": 512.6, "trend_status": "BULLISH", "50_dma": 498.2, "200_dma": 468.9, "momentum_20d_pct": 4.82}, "IWM": {"current_price": 228.4, "trend_status": "BULLISH", "50_dma": 222.1, "200_dma": 208.5, "momentum_20d_pct": 6.1}, "DIA": {"current_price": 438.9, "trend_status": "BULLISH", "50_dma": 428.5, "200_dma": 402.1, "momentum_20d_pct": 2.3}}, "rates_bonds": {"TLT": {"current_price": 91.4, "trend_status": "BEARISH", "50_dma": 94.8, "200_dma": 96.2, "momentum_20d_pct": -4.2}, "IEF": {"current_price": 93.8, "trend_status": "BEARISH", "50_dma": 95.5, "200_dma": 96.0, "momentum_20d_pct": -2.15}, "SHY": {"current_price": 81.9, "trend_status": "NEUTRAL", "50_dma": 82.05, "200_dma": 82.0, "momentum_20d_pct": -0.1}, "HYG": {"current_price": 80.1, "trend_status": "BULLISH", "50_dma": 79.4, "200_dma": 77.8, "momentum_20d_pct": 1.15}}, "commodities": {"GLD": {"current_price": 252.8, "trend_status": "BULLISH", "50_dma": 245.2, "200_dma": 224.8, "momentum_20d_pct": 3.9}, "SLV": {"current_price": 29.4, "trend_status": "BULLISH", "50_dma": 28.5, "200_dma": 26.1, "momentum_20d_pct": 5.2}, "USO": {"current_price": 72.1, "trend_status": "BEARISH", "50_dma": 74.8, "200_dma": 76.5, "momentum_20d_pct": -5.8}, "CPER": {"current_price": 26.4, "trend_status": "BULLISH", "50_dma": 25.8, "200_dma": 24.9, "momentum_20d_pct": 2.8}}, "defensives": {"XLP": {"current_price": 78.4, "trend_status": "NEUTRAL", "50_dma": 79.2, "200_dma": 77.1, "momentum_20d_pct": -0.8}, "XLU": {"current_price": 79.8, "trend_status": "BULLISH", "50_dma": 78.5, "200_dma": 72.4, "momentum_20d_pct": 1.6}, "XLV": {"current_price": 146.2, "trend_status": "NEUTRAL", "50_dma": 148.1, "200_dma": 145.5, "momentum_20d_pct": -1.2}}, "high_beta": {"SMH": {"current_price": 254.6, "trend_status": "BULLISH", "50_dma": 242.8, "200_dma": 228.4, "momentum_20d_pct": 7.4}, "ARKK": {"current_price": 52.8, "trend_status": "BULLISH", "50_dma": 48.9, "200_dma": 46.2, "momentum_20d_pct": 9.8}, "XBI": {"current_price": 98.4, "trend_status": "BULLISH", "50_dma": 94.2, "200_dma": 91.8, "momentum_20d_pct": 4.6}}}}
+{
+    "report_date": "2026-11-06",
+    "system_flags": {
+        "fred_data_integrity_compromised": false,
+        "nfci_is_proxy": false,
+        "yield_is_proxy": false,
+        "cushing_is_proxy": false,
+        "dix_is_proxy": false
+    },
+    "macro_environment": {
+        "real_gdp_growth_pct": 3.4,
+        "core_pce_pct_yoy": 3.0,
+        "initial_jobless_claims": 189000.0,
+        "m2_money_supply_yoy_pct": 5.71,
+        "empire_state_pmi_proxy": 25.5,
+        "philly_fed_capex_proxy": 34.9
+    },
+    "credit_matrix": {
+        "nfci_liquidity_stress": -0.459,
+        "high_yield_oas_stress": 3.48,
+        "bbb_corporate_spread": 1.16,
+        "yield_curve_10y_3m": 0.67,
+        "treasury_10y_proxy": 4.87,
+        "bank_lending_tightening_pct": 1.7
+    },
+    "sovereign_and_supply": {
+        "cushing_physical_inventory": 27250.0,
+        "usd_jpy_carry_trade_proxy": 158.18,
+        "usd_cad_fx_rate": 1.4103,
+        "usd_cny_pboc_proxy": 6.6652,
+        "copper_china_stimulus": 6.27
+    },
+    "volatility_matrix": {
+        "spy_current_price": 738.08,
+        "vix_level": 23.95
+    },
+    "regime_directives": {
+        "current_macro_regime": "REFLATION (High Growth, High Inflation)",
+        "suggested_market_posture": "COMMODITIES & VALUE BIAS",
+        "vix_term_structure": "BACKWARDATION (PANIC)",
+        "liquidity_environment": "EXPANSIVE",
+        "equity_risk_premium_proxy": -0.0216,
+        "dark_pool_dix": 37.86
+    },
+    "trend_matrix": {
+        "core_equity": {
+            "SPY": {
+                "current_price": 738.08,
+                "trend_status": "NEUTRAL",
+                "50_dma": 765.21,
+                "200_dma": 727.66,
+                "momentum_20d_pct": -5.2
+            },
+            "QQQ": {
+                "current_price": 657.22,
+                "trend_status": "NEUTRAL",
+                "50_dma": 720.77,
+                "200_dma": 679.8,
+                "momentum_20d_pct": -12.52
+            },
+            "DIA": {
+                "current_price": 513.84,
+                "trend_status": "NEUTRAL",
+                "50_dma": 519.81,
+                "200_dma": 504.12,
+                "momentum_20d_pct": -0.42
+            },
+            "IWM": {
+                "current_price": 272.13,
+                "trend_status": "NEUTRAL",
+                "50_dma": 281.91,
+                "200_dma": 278.02,
+                "momentum_20d_pct": -2.44
+            },
+            "EFA": {
+                "current_price": 101.98,
+                "trend_status": "NEUTRAL",
+                "50_dma": 104.65,
+                "200_dma": 102.57,
+                "momentum_20d_pct": -1.37
+            },
+            "EEM": {
+                "current_price": 59.22,
+                "trend_status": "NEUTRAL",
+                "50_dma": 65.43,
+                "200_dma": 63.78,
+                "momentum_20d_pct": -11.35
+            }
+        },
+        "rates_bonds": {
+            "TLT": {
+                "current_price": 81.96,
+                "trend_status": "NEUTRAL",
+                "50_dma": 80.37,
+                "200_dma": 83.45,
+                "momentum_20d_pct": 5.11
+            },
+            "IEF": {
+                "current_price": 91.84,
+                "trend_status": "NEUTRAL",
+                "50_dma": 90.72,
+                "200_dma": 92.75,
+                "momentum_20d_pct": 2.73
+            },
+            "SHY": {
+                "current_price": 81.61,
+                "trend_status": "BULLISH",
+                "50_dma": 81.37,
+                "200_dma": 81.32,
+                "momentum_20d_pct": 0.5
+            },
+            "LQD": {
+                "current_price": 104.47,
+                "trend_status": "NEUTRAL",
+                "50_dma": 103.84,
+                "200_dma": 106.18,
+                "momentum_20d_pct": 2.02
+            },
+            "HYG": {
+                "current_price": 77.29,
+                "trend_status": "BEARISH",
+                "50_dma": 77.79,
+                "200_dma": 78.18,
+                "momentum_20d_pct": 0.08
+            }
+        },
+        "commodities": {
+            "GLD": {
+                "current_price": 370.77,
+                "trend_status": "BEARISH",
+                "50_dma": 384.92,
+                "200_dma": 411.23,
+                "momentum_20d_pct": -3.59
+            },
+            "SLV": {
+                "current_price": 46.78,
+                "trend_status": "BEARISH",
+                "50_dma": 54.21,
+                "200_dma": 63.28,
+                "momentum_20d_pct": -14.6
+            },
+            "DBC": {
+                "current_price": 31.31,
+                "trend_status": "NEUTRAL",
+                "50_dma": 32.8,
+                "200_dma": 29.44,
+                "momentum_20d_pct": -5.01
+            },
+            "USO": {
+                "current_price": 147.55,
+                "trend_status": "NEUTRAL",
+                "50_dma": 152.2,
+                "200_dma": 125.96,
+                "momentum_20d_pct": -0.44
+            },
+            "DBA": {
+                "current_price": 26.03,
+                "trend_status": "NEUTRAL",
+                "50_dma": 28.22,
+                "200_dma": 27.39,
+                "momentum_20d_pct": -8.1
+            },
+            "URNM": {
+                "current_price": 40.74,
+                "trend_status": "BEARISH",
+                "50_dma": 48.0,
+                "200_dma": 58.19,
+                "momentum_20d_pct": -12.39
+            },
+            "COPX": {
+                "current_price": 70.34,
+                "trend_status": "NEUTRAL",
+                "50_dma": 83.18,
+                "200_dma": 83.04,
+                "momentum_20d_pct": -17.97
+            }
+        },
+        "defensives": {
+            "XLU": {
+                "current_price": 43.28,
+                "trend_status": "NEUTRAL",
+                "50_dma": 41.68,
+                "200_dma": 43.83,
+                "momentum_20d_pct": 4.5
+            },
+            "XLP": {
+                "current_price": 90.51,
+                "trend_status": "BULLISH",
+                "50_dma": 84.88,
+                "200_dma": 83.83,
+                "momentum_20d_pct": 8.49
+            },
+            "XLV": {
+                "current_price": 184.56,
+                "trend_status": "BULLISH",
+                "50_dma": 173.18,
+                "200_dma": 158.43,
+                "momentum_20d_pct": 8.05
+            }
+        },
+        "high_beta": {
+            "SMH": {
+                "current_price": 461.14,
+                "trend_status": "NEUTRAL",
+                "50_dma": 565.58,
+                "200_dma": 521.74,
+                "momentum_20d_pct": -23.57
+            },
+            "XLY": {
+                "current_price": 118.54,
+                "trend_status": "NEUTRAL",
+                "50_dma": 113.3,
+                "200_dma": 115.11,
+                "momentum_20d_pct": 5.04
+            },
+            "ARKK": {
+                "current_price": 74.61,
+                "trend_status": "NEUTRAL",
+                "50_dma": 85.45,
+                "200_dma": 78.2,
+                "momentum_20d_pct": -16.75
+            },
+            "MSTR": {
+                "current_price": 126.61,
+                "trend_status": "NEUTRAL",
+                "50_dma": 144.38,
+                "200_dma": 133.73,
+                "momentum_20d_pct": -17.97
+            },
+            "IBIT": {
+                "current_price": 42.63,
+                "trend_status": "NEUTRAL",
+                "50_dma": 45.8,
+                "200_dma": 41.27,
+                "momentum_20d_pct": -8.42
+            }
+        }
+    },
+    "breadth_summary": {
+        "BULLISH": 3,
+        "BEARISH": 4,
+        "NEUTRAL": 19
+    }
+}

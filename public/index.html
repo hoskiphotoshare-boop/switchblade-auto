@@ -3033,7 +3033,8 @@
                             </td>
                         `;
                         tbody.appendChild(tr);
-                    });
+                        });
+                    }
                 }
             });
 
@@ -3192,7 +3193,8 @@
                             </td>
                         `;
                         tbody.appendChild(tr);
-                    });
+                        });
+                    }
                 }
             });
 
@@ -3234,7 +3236,10 @@
                 const tbody = document.getElementById(tbodyId);
                 if (tbody) {
                     tbody.innerHTML = '';
-                    trades.forEach(t => {
+                    if (trades.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="py-4 text-center text-slate-500 font-mono italic">No upcoming catalyst setups currently staged. Scanner monitoring live options chains.</td></tr>';
+                    } else {
+                        trades.forEach(t => {
                         const tr = document.createElement('tr');
                         tr.className = 'hover:bg-dark-hover/50 transition border-b border-dark-border/40';
                         const isBull = t.predicted_direction === 'BULLISH';
@@ -3281,7 +3286,10 @@
                 const tbody = document.getElementById(tbodyId);
                 if (tbody) {
                     tbody.innerHTML = '';
-                    runners.forEach(r => {
+                    if (runners.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="py-4 text-center text-slate-500 font-mono italic">No massive breakout runners currently active. Scanner monitoring float rotation.</td></tr>';
+                    } else {
+                        runners.forEach(r => {
                         const tr = document.createElement('tr');
                         tr.className = 'hover:bg-dark-hover/50 transition border-b border-dark-border/40';
                         tr.innerHTML = `
@@ -3750,6 +3758,32 @@
         } else {
             selectScript(currentScriptId);
         }
+
+        // ==============================================================
+        // REAL-TIME AUTO-SYNC & TAB VISIBILITY MONITOR
+        // ==============================================================
+        let autoSyncTimer = null;
+
+        function startRealtimeAutoSync() {
+            if (autoSyncTimer) clearInterval(autoSyncTimer);
+            // Poll Google Drive every 60 seconds while page is open
+            autoSyncTimer = setInterval(() => {
+                if (googleAccessToken && !document.hidden) {
+                    console.log(`[Omni-X Auto-Sync] Polling Drive for ${currentScriptId} updates...`);
+                    fetchFromGoogleDrive(googleAccessToken);
+                }
+            }, 60000);
+        }
+
+        startRealtimeAutoSync();
+
+        // Refresh immediately when user switches focus back to this tab (e.g. from Colab)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && googleAccessToken) {
+                console.log(`[Omni-X Auto-Sync] Tab focused. Refreshing ${currentScriptId} from Drive...`);
+                fetchFromGoogleDrive(googleAccessToken);
+            }
+        });
 
     </script>
 </body>
