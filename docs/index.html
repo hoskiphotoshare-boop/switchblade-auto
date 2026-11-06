@@ -1770,10 +1770,9 @@
             const provider = new GoogleAuthProvider();
             // Request read-only access to Drive files so the portal can live stream artifacts
             provider.addScope('https://www.googleapis.com/auth/drive.readonly');
-            // Force Google consent screen so user can grant Drive permissions
+            // Force account selection
             provider.setCustomParameters({ 
-                prompt: 'consent select_account',
-                access_type: 'offline'
+                prompt: 'select_account'
             });
 
             try {
@@ -2324,18 +2323,11 @@
                 alertBox.classList.remove('hidden');
                 let userMsg = "Showing cached Nov 5 snapshot. Reconnect Google Drive now to stream today's live Colab execution run.";
                 if (status === 403) {
-                    const low = (errDetail || '').toLowerCase();
-                    if (low.includes('insufficient') || low.includes('scope')) {
-                        userMsg = "Google Drive access permissions not granted. Click 'Reconnect Google Drive' and make sure to click 'Allow' on the Google Drive permissions screen.";
-                    } else if (low.includes('disabled') || low.includes('not been used')) {
-                        userMsg = "Google Drive API is disabled in GCP project hokkaido-2027. Click the blue button to enable it (takes 5s), then click Reconnect.";
-                        const enableBtn = document.getElementById('btn-enable-api');
-                        if (enableBtn) enableBtn.classList.remove('hidden');
-                        const titleEl = document.getElementById('drive-reconnect-title');
-                        if (titleEl) titleEl.textContent = "Google Drive API Disabled in GCP:";
-                    } else {
-                        userMsg = `Google Drive returned 403 Forbidden: ${errDetail || 'Access denied'}. Click 'Reconnect Google Drive' to grant permissions.`;
-                    }
+                    const enableBtn = document.getElementById('btn-enable-api');
+                    if (enableBtn) enableBtn.classList.remove('hidden');
+                    const titleEl = document.getElementById('drive-reconnect-title');
+                    if (titleEl) titleEl.textContent = "Action Required: Enable Drive API in Google Cloud";
+                    userMsg = "Google Drive API is disabled in GCP project hokkaido-2027. Click the blue button '1-Click Enable Drive API in GCP' to enable it in 5 seconds, then click 'Reconnect Google Drive'.";
                 } else if (status === 401) {
                     userMsg = "Google Drive session expired (1-hour token limit). Reconnect Google Drive to stream today's live Colab execution run.";
                 }
@@ -2851,7 +2843,7 @@
                 if (s.current_mode === 'ALL_STOCKS') return true;
                 if (Object.keys(s.holdings || {}).length > 1) return true;
                 return false;
-            }) || strategies.find(s => s.id === 2) || strategies[1] || strategies[0] || {};
+            }) || strategies.find(s => s.id === 1) || strategies[0] || {};
 
             const tqqqStrat = strategies.find(s => {
                 if (s.name && (s.name.includes('TQQQ') || s.name.includes('S2'))) return true;
@@ -2859,7 +2851,7 @@
                 const hKeys = Object.keys(s.holdings || {});
                 if (hKeys.includes('TQQQ') || hKeys.includes('TLT') || hKeys.includes('SPXL')) return true;
                 return false;
-            }) || strategies.find(s => s.id === 1) || strategies[0] || {};
+            }) || strategies.find(s => s.id === 2) || strategies[1] || strategies[0] || {};
 
             // Render Strategy 1: Standard Universe (10 Stocks)
             if (stdStrat) {
@@ -2975,6 +2967,119 @@
                     }
                 });
             }
+
+            // 3. Render Strategy Final State Dump Table in Overview Tab
+            renderOverviewStateDump(stdStrat, tqqqStrat, data.league_table || []);
+
+            // 4. Update Overview Tab Executive KPI Cards
+            const stdLeague = (data.league_table || []).find(r => (r.Strategy || '').includes('Standard')) || {};
+            const tqqqLeague = (data.league_table || []).find(r => (r.Strategy || '').includes('TQQQ_ONLY')) || {};
+            const tqqqBench = (data.league_table || []).find(r => (r.Strategy || '').includes('BENCHMARK: TQQQ')) || {};
+            const spyBench = (data.league_table || []).find(r => (r.Strategy || '').includes('BENCHMARK: SPY')) || {};
+
+            const kpiStd = document.getElementById('kpi-standard-return');
+            if (kpiStd && stdLeague['Return %'] !== undefined) kpiStd.textContent = `+${Number(stdLeague['Return %']).toLocaleString()}%`;
+
+            const kpiTop = document.getElementById('kpi-top-return');
+            if (kpiTop && tqqqLeague['Return %'] !== undefined) kpiTop.textContent = `+${Number(tqqqLeague['Return %']).toLocaleString()}%`;
+
+            const kpiBench = document.getElementById('kpi-benchmark-return');
+            if (kpiBench && tqqqBench['Return %'] !== undefined) kpiBench.textContent = `+${Number(tqqqBench['Return %']).toLocaleString()}%`;
+
+            const kpiSpy = document.getElementById('kpi-spy-return');
+            if (kpiSpy && spyBench['Return %'] !== undefined) kpiSpy.textContent = `+${Number(spyBench['Return %']).toLocaleString()}%`;
+        }
+
+        // Render Strategy Final State Dump Comparison Table in Overview Tab
+        function renderOverviewStateDump(stdStrat, tqqqStrat, leagueTable) {
+            const tbody = document.getElementById('overview-state-dump-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const stdLeague = (leagueTable || []).find(r => (r.Strategy || '').includes('Standard')) || {};
+            const tqqqLeague = (leagueTable || []).find(r => (r.Strategy || '').includes('TQQQ_ONLY')) || {};
+
+            const stdHoldings = Object.entries(stdStrat.holdings || {}).map(([k, v]) => `${k} (${v})`).join(', ') || 'None';
+            const tqqqHoldings = Object.entries(tqqqStrat.holdings || {}).map(([k, v]) => `${k} (${v})`).join(', ') || 'None';
+
+            const stdCurrDd = (stdLeague['CurrDD %'] !== undefined ? stdLeague['CurrDD %'] : stdLeague['Curr DD %']);
+            const tqqqCurrDd = (tqqqLeague['CurrDD %'] !== undefined ? tqqqLeague['CurrDD %'] : tqqqLeague['Curr DD %']);
+            const stdMaxDd = (stdLeague['MaxDD %'] !== undefined ? stdLeague['MaxDD %'] : stdLeague['Max DD %']);
+            const tqqqMaxDd = (tqqqLeague['MaxDD %'] !== undefined ? tqqqLeague['MaxDD %'] : tqqqLeague['Max DD %']);
+
+            const rows = [
+                {
+                    param: 'Current Execution Mode',
+                    s1: `<span class="px-2 py-0.5 rounded font-bold bg-accent-emerald/15 text-accent-emerald border border-accent-emerald/30">${stdStrat.current_mode || 'ALL_STOCKS'}</span>`,
+                    s2: `<span class="px-2 py-0.5 rounded font-bold bg-accent-blue/15 text-accent-blue border border-accent-blue/30">${tqqqStrat.current_mode || 'TLT'}</span>`
+                },
+                {
+                    param: 'Graduated Regime Stance',
+                    s1: `<span class="${(stdStrat.graduated_state || '').includes('BULLISH') ? 'text-accent-emerald' : 'text-accent-rose'} font-bold">${stdStrat.graduated_state || 'N/A'}</span>`,
+                    s2: `<span class="${(tqqqStrat.graduated_state || '').includes('BULLISH') ? 'text-accent-emerald' : 'text-accent-rose'} font-bold">${tqqqStrat.graduated_state || 'N/A'}</span>`
+                },
+                {
+                    param: 'Pending Mode & State',
+                    s1: `<span class="text-slate-300 font-semibold">${stdStrat.pending_mode || 'None'}</span> <span class="text-slate-500">(${stdStrat.pending_state || 'None'})</span>`,
+                    s2: `<span class="text-slate-300 font-semibold">${tqqqStrat.pending_mode || 'None'}</span> <span class="text-slate-500">(${tqqqStrat.pending_state || 'None'})</span>`
+                },
+                {
+                    param: 'Confirmation Day Counter',
+                    s1: `<span class="text-white font-bold">${stdStrat.confirm_counter ?? 0}</span> <span class="text-slate-400">/ 5 days</span>`,
+                    s2: `<span class="text-white font-bold">${tqqqStrat.confirm_counter ?? 0}</span> <span class="text-slate-400">/ 5 days</span>`
+                },
+                {
+                    param: 'Rebalance Timer',
+                    s1: `<span class="text-white font-bold">${stdStrat.timer ?? 0}</span> <span class="text-slate-400">/ 21 days ${(stdStrat.timer === 0 ? '<span class=\"text-accent-emerald font-semibold\">(Rebalanced)</span>' : '')}</span>`,
+                    s2: `<span class="text-white font-bold">${tqqqStrat.timer ?? 0}</span> <span class="text-slate-400">/ 21 days ${(tqqqStrat.timer === 0 ? '<span class=\"text-accent-emerald font-semibold\">(Rebalanced)</span>' : '')}</span>`
+                },
+                {
+                    param: 'Current Drawdown %',
+                    s1: `<span class="text-slate-200 font-bold">${stdCurrDd !== undefined ? stdCurrDd + '%' : 'N/A'}</span>`,
+                    s2: `<span class="text-slate-200 font-bold">${tqqqCurrDd !== undefined ? tqqqCurrDd + '%' : 'N/A'}</span>`
+                },
+                {
+                    param: 'Max Historical Drawdown %',
+                    s1: `<span class="text-accent-rose font-bold">${stdMaxDd !== undefined ? stdMaxDd + '%' : 'N/A'}</span>`,
+                    s2: `<span class="text-accent-rose font-bold">${tqqqMaxDd !== undefined ? tqqqMaxDd + '%' : 'N/A'}</span>`
+                },
+                {
+                    param: 'Cumulative Return %',
+                    s1: `<span class="text-accent-emerald font-black">${stdLeague['Return %'] !== undefined ? '+' + Number(stdLeague['Return %']).toLocaleString() + '%' : 'N/A'}</span>`,
+                    s2: `<span class="text-accent-blue font-black">${tqqqLeague['Return %'] !== undefined ? '+' + Number(tqqqLeague['Return %']).toLocaleString() + '%' : 'N/A'}</span>`
+                },
+                {
+                    param: 'Risk Ratios (Sharpe / Sortino / Calmar)',
+                    s1: `<span class="text-slate-300 font-mono">${stdLeague.Sharpe?.toFixed(2) || '0.00'} / ${stdLeague.Sortino?.toFixed(2) || '0.00'} / ${stdLeague.Calmar?.toFixed(2) || '0.00'}</span>`,
+                    s2: `<span class="text-slate-300 font-mono">${tqqqLeague.Sharpe?.toFixed(2) || '0.00'} / ${tqqqLeague.Sortino?.toFixed(2) || '0.00'} / ${tqqqLeague.Calmar?.toFixed(2) || '0.00'}</span>`
+                },
+                {
+                    param: 'Active Portfolio Holdings',
+                    s1: `<span class="text-xs text-slate-200 break-words">${stdHoldings}</span>`,
+                    s2: `<span class="text-xs text-slate-200 break-words">${tqqqHoldings}</span>`
+                },
+                {
+                    param: 'Last Rebalance Date',
+                    s1: `<span class="text-slate-300">${stdStrat.last_rebal_date || 'N/A'}</span>`,
+                    s2: `<span class="text-slate-300">${tqqqStrat.last_rebal_date || 'N/A'}</span>`
+                },
+                {
+                    param: 'Last Execution Run Date',
+                    s1: `<span class="text-slate-300">${stdStrat.last_run_date || 'N/A'}</span>`,
+                    s2: `<span class="text-slate-300">${tqqqStrat.last_run_date || 'N/A'}</span>`
+                }
+            ];
+
+            rows.forEach((r, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = idx % 2 === 0 ? 'bg-dark-card/90 hover:bg-dark-hover transition' : 'bg-dark-surface/40 hover:bg-dark-hover transition';
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4 font-semibold text-slate-300">${r.param}</td>
+                    <td class="py-2.5 px-4 border-l border-dark-border/80">${r.s1}</td>
+                    <td class="py-2.5 px-4 border-l border-dark-border/80">${r.s2}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         // Momentum & Guard Dogs (Switchblade Tab 3)
@@ -2982,41 +3087,112 @@
             if (!data) return;
             const momTimeEl = document.getElementById('momentum-vancouver-time');
             if (momTimeEl) {
-                momTimeEl.textContent = `${formatVancouverTime(driveModifiedTime || data.timestamp)} (Vancouver, BC)`;
+                momTimeEl.textContent = `${formatVancouverTime(driveModifiedTime || data.timestamp, data.date)} (Vancouver, BC)`;
             }
 
             const guardBody = document.getElementById('guard-dogs-table-body');
             if (guardBody && data.guard_dogs) {
                 guardBody.innerHTML = '';
-                data.guard_dogs.forEach(g => {
+                
+                let etfEntries = [];
+                if (data.guard_dogs.etfs && typeof data.guard_dogs.etfs === 'object') {
+                    etfEntries = Object.entries(data.guard_dogs.etfs).map(([ticker, val]) => ({ ticker, ...val }));
+                } else if (Array.isArray(data.guard_dogs)) {
+                    etfEntries = data.guard_dogs;
+                } else if (typeof data.guard_dogs === 'object') {
+                    etfEntries = Object.entries(data.guard_dogs)
+                        .filter(([k]) => !k.includes('params'))
+                        .map(([ticker, val]) => ({ ticker, ...val }));
+                }
+
+                etfEntries.forEach(g => {
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-dark-hover/50 transition border-b border-dark-border/40';
-                    const dExit = g.dist_exit_pct || 0;
-                    const dReentry = g.dist_reentry_pct || 0;
+                    
+                    const ticker = g.ticker || 'ETF';
+                    const price = g.price !== undefined ? `$${Number(g.price).toFixed(2)}` : 'N/A';
+                    const todayChange = g.today_change_pct !== undefined ? Number(g.today_change_pct) : null;
+                    const todayChangeHtml = todayChange !== null 
+                        ? `<span class="${todayChange >= 0 ? 'text-accent-emerald' : 'text-accent-rose'} font-bold">${todayChange >= 0 ? '+' : ''}${todayChange.toFixed(2)}%</span>`
+                        : '<span class="text-slate-500">N/A</span>';
+
+                    // Set 1 (Standard 213/10)
+                    const s1 = g.set_1 || {};
+                    const s1Exit = s1.exit_sma !== undefined ? `$${Number(s1.exit_sma).toFixed(2)}` : 'N/A';
+                    const s1DistEx = s1.dist_exit_pct !== undefined ? Number(s1.dist_exit_pct) : (g.dist_exit_pct !== undefined ? Number(g.dist_exit_pct) : null);
+                    const s1DistExHtml = s1DistEx !== null 
+                        ? `<span class="text-[10px] ml-1 ${s1DistEx >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">(${s1DistEx >= 0 ? '+' : ''}${s1DistEx.toFixed(2)}%)</span>`
+                        : '';
+
+                    const s1Reentry = s1.reentry_sma !== undefined ? `$${Number(s1.reentry_sma).toFixed(2)}` : 'N/A';
+                    const s1DistRe = s1.dist_reentry_pct !== undefined ? Number(s1.dist_reentry_pct) : (g.dist_reentry_pct !== undefined ? Number(g.dist_reentry_pct) : null);
+                    const s1DistReHtml = s1DistRe !== null 
+                        ? `<span class="text-[10px] ml-1 ${s1DistRe >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">(${s1DistRe >= 0 ? '+' : ''}${s1DistRe.toFixed(2)}%)</span>`
+                        : '';
+
+                    const s1Status = s1.status || (s1DistEx !== null ? (s1DistEx >= 0 ? 'BULLISH' : 'BEARISH') : 'N/A');
+                    const s1StatusClass = s1Status === 'BULLISH'
+                        ? 'bg-accent-emerald/20 text-accent-emerald border-accent-emerald/30'
+                        : (s1Status === 'BEARISH' ? 'bg-accent-rose/20 text-accent-rose border-accent-rose/30' : 'bg-dark-hover text-slate-400 border-dark-border');
+
+                    // Set 2 (TQQQ 205/20)
+                    const s2 = g.set_2 || {};
+                    const s2Exit = s2.exit_sma !== undefined ? `$${Number(s2.exit_sma).toFixed(2)}` : 'N/A';
+                    const s2DistEx = s2.dist_exit_pct !== undefined ? Number(s2.dist_exit_pct) : null;
+                    const s2DistExHtml = s2DistEx !== null 
+                        ? `<span class="text-[10px] ml-1 ${s2DistEx >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">(${s2DistEx >= 0 ? '+' : ''}${s2DistEx.toFixed(2)}%)</span>`
+                        : '';
+
+                    const s2Reentry = s2.reentry_sma !== undefined ? `$${Number(s2.reentry_sma).toFixed(2)}` : 'N/A';
+                    const s2DistRe = s2.dist_reentry_pct !== undefined ? Number(s2.dist_reentry_pct) : null;
+                    const s2DistReHtml = s2DistRe !== null 
+                        ? `<span class="text-[10px] ml-1 ${s2DistRe >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">(${s2DistRe >= 0 ? '+' : ''}${s2DistRe.toFixed(2)}%)</span>`
+                        : '';
+
+                    const s2Status = s2.status || (s2DistEx !== null ? (s2DistEx >= 0 ? 'BULLISH' : 'BEARISH') : 'N/A');
+                    const s2StatusClass = s2Status === 'BULLISH'
+                        ? 'bg-accent-emerald/20 text-accent-emerald border-accent-emerald/30'
+                        : (s2Status === 'BEARISH' ? 'bg-accent-rose/20 text-accent-rose border-accent-rose/30' : 'bg-dark-hover text-slate-400 border-dark-border');
+
                     tr.innerHTML = `
-                        <td class="py-2.5 px-3 font-bold text-white">${g.ticker}</td>
-                        <td class="py-2.5 px-3 text-slate-300">$${g.price?.toFixed(2)}</td>
-                        <td class="py-2.5 px-3 font-bold ${g.exit_state === 'ABOVE' ? 'text-accent-emerald' : 'text-accent-rose'}">${g.exit_state}</td>
-                        <td class="py-2.5 px-3 text-right font-mono ${dExit >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${dExit >= 0 ? '+' : ''}${dExit.toFixed(2)}%</td>
-                        <td class="py-2.5 px-3 font-bold ${g.reentry_state === 'ABOVE' ? 'text-accent-emerald' : 'text-accent-rose'}">${g.reentry_state}</td>
-                        <td class="py-2.5 px-3 text-right font-mono ${dReentry >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${dReentry >= 0 ? '+' : ''}${dReentry.toFixed(2)}%</td>
+                        <td class="py-2.5 px-4 font-bold text-white">${ticker}</td>
+                        <td class="py-2.5 px-3 text-right text-slate-300 font-mono">${price}</td>
+                        <td class="py-2.5 px-3 text-right font-mono">${todayChangeHtml}</td>
+                        <td class="py-2.5 px-3 text-center font-mono border-l border-dark-border/80"><span class="text-slate-300">${s1Exit}</span>${s1DistExHtml}</td>
+                        <td class="py-2.5 px-3 text-center font-mono"><span class="text-slate-300">${s1Reentry}</span>${s1DistReHtml}</td>
+                        <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${s1StatusClass}">${s1Status}</span></td>
+                        <td class="py-2.5 px-3 text-center font-mono border-l border-dark-border/80"><span class="text-slate-300">${s2Exit}</span>${s2DistExHtml}</td>
+                        <td class="py-2.5 px-3 text-center font-mono"><span class="text-slate-300">${s2Reentry}</span>${s2DistReHtml}</td>
+                        <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${s2StatusClass}">${s2Status}</span></td>
                     `;
                     guardBody.appendChild(tr);
                 });
             }
 
             const momBody = document.getElementById('momentum-table-body');
-            if (momBody && data.top_momentum) {
+            const picks = (data.momentum && data.momentum.top_picks) 
+                ? data.momentum.top_picks 
+                : (Array.isArray(data.top_momentum) ? data.top_momentum : (Array.isArray(data.momentum) ? data.momentum : []));
+
+            if (momBody && picks.length > 0) {
                 momBody.innerHTML = '';
-                data.top_momentum.forEach(m => {
+                picks.forEach((m, idx) => {
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-dark-hover/50 transition border-b border-dark-border/40';
-                    const momVal = m.momentum_score || 0;
+                    const rank = m.rank || (idx + 1);
+                    const ticker = m.ticker || 'STOCK';
+                    const blended = m.blended_score_pct !== undefined ? Number(m.blended_score_pct) : (m.momentum_score !== undefined ? Number(m.momentum_score) : 0);
+                    const longRoc = m.long_roc_pct !== undefined ? Number(m.long_roc_pct) : 0;
+                    const shortRoc = m.short_roc_pct !== undefined ? Number(m.short_roc_pct) : 0;
+                    const todayRet = m.today_return_pct !== undefined ? Number(m.today_return_pct) : 0;
+
                     tr.innerHTML = `
-                        <td class="py-2.5 px-3 font-bold text-white">${m.rank || '#'}</td>
-                        <td class="py-2.5 px-3 font-bold text-accent-cyan">${m.ticker}</td>
-                        <td class="py-2.5 px-3 text-slate-300">$${m.price?.toFixed(2)}</td>
-                        <td class="py-2.5 px-3 text-right font-mono font-bold text-accent-emerald">${momVal.toFixed(2)}</td>
+                        <td class="py-2.5 px-4 font-bold text-slate-400">#${rank}</td>
+                        <td class="py-2.5 px-4 font-bold text-accent-cyan">${ticker}</td>
+                        <td class="py-2.5 px-4 text-right font-mono font-bold text-accent-emerald">${blended >= 0 ? '+' : ''}${blended.toFixed(2)}%</td>
+                        <td class="py-2.5 px-4 text-right font-mono ${longRoc >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${longRoc >= 0 ? '+' : ''}${longRoc.toFixed(2)}%</td>
+                        <td class="py-2.5 px-4 text-right font-mono ${shortRoc >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${shortRoc >= 0 ? '+' : ''}${shortRoc.toFixed(2)}%</td>
+                        <td class="py-2.5 px-4 text-right font-mono font-bold ${todayRet >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${todayRet >= 0 ? '+' : ''}${todayRet.toFixed(2)}%</td>
                     `;
                     momBody.appendChild(tr);
                 });
@@ -3852,6 +4028,9 @@
 
             if (currentScriptId === 'switchblade') {
                 renderRunData(data, modifiedTime);
+                if (momentumData) {
+                    renderMomentumData(momentumData);
+                }
             } else if (currentScriptId === 'citadel') {
                 renderCitadelData(data);
             } else if (currentScriptId === 'chronos') {
