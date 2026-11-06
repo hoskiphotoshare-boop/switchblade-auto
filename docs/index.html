@@ -528,7 +528,7 @@
                     </a>
                 </div>
                 <div class="w-full flex items-center justify-center bg-black/40 rounded-lg overflow-hidden border border-dark-border/60 p-2 min-h-[350px]">
-                    <img id="drive-full-img" src="full_backtest_chart.png" alt="All-Time Full Backtest Chart (2012-Present)" class="max-w-full h-auto rounded border border-dark-border shadow-lg" onerror="this.onerror=null; console.warn('Full chart load failed; awaiting drive sync');">
+                    <img id="drive-full-img" src="full_backtest_chart.png" alt="All-Time Full Backtest Chart (2012-Present)" class="max-w-full h-auto rounded border border-dark-border shadow-lg" onerror="this.onerror=null; setTimeout(() => { this.src='full_backtest_chart.png?t=' + Date.now(); }, 1500);">
                 </div>
             </div>
 
@@ -548,7 +548,7 @@
                     </a>
                 </div>
                 <div class="w-full flex items-center justify-center bg-black/40 rounded-lg overflow-hidden border border-dark-border/60 p-2 min-h-[350px]">
-                    <img id="drive-zoomed-img" src="zoomed_chart.png" alt="200-Day Zoomed Lens Chart" class="max-w-full h-auto rounded border border-dark-border shadow-lg" onerror="this.onerror=null; console.warn('Zoomed chart load failed; awaiting drive sync');">
+                    <img id="drive-zoomed-img" src="zoomed_chart.png" alt="200-Day Zoomed Lens Chart" class="max-w-full h-auto rounded border border-dark-border shadow-lg" onerror="this.onerror=null; setTimeout(() => { this.src='zoomed_chart.png?t=' + Date.now(); }, 1500);">
                 </div>
             </div>
         </section>
@@ -1692,6 +1692,17 @@
                 const iframe = document.getElementById('raw-log-iframe');
                 if (iframe && (!iframe.srcdoc || iframe.srcdoc.length < 100)) {
                     loadExecutionLog();
+                }
+            }
+
+            if (tabId === 'charts') {
+                const fullImg = document.getElementById('drive-full-img');
+                if (fullImg && (!fullImg.src || fullImg.naturalWidth === 0)) {
+                    fullImg.src = `full_backtest_chart.png?t=${Date.now()}`;
+                }
+                const zoomedImg = document.getElementById('drive-zoomed-img');
+                if (zoomedImg && (!zoomedImg.src || zoomedImg.naturalWidth === 0)) {
+                    zoomedImg.src = `zoomed_chart.png?t=${Date.now()}`;
                 }
             }
         };
