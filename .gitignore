@@ -5,4 +5,5 @@ __pycache__/
 .env
 .firebase/
 public/latest_run.html
-public/zoomed_chart.png
+*.png
+docs/data.json

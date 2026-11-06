@@ -24,7 +24,7 @@
         ]
       },
       {
-        "source": "index.html",
+        "source": "*.html",
         "headers": [
           { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
           { "key": "Access-Control-Allow-Origin", "value": "*" }
@@ -39,22 +39,28 @@
         ]
       },
       {
-        "source": "/latest_run.html",
-        "headers": [
-          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-          { "key": "Access-Control-Allow-Origin", "value": "*" },
-          { "key": "Content-Security-Policy", "value": "frame-ancestors 'self' https://switchblade-app.web.app https://switchblade-app.firebaseapp.com *" }
-        ]
-      },
-      {
-        "source": "/*.json",
+        "source": "**/*.json",
         "headers": [
           { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
           { "key": "Access-Control-Allow-Origin", "value": "*" }
         ]
       },
       {
-        "source": "/*.png",
+        "source": "*.json",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
+        "source": "**/*.png",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
+        "source": "*.png",
         "headers": [
           { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
           { "key": "Access-Control-Allow-Origin", "value": "*" }
