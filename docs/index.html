@@ -213,19 +213,24 @@
                 </div>
             </div>
 
-            <!-- Reconnection Alert Banner (Shown when Drive Token Expired) -->
-            <div id="drive-reconnect-alert" class="hidden px-4 py-3 rounded-xl bg-gradient-to-r from-amber-950/70 via-amber-900/40 to-amber-950/70 border border-amber-500/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+            <!-- Reconnection Alert Banner (Shown when Drive Token Expired or API disabled) -->
+            <div id="drive-reconnect-alert" class="hidden px-4 py-3 rounded-xl bg-gradient-to-r from-amber-950/80 via-amber-900/50 to-amber-950/80 border border-amber-500/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
                 <div class="flex items-center space-x-2.5 text-xs text-amber-200">
                     <span class="text-base animate-pulse">⚠️</span>
                     <div>
-                        <span class="font-bold text-amber-300 block sm:inline">Google Drive Session Expired:</span>
+                        <span id="drive-reconnect-title" class="font-bold text-amber-300 block sm:inline">Google Drive Sync Notice:</span>
                         <span id="drive-reconnect-msg" class="text-amber-200/90 ml-0 sm:ml-1">Showing cached Nov 5 snapshot. Reconnect Google Drive now to stream today's live Colab execution run.</span>
                     </div>
                 </div>
-                <button onclick="reconnectDrive()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-dark-base font-bold text-xs shadow-md transition flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    <span>Reconnect Google Drive</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <a id="btn-enable-api" href="https://console.cloud.google.com/apis/library/drive.googleapis.com?project=hokkaido-2027" target="_blank" class="hidden px-3.5 py-1.5 rounded-lg bg-accent-blue hover:bg-blue-600 text-white font-bold text-xs shadow-md transition flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                        <span>1-Click Enable Drive API in GCP ↗</span>
+                    </a>
+                    <button onclick="reconnectDrive()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-dark-base font-bold text-xs shadow-md transition flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        <span>Reconnect Google Drive</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -2323,7 +2328,11 @@
                     if (low.includes('insufficient') || low.includes('scope')) {
                         userMsg = "Google Drive access permissions not granted. Click 'Reconnect Google Drive' and make sure to click 'Allow' on the Google Drive permissions screen.";
                     } else if (low.includes('disabled') || low.includes('not been used')) {
-                        userMsg = "Google Drive API is disabled in project hokkaido-2027. Please enable the Google Drive API in Google Cloud Console.";
+                        userMsg = "Google Drive API is disabled in GCP project hokkaido-2027. Click the blue button to enable it (takes 5s), then click Reconnect.";
+                        const enableBtn = document.getElementById('btn-enable-api');
+                        if (enableBtn) enableBtn.classList.remove('hidden');
+                        const titleEl = document.getElementById('drive-reconnect-title');
+                        if (titleEl) titleEl.textContent = "Google Drive API Disabled in GCP:";
                     } else {
                         userMsg = `Google Drive returned 403 Forbidden: ${errDetail || 'Access denied'}. Click 'Reconnect Google Drive' to grant permissions.`;
                     }
