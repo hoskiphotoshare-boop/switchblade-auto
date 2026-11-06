@@ -139,6 +139,22 @@
                 </div>
             </div>
 
+            <!-- Master Script Selector Dropdown -->
+            <div class="relative w-full md:w-auto" id="script-selector-container">
+                <button id="btn-script-selector" onclick="window.toggleScriptMenu(event)" class="w-full md:w-auto flex items-center justify-between space-x-3 px-3.5 py-2 rounded-xl bg-dark-card border border-dark-border hover:border-accent-blue/50 text-white text-xs font-mono transition shadow-sm">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-accent-emerald animate-pulse" id="script-indicator-dot"></span>
+                        <span class="text-slate-400 uppercase tracking-wider text-[10px]">SCRIPT:</span>
+                        <span id="current-script-name" class="font-bold text-white tracking-tight">Switchblade V3.0</span>
+                        <span id="current-script-badge" class="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded-full bg-accent-blue/20 text-accent-blue border border-accent-blue/30">Dual-Regime Momentum</span>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-400 transition-transform duration-200" id="script-dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="script-dropdown-menu" class="hidden absolute left-0 right-0 md:right-auto md:w-80 mt-2 bg-dark-card/95 backdrop-blur-xl border border-dark-border rounded-xl shadow-2xl z-50 p-2 space-y-1" style="overscroll-behavior-x: contain; touch-action: pan-x pan-y;">
+                    <!-- Populated dynamically by renderScriptDropdown() -->
+                </div>
+            </div>
+
             <!-- Top Right: Google Drive / Account Connect -->
             <div class="flex items-center space-x-2 sm:space-x-3">
                 <button id="btn-drive-refresh" onclick="refreshDriveData()" title="Refresh data from Google Drive" class="p-2 rounded-lg bg-dark-card hover:bg-dark-hover border border-dark-border text-slate-300 hover:text-white transition flex items-center text-xs font-medium">
@@ -200,6 +216,9 @@
         <!-- TAB 1: OVERVIEW & ACTIVE HOLDINGS -->
         <!-- ============================================================== -->
         <section id="tab-overview" class="tab-pane active space-y-6">
+            <!-- VIEW: SWITCHBLADE V3.0 (DUAL-REGIME MOMENTUM) -->
+            <div id="view-switchblade" class="script-view space-y-6">
+
             
             <!-- STRATEGY 1 HIGHLIGHT: STANDARD UNIVERSE ACTIVE HOLDINGS (10 STOCKS) -->
             <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-emerald/30 p-4 sm:p-6 card-glow relative overflow-hidden">
@@ -357,6 +376,474 @@
                 </div>
             </div>
 
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- VIEW: CITADEL MACRO ENGINE -->
+            <!-- ============================================================== -->
+            <div id="view-citadel" class="script-view hidden space-y-6">
+                <!-- Directive & Stance Banner -->
+                <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-cyan/30 p-4 sm:p-6 card-glow relative overflow-hidden">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/40 font-mono uppercase">Citadel Macro V12</span>
+                                <span class="text-xs font-mono text-slate-400" id="citadel-report-date">T+0 Intelligence</span>
+                            </div>
+                            <h2 class="text-xl sm:text-2xl font-black text-white mt-1" id="citadel-regime-title">Macro Regime Directive</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl" id="citadel-posture-subtext">
+                                Multi-asset cross-market quantitative regime synthesis with yield curve curvature, sovereign debt spreads, and dark pool sentiment.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Macro Regime</span>
+                                <span id="citadel-regime-display" class="text-sm font-bold font-mono text-accent-emerald">GOLDILOCKS</span>
+                            </div>
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Market Posture</span>
+                                <span id="citadel-posture-display" class="text-sm font-bold font-mono text-accent-cyan">RISK-ON</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Macro Environment Key Metrics Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-6 text-xs font-mono">
+                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
+                            <span class="text-slate-400 text-[10px] block">VIX Term Struct</span>
+                            <span id="citadel-vix-term" class="text-sm font-bold text-accent-emerald">CONTANGO</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
+                            <span class="text-slate-400 text-[10px] block">Liquidity Env</span>
+                            <span id="citadel-liquidity" class="text-sm font-bold text-accent-cyan">EXPANSIVE</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
+                            <span class="text-slate-400 text-[10px] block">Dark Pool DIX</span>
+                            <span id="citadel-dix" class="text-sm font-bold text-white">44.8%</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
+                            <span class="text-slate-400 text-[10px] block">10Y-2Y Curve</span>
+                            <span id="citadel-yield-curve" class="text-sm font-bold text-white">+0.19%</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
+                            <span class="text-slate-400 text-[10px] block">SPX 200dma Dist</span>
+                            <span id="citadel-spx-dist" class="text-sm font-bold text-accent-emerald">+8.03%</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
+                            <span class="text-slate-400 text-[10px] block">Breadth Tally</span>
+                            <span id="citadel-breadth-tally" class="text-sm font-bold text-accent-emerald">14 Bull / 3 Bear</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Citadel Trend Matrix Table -->
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-white flex items-center">
+                            <span class="mr-2">🌐</span> Institutional Trend Matrix
+                        </h3>
+                        <span class="text-xs font-mono text-slate-400">Core Equity, Rates, Commodities & High Beta</span>
+                    </div>
+                    <div class="table-scroll-container rounded-lg border border-dark-border" style="overscroll-behavior-x: contain; touch-action: pan-x pan-y;">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-dark-surface text-slate-400 text-[11px] uppercase tracking-wider border-b border-dark-border">
+                                <tr>
+                                    <th class="py-2.5 px-3">Category</th>
+                                    <th class="py-2.5 px-3">Ticker</th>
+                                    <th class="py-2.5 px-3">Current Price</th>
+                                    <th class="py-2.5 px-3">50 DMA</th>
+                                    <th class="py-2.5 px-3">200 DMA</th>
+                                    <th class="py-2.5 px-3">20d Momo %</th>
+                                    <th class="py-2.5 px-3 text-right">Trend Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="citadel-trend-matrix-tbody" class="divide-y divide-dark-border/40 text-slate-300">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- VIEW: PROJECT CHRONOS DEEP ENSEMBLE -->
+            <!-- ============================================================== -->
+            <div id="view-chronos" class="script-view hidden space-y-6">
+                <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-purple/30 p-4 sm:p-6 card-glow">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-purple/20 text-accent-purple border border-accent-purple/40 font-mono uppercase">Project Chronos</span>
+                                <span class="text-xs font-mono text-slate-400" id="chronos-eval-date">T+0 Forecast Engine</span>
+                            </div>
+                            <h2 class="text-xl sm:text-2xl font-black text-white mt-1">Deep Ensemble Trajectory Projections</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+                                4-Model Neural Network Blend (1999 LSTM, 1999 LEAR, Modern LSTM, Modern LEAR) projecting forward asset trajectories up to 100 business days.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Current Proxy</span>
+                                <span id="chronos-current-proxy" class="text-sm font-bold font-mono text-white">$592.50</span>
+                            </div>
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">T+100 Target</span>
+                                <span id="chronos-t100-target" class="text-sm font-bold font-mono text-accent-emerald">$638.40 (+7.75%)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Horizon Milestone Projections Table -->
+                    <div class="table-scroll-container rounded-lg border border-dark-border mt-6" style="overscroll-behavior-x: contain; touch-action: pan-x pan-y;">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-dark-surface text-slate-400 text-[11px] uppercase tracking-wider border-b border-dark-border">
+                                <tr>
+                                    <th class="py-2.5 px-3">Horizon</th>
+                                    <th class="py-2.5 px-3">1999 LSTM</th>
+                                    <th class="py-2.5 px-3">1999 LEAR</th>
+                                    <th class="py-2.5 px-3">Modern LSTM</th>
+                                    <th class="py-2.5 px-3">Modern LEAR</th>
+                                    <th class="py-2.5 px-3 font-bold text-accent-cyan">Ultimate Blend</th>
+                                    <th class="py-2.5 px-3 text-right">Proj Return</th>
+                                </tr>
+                            </thead>
+                            <tbody id="chronos-horizons-tbody" class="divide-y divide-dark-border/40 text-slate-300">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Feature Importance & Driver Saliency Cards -->
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-6 space-y-4">
+                    <h3 class="text-sm font-semibold text-white flex items-center">
+                        <span class="mr-2">🔍</span> Top Model Drivers & Feature Saliency
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="chronos-drivers-container">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- VIEW: SYNAPSE EARNINGS TRADER (V3.1) -->
+            <!-- ============================================================== -->
+            <div id="view-synapse_earnings" class="script-view hidden space-y-6">
+                <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-emerald/30 p-4 sm:p-6 card-glow">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-mono uppercase">Synapse v3.1</span>
+                                <span class="text-xs font-mono text-slate-400" id="synapse-earnings-timestamp">Live Scanner</span>
+                            </div>
+                            <h2 class="text-xl sm:text-2xl font-black text-white mt-1">Earnings Options Deal Sheet</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+                                Delta Matrix + Dynamic LASSO options intelligence. Captures post-earnings asymmetric moves and live option chain structures.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Macro VIX</span>
+                                <span id="synapse-earnings-vix" class="text-sm font-bold font-mono text-accent-emerald">14.82</span>
+                            </div>
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Setups Found</span>
+                                <span id="synapse-earnings-count" class="text-sm font-bold font-mono text-accent-cyan">4 Trades</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deal Sheet Table -->
+                    <div class="table-scroll-container rounded-lg border border-dark-border mt-6" style="overscroll-behavior-x: contain; touch-action: pan-x pan-y;">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-dark-surface text-slate-400 text-[11px] uppercase tracking-wider border-b border-dark-border">
+                                <tr>
+                                    <th class="py-2.5 px-3">Ticker</th>
+                                    <th class="py-2.5 px-3">Earnings Date</th>
+                                    <th class="py-2.5 px-3">Implied Move</th>
+                                    <th class="py-2.5 px-3">Direction</th>
+                                    <th class="py-2.5 px-3">Massive / Up Prob</th>
+                                    <th class="py-2.5 px-3">Conviction</th>
+                                    <th class="py-2.5 px-3">Options Structure</th>
+                                    <th class="py-2.5 px-3 text-right">Risk / Target</th>
+                                </tr>
+                            </thead>
+                            <tbody id="synapse-earnings-tbody" class="divide-y divide-dark-border/40 text-slate-300">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- VIEW: SYNAPSE MASSIVE RUNS -->
+            <!-- ============================================================== -->
+            <div id="view-synapse_massive_runs" class="script-view hidden space-y-6">
+                <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-amber/30 p-4 sm:p-6 card-glow">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-amber/20 text-accent-amber border border-accent-amber/40 font-mono uppercase">Massive Runs v1.0</span>
+                                <span class="text-xs font-mono text-slate-400">125-Day Horizon Momentum</span>
+                            </div>
+                            <h2 class="text-xl sm:text-2xl font-black text-white mt-1">Post-Earnings Multi-Day Runners</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+                                Numba Monte Carlo & neural classifier screening equities exhibiting multi-day institutional accumulation surges.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Threshold</span>
+                                <span id="synapse-massive-threshold" class="text-sm font-bold font-mono text-accent-amber">0.65</span>
+                            </div>
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Candidates</span>
+                                <span id="synapse-massive-count" class="text-sm font-bold font-mono text-white">4 Runners</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Massive Runs Table -->
+                    <div class="table-scroll-container rounded-lg border border-dark-border mt-6" style="overscroll-behavior-x: contain; touch-action: pan-x pan-y;">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-dark-surface text-slate-400 text-[11px] uppercase tracking-wider border-b border-dark-border">
+                                <tr>
+                                    <th class="py-2.5 px-3">Ticker</th>
+                                    <th class="py-2.5 px-3">Sector</th>
+                                    <th class="py-2.5 px-3">Run Probability</th>
+                                    <th class="py-2.5 px-3">Current Price</th>
+                                    <th class="py-2.5 px-3">Breakout Trigger</th>
+                                    <th class="py-2.5 px-3">Stop Loss</th>
+                                    <th class="py-2.5 px-3">Target Gain %</th>
+                                    <th class="py-2.5 px-3 text-right">Volume Surge</th>
+                                </tr>
+                            </thead>
+                            <tbody id="synapse-massive-tbody" class="divide-y divide-dark-border/40 text-slate-300">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- VIEW: MAPLE CARRY PIPELINE -->
+            <!-- ============================================================== -->
+            <div id="view-maple_carry" class="script-view hidden space-y-6">
+                <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-emerald/30 p-4 sm:p-6 card-glow">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-mono uppercase">Maple Carry Engine</span>
+                                <span class="text-xs font-mono text-slate-400" id="maple-timestamp">Institutional Discovery</span>
+                            </div>
+                            <h2 class="text-xl sm:text-2xl font-black text-white mt-1">Canadian True Equity & Carry Arbitrage</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+                                Self-correcting margin math optimizing TSX high-yield dividend cashflow against prime broker debit borrowing costs.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Broker Margin</span>
+                                <span id="maple-margin-rate" class="text-sm font-bold font-mono text-white">5.25%</span>
+                            </div>
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Net Equity</span>
+                                <span id="maple-net-equity" class="text-sm font-bold font-mono text-accent-emerald">$310,000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Margin Math Summary Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 text-xs font-mono">
+                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
+                            <span class="text-slate-400 text-[10px] block">Target Leverage</span>
+                            <span id="maple-target-lev" class="text-sm font-bold text-accent-cyan">1.65x</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
+                            <span class="text-slate-400 text-[10px] block">Target Gross Assets</span>
+                            <span id="maple-target-assets" class="text-sm font-bold text-white">$511,500</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
+                            <span class="text-slate-400 text-[10px] block">New Buying Power</span>
+                            <span id="maple-buying-power" class="text-sm font-bold text-accent-emerald">$78,500</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
+                            <span class="text-slate-400 text-[10px] block">Capital / Slot</span>
+                            <span id="maple-capital-slot" class="text-sm font-bold text-white">$63,938</span>
+                        </div>
+                    </div>
+
+                    <!-- Active Holdings Audit Table -->
+                    <div class="table-scroll-container rounded-lg border border-dark-border mt-6" style="overscroll-behavior-x: contain; touch-action: pan-x pan-y;">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-dark-surface text-slate-400 text-[11px] uppercase tracking-wider border-b border-dark-border">
+                                <tr>
+                                    <th class="py-2.5 px-3">Ticker</th>
+                                    <th class="py-2.5 px-3">Shares</th>
+                                    <th class="py-2.5 px-3">Market Value</th>
+                                    <th class="py-2.5 px-3">Div Yield %</th>
+                                    <th class="py-2.5 px-3">Margin Cost %</th>
+                                    <th class="py-2.5 px-3">Net Carry %</th>
+                                    <th class="py-2.5 px-3 text-right">Verdict</th>
+                                </tr>
+                            </thead>
+                            <tbody id="maple-holdings-tbody" class="divide-y divide-dark-border/40 text-slate-300">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- VIEW: CORPORATE CLASS ETFS -->
+            <!-- ============================================================== -->
+            <div id="view-corporate_class" class="script-view hidden space-y-6">
+                <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-blue/30 p-4 sm:p-6 card-glow">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-blue/20 text-accent-blue border border-accent-blue/40 font-mono uppercase">Corporate Class</span>
+                                <span class="text-xs font-mono text-slate-400">Institutional Allocation</span>
+                            </div>
+                            <h2 class="text-xl sm:text-2xl font-black text-white mt-1">Tax-Advantaged Corporate Class Optimization</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+                                Downside deviation minimization & Sortino ratio tangency portfolio constructed with Canadian corporate class fund structures.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Max Sortino Ratio</span>
+                                <span id="corp-sortino-ratio" class="text-sm font-bold font-mono text-accent-emerald">2.77</span>
+                            </div>
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Expected Return</span>
+                                <span id="corp-expected-return" class="text-sm font-bold font-mono text-accent-cyan">14.85%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Optimization Comparison Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                        <div class="p-4 rounded-xl bg-dark-base border border-accent-emerald/40 space-y-2">
+                            <span class="text-accent-emerald font-bold text-xs uppercase tracking-wider">🎯 Max Sortino Mode (Tangency)</span>
+                            <div class="text-xs font-mono text-slate-300 space-y-1">
+                                <div class="flex justify-between"><span>Expected Return:</span><span id="corp-sortino-ret" class="text-white font-bold">14.85%</span></div>
+                                <div class="flex justify-between"><span>Downside Dev:</span><span id="corp-sortino-dd" class="text-white">4.10%</span></div>
+                                <div class="flex justify-between"><span>Sortino Ratio:</span><span id="corp-sortino-s" class="text-accent-emerald font-bold">2.77</span></div>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-dark-base border border-accent-blue/40 space-y-2">
+                            <span class="text-accent-blue font-bold text-xs uppercase tracking-wider">🛡️ Min Downside Mode (TSX Pegged)</span>
+                            <div class="text-xs font-mono text-slate-300 space-y-1">
+                                <div class="flex justify-between"><span>Expected Return:</span><span id="corp-mindd-ret" class="text-white font-bold">11.20%</span></div>
+                                <div class="flex justify-between"><span>Downside Dev:</span><span id="corp-mindd-dd" class="text-white">2.65%</span></div>
+                                <div class="flex justify-between"><span>Sortino Ratio:</span><span id="corp-mindd-s" class="text-accent-blue font-bold">2.91</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Corporate Class Allocations Table -->
+                    <div class="table-scroll-container rounded-lg border border-dark-border mt-6" style="overscroll-behavior-x: contain; touch-action: pan-x pan-y;">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-dark-surface text-slate-400 text-[11px] uppercase tracking-wider border-b border-dark-border">
+                                <tr>
+                                    <th class="py-2.5 px-3">Ticker</th>
+                                    <th class="py-2.5 px-3">Fund Name</th>
+                                    <th class="py-2.5 px-3">Weight Sortino (%)</th>
+                                    <th class="py-2.5 px-3 text-right">Weight Min Downside (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corp-allocations-tbody" class="divide-y divide-dark-border/40 text-slate-300">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- VIEW: PROJECT SEQUOIA -->
+            <!-- ============================================================== -->
+            <div id="view-sequoia" class="script-view hidden space-y-6">
+                <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-cyan/30 p-4 sm:p-6 card-glow">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/40 font-mono uppercase">Project Sequoia</span>
+                                <span class="text-xs font-mono text-slate-400" id="sequoia-timestamp">T+1 Live Engine</span>
+                            </div>
+                            <h2 class="text-xl sm:text-2xl font-black text-white mt-1">Live Scanner & Portfolio Manager</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+                                Titan Delta Matrix production execution engine managing live open positions, dynamic trailing stops, and next-day setups.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Macro Regime</span>
+                                <span id="sequoia-macro-regime" class="text-sm font-bold font-mono text-accent-emerald">STANDARD</span>
+                            </div>
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Active Trades</span>
+                                <span id="sequoia-open-count" class="text-sm font-bold font-mono text-accent-cyan">4 Open</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Open Positions Table -->
+                    <div class="mt-6 space-y-2">
+                        <h4 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider flex items-center">
+                            <span class="w-1.5 h-1.5 rounded-full bg-accent-emerald mr-2"></span> Active Open Positions
+                        </h4>
+                        <div class="table-scroll-container rounded-lg border border-dark-border" style="overscroll-behavior-x: contain; touch-action: pan-x pan-y;">
+                            <table class="w-full text-left text-xs font-mono">
+                                <thead class="bg-dark-surface text-slate-400 text-[11px] uppercase tracking-wider border-b border-dark-border">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Ticker</th>
+                                        <th class="py-2.5 px-3">Entry Date</th>
+                                        <th class="py-2.5 px-3">Entry Price</th>
+                                        <th class="py-2.5 px-3">Current Price</th>
+                                        <th class="py-2.5 px-3">Floating P&L</th>
+                                        <th class="py-2.5 px-3">Stop Loss</th>
+                                        <th class="py-2.5 px-3 text-right">Take Profit</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sequoia-open-tbody" class="divide-y divide-dark-border/40 text-slate-300">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tomorrow's Candidates (T+1 Setups) Table -->
+                    <div class="mt-6 space-y-2">
+                        <h4 class="text-xs font-mono font-bold text-accent-cyan uppercase tracking-wider flex items-center">
+                            <span class="w-1.5 h-1.5 rounded-full bg-accent-cyan mr-2 animate-pulse"></span> Next-Day Execution Candidates (T+1 Setups)
+                        </h4>
+                        <div class="table-scroll-container rounded-lg border border-dark-border" style="overscroll-behavior-x: contain; touch-action: pan-x pan-y;">
+                            <table class="w-full text-left text-xs font-mono">
+                                <thead class="bg-dark-surface text-slate-400 text-[11px] uppercase tracking-wider border-b border-dark-border">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Ticker</th>
+                                        <th class="py-2.5 px-3">Entry Price</th>
+                                        <th class="py-2.5 px-3">Current Price</th>
+                                        <th class="py-2.5 px-3">Confidence</th>
+                                        <th class="py-2.5 px-3">Stop Loss</th>
+                                        <th class="py-2.5 px-3">Take Profit</th>
+                                        <th class="py-2.5 px-3 text-right">Time Stop</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sequoia-candidates-tbody" class="divide-y divide-dark-border/40 text-slate-300">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- ============================================================== -->
@@ -850,8 +1337,234 @@
             location.reload();
         };
 
-        // Query Google Drive API directly for Switchblade_Live folder
-        const LIVE_FOLDER_ID = '1_Sj65yOiX3FPdiZw8nHl_RGlYprYJA6Y';
+        // ==============================================================
+        // OMNI-X SCRIPT REGISTRY & STATE MANAGEMENT
+        // ==============================================================
+        const REGISTERED_SCRIPTS = [
+            {
+                id: 'switchblade',
+                name: 'Switchblade V3.0',
+                badge: 'Dual-Regime Momentum',
+                folderName: 'Switchblade_Live',
+                fallbackFolder: 'Switchblade_Live',
+                dataFile: 'run_data.json',
+                fallbackData: 'run_data.json',
+                chartFile: 'zoomed_chart.png',
+                description: 'PIT Universe (10-stock) & TQQQ/TLT regime switching'
+            },
+            {
+                id: 'citadel',
+                name: 'Citadel Macro Engine',
+                badge: 'V12.0 Macro Intelligence',
+                folderName: 'Citadel_Live',
+                fallbackFolder: 'Citadel',
+                dataFile: 'run_data.json',
+                fallbackData: 'citadel_data.json',
+                chartFile: null,
+                description: 'Institutional multi-asset macro regime, DIX, NFCI & trend matrix'
+            },
+            {
+                id: 'chronos',
+                name: 'Project Chronos',
+                badge: 'Deep Ensemble Trajectories',
+                folderName: 'Chronos_Live',
+                fallbackFolder: 'Chronos',
+                dataFile: 'run_data.json',
+                fallbackData: 'chronos_data.json',
+                chartFile: 'chronos_ensemble_chart.png',
+                description: '100-day neural forward curve, LSTM & LEAR multi-model blend'
+            },
+            {
+                id: 'synapse_earnings',
+                name: 'Synapse Earnings Trader',
+                badge: 'V3.1 LASSO + Delta Matrix',
+                folderName: 'Synapse_Earnings_Live',
+                fallbackFolder: 'Synapse_Colab/Synapse Earnings Trader v3.1 - LASSO',
+                dataFile: 'run_data.json',
+                fallbackData: 'synapse_earnings_data.json',
+                chartFile: null,
+                description: 'Live options chain scanner, IV moves, upcoming earnings deal sheet'
+            },
+            {
+                id: 'synapse_massive_runs',
+                name: 'Synapse Massive Runs',
+                badge: 'Post-Earnings Momentum',
+                folderName: 'Synapse_Massive_Runs_Live',
+                fallbackFolder: 'Synapse_Colab/Synapse Massive Runs v1.0',
+                dataFile: 'run_data.json',
+                fallbackData: 'synapse_massive_runs_data.json',
+                chartFile: null,
+                description: 'Multi-day breakout probability & high-conviction momentum deals'
+            },
+            {
+                id: 'maple_carry',
+                name: 'Maple Carry Pipeline',
+                badge: 'True Equity & Margin',
+                folderName: 'Maple_Carry_Live',
+                fallbackFolder: 'Maple_Carry_Colab',
+                dataFile: 'run_data.json',
+                fallbackData: 'maple_carry_data.json',
+                chartFile: null,
+                description: 'Canadian carry arbitrage, self-correcting margin math & net carry pool'
+            },
+            {
+                id: 'corporate_class',
+                name: 'Corporate Class ETFs',
+                badge: 'Sortino Optimization',
+                folderName: 'Corporate_Class_Live',
+                fallbackFolder: 'Maple_Carry_Colab',
+                dataFile: 'run_data.json',
+                fallbackData: 'corporate_class_data.json',
+                chartFile: 'corporate_class_performance.png',
+                description: 'Institutional Sortino & Min Downside asset allocation'
+            },
+            {
+                id: 'sequoia',
+                name: 'Project Sequoia',
+                badge: 'Live Scanner & Portfolio',
+                folderName: 'Sequoia_Live',
+                fallbackFolder: 'Sequoia',
+                dataFile: 'run_data.json',
+                fallbackData: 'sequoia_data.json',
+                chartFile: null,
+                description: 'T+1 execution engine, active positions, working orders & setups'
+            }
+        ];
+
+        let currentScriptId = localStorage.getItem('omni_x_active_script') || 'switchblade';
+        let currentScriptData = null;
+
+        function renderScriptDropdown() {
+            const menu = document.getElementById('script-dropdown-menu');
+            if (!menu) return;
+            menu.innerHTML = '';
+            REGISTERED_SCRIPTS.forEach(script => {
+                const isActive = script.id === currentScriptId;
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-2.5 rounded-lg transition flex items-center justify-between ${
+                    isActive ? 'bg-accent-blue/20 border border-accent-blue/40 text-white' : 'hover:bg-dark-hover text-slate-300'
+                }`;
+                btn.onclick = () => window.selectScript(script.id);
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full ${isActive ? 'bg-accent-emerald animate-pulse' : 'bg-slate-600'}"></span>
+                        <div>
+                            <div class="text-xs font-bold text-white font-mono">${script.name}</div>
+                            <div class="text-[10px] text-slate-400 font-mono">${script.badge}</div>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-mono text-accent-cyan">${script.folderName}</span>
+                `;
+                menu.appendChild(btn);
+            });
+
+            // Also render settings script cards
+            const sCards = document.getElementById('settings-script-cards');
+            if (sCards) {
+                sCards.innerHTML = '';
+                REGISTERED_SCRIPTS.forEach(script => {
+                    const isActive = script.id === currentScriptId;
+                    const card = document.createElement('div');
+                    card.className = `p-3.5 rounded-xl border transition ${
+                        isActive ? 'bg-accent-blue/15 border-accent-blue/40 shadow-md' : 'bg-dark-base border-dark-border'
+                    }`;
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs font-bold font-mono text-white">${script.name}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full ${isActive ? 'bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/30 font-bold' : 'bg-dark-elevated text-slate-400'} font-mono">
+                                ${isActive ? '● Active' : 'Idle'}
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mb-2">${script.description}</p>
+                        <div class="flex items-center justify-between text-[10px] font-mono">
+                            <span class="text-slate-500">Folder: <span class="text-accent-cyan">${script.folderName}</span></span>
+                            <button onclick="window.selectScript('${script.id}')" class="px-2.5 py-1 rounded bg-dark-card hover:bg-dark-hover border border-dark-border text-slate-300 hover:text-white transition font-medium">
+                                ${isActive ? 'Current Stream' : 'Switch ➔'}
+                            </button>
+                        </div>
+                    `;
+                    sCards.appendChild(card);
+                });
+            }
+        }
+
+        window.toggleScriptMenu = function(e) {
+            if (e) e.stopPropagation();
+            const menu = document.getElementById('script-dropdown-menu');
+            const arrow = document.getElementById('script-dropdown-arrow');
+            if (!menu) return;
+            const isHidden = menu.classList.contains('hidden');
+            if (isHidden) {
+                renderScriptDropdown();
+                menu.classList.remove('hidden');
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            } else {
+                menu.classList.add('hidden');
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            }
+        };
+
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('script-selector-container');
+            const menu = document.getElementById('script-dropdown-menu');
+            const arrow = document.getElementById('script-dropdown-arrow');
+            if (container && !container.contains(e.target) && menu && !menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        window.selectScript = async function(scriptId) {
+            currentScriptId = scriptId;
+            localStorage.setItem('omni_x_active_script', scriptId);
+
+            const scriptDef = REGISTERED_SCRIPTS.find(s => s.id === scriptId) || REGISTERED_SCRIPTS[0];
+            const nameEl = document.getElementById('current-script-name');
+            const badgeEl = document.getElementById('current-script-badge');
+            if (nameEl) nameEl.textContent = scriptDef.name;
+            if (badgeEl) badgeEl.textContent = scriptDef.badge;
+
+            // Close menu
+            const menu = document.getElementById('script-dropdown-menu');
+            const arrow = document.getElementById('script-dropdown-arrow');
+            if (menu) menu.classList.add('hidden');
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+
+            // Switch active view container in tab-overview
+            document.querySelectorAll('.script-view').forEach(el => el.classList.add('hidden'));
+            const targetView = document.getElementById(`view-${scriptId}`);
+            if (targetView) targetView.classList.remove('hidden');
+
+            // Adapt tabs visibility
+            const navLeague = document.getElementById('nav-btn-league');
+            const navMomentum = document.getElementById('nav-btn-momentum');
+            if (navLeague && navMomentum) {
+                if (scriptId === 'switchblade') {
+                    navLeague.classList.remove('hidden');
+                    navMomentum.classList.remove('hidden');
+                } else {
+                    navLeague.classList.add('hidden');
+                    navMomentum.classList.add('hidden');
+                }
+            }
+
+            // Update banner subtitle
+            const bSub = document.getElementById('banner-subtext');
+            if (bSub) {
+                bSub.innerHTML = `Colab Run artifacts connected from <span class="font-mono text-accent-blue">MyDrive/${scriptDef.folderName}</span>`;
+            }
+
+            renderScriptDropdown();
+
+            // Refresh data for selected script
+            if (googleAccessToken) {
+                await fetchFromGoogleDrive(googleAccessToken);
+            } else {
+                await loadBundledData();
+            }
+        };
+
+        // Query Google Drive API directly
         const KNOWN_DRIVE_FILES = {
             chart: '1zRcj2czA1DtqCmTW7xiIPBzOpBYCR5BG',
             full_chart: '1ceSKn-MGPvJwX7rG2ecG6yt1pakFbl4_',
@@ -860,7 +1573,6 @@
             log: '1x2cTiuyvsmfAaBfEnmC1LPeKyJLuylfs'
         };
 
-        // Resilient log loader using srcdoc to prevent X-Frame-Options refusals
         async function loadExecutionLog(htmlContent) {
             const iframe = document.getElementById('raw-log-iframe');
             if (!iframe) return;
@@ -885,7 +1597,6 @@
             }
         }
 
-        // Handle Drive token expiration cleanly
         function handleDriveTokenExpired() {
             console.warn("Google Drive OAuth access token has expired or is invalid.");
             googleAccessToken = null;
@@ -908,7 +1619,10 @@
                 sStatus.textContent = "Drive Token Expired (Click 'Sync Drive' to refresh)";
                 sStatus.className = "text-amber-400 font-bold";
             }
-            loadBundledData();
+            // Initial render on DOM load
+        renderScriptDropdown();
+        selectScript(currentScriptId);
+
         }
 
         async function fetchFromGoogleDrive(token) {
@@ -916,33 +1630,50 @@
                 handleDriveTokenExpired();
                 return;
             }
+            const scriptDef = REGISTERED_SCRIPTS.find(s => s.id === currentScriptId) || REGISTERED_SCRIPTS[0];
             try {
-                document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-blue mr-1.5 animate-pulse"></span> Querying Drive...`;
+                document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-blue mr-1.5 animate-pulse"></span> Querying ${scriptDef.folderName}...`;
                 const authHeaders = { Authorization: `Bearer ${token}` };
 
-                // 1. Locate Switchblade_Live folder
-                let folderId = LIVE_FOLDER_ID;
-                try {
-                    const folderQuery = encodeURIComponent("name = 'Switchblade_Live' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
-                    const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${folderQuery}&fields=files(id,name)&t=${Date.now()}`, {
-                        headers: authHeaders,
-                        cache: 'no-store'
-                    });
-                    if (folderRes.status === 401 || folderRes.status === 403) {
-                        handleDriveTokenExpired();
-                        return;
-                    }
-                    if (folderRes.ok) {
-                        const folderData = await folderRes.json();
-                        if (folderData.files && folderData.files.length > 0) {
-                            folderId = folderData.files[0].id;
+                // 1. Locate designated script folder (or fallback folder)
+                let folderId = null;
+                const foldersToTry = [scriptDef.folderName, scriptDef.fallbackFolder];
+                for (const fName of foldersToTry) {
+                    if (!fName) continue;
+                    try {
+                        const folderQuery = encodeURIComponent(`name = '${fName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
+                        const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${folderQuery}&fields=files(id,name)&t=${Date.now()}`, {
+                            headers: authHeaders,
+                            cache: 'no-store'
+                        });
+                        if (folderRes.status === 401 || folderRes.status === 403) {
+                            handleDriveTokenExpired();
+                            return;
                         }
+                        if (folderRes.ok) {
+                            const folderData = await folderRes.json();
+                            if (folderData.files && folderData.files.length > 0) {
+                                folderId = folderData.files[0].id;
+                                break;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(`Folder search failed for ${fName}:`, e);
                     }
-                } catch (e) {
-                    console.warn("Folder search query failed, using direct ID:", e);
                 }
 
-                // 2. Search for run_data.json, momentum_data.json, and zoomed_chart.png in folder
+                // If folder not found and switchblade, use known default ID
+                if (!folderId && scriptDef.id === 'switchblade') {
+                    folderId = '1_Sj65yOiX3FPdiZw8nHl_RGlYprYJA6Y';
+                }
+
+                if (!folderId) {
+                    console.log(`Folder for ${scriptDef.name} not found yet on Drive. Falling back to cached snapshot.`);
+                    await loadBundledData();
+                    return;
+                }
+
+                // 2. List files in designated folder
                 let filesList = [];
                 try {
                     const filesQuery = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
@@ -959,31 +1690,26 @@
                         filesList = filesData.files || [];
                     }
                 } catch (e) {
-                    console.warn("Folder listing failed, will use known file IDs:", e);
+                    console.warn("Folder listing failed:", e);
                 }
-                
-                let runDataFile = filesList.find(f => f.name === 'run_data.json') || { id: KNOWN_DRIVE_FILES.run_data };
-                let momDataFile = filesList.find(f => f.name === 'momentum_data.json') || { id: KNOWN_DRIVE_FILES.momentum };
-                let chartFile = filesList.find(f => f.name === 'zoomed_chart.png') || { id: KNOWN_DRIVE_FILES.chart };
-                let fullChartFile = filesList.find(f => f.name === 'full_backtest_chart.png') || { id: KNOWN_DRIVE_FILES.full_chart };
-                let logFile = filesList.find(f => f.name === 'latest_run.html') || { id: KNOWN_DRIVE_FILES.log };
+
+                let runDataFile = filesList.find(f => f.name === 'run_data.json') || filesList.find(f => f.name.endsWith('.json'));
+                let chartFile = filesList.find(f => f.name === (scriptDef.chartFile || 'zoomed_chart.png')) || filesList.find(f => f.name.endsWith('.png'));
+                let logFile = filesList.find(f => f.name === 'latest_run.html') || filesList.find(f => f.name.endsWith('.html'));
 
                 let driveSuccess = false;
 
-                // 3. Fetch structured run data
+                // Fetch run data JSON
                 if (runDataFile && runDataFile.id) {
                     try {
                         const rRes = await fetch(`https://www.googleapis.com/drive/v3/files/${runDataFile.id}?alt=media&t=${Date.now()}`, {
                             headers: authHeaders,
                             cache: 'no-store'
                         });
-                        if (rRes.status === 401 || rRes.status === 403) {
-                            handleDriveTokenExpired();
-                            return;
-                        }
                         if (rRes.ok) {
                             runData = await rRes.json();
-                            renderRunData(runData, runDataFile.modifiedTime);
+                            currentScriptData = runData;
+                            renderActiveScriptData(runData, runDataFile.modifiedTime);
                             driveSuccess = true;
                         }
                     } catch (e) {
@@ -991,28 +1717,26 @@
                     }
                 }
 
-                // 4. Fetch momentum & guard dogs data
-                if (momDataFile && momDataFile.id) {
-                    try {
-                        const mRes = await fetch(`https://www.googleapis.com/drive/v3/files/${momDataFile.id}?alt=media&t=${Date.now()}`, {
-                            headers: authHeaders,
-                            cache: 'no-store'
-                        });
-                        if (mRes.status === 401 || mRes.status === 403) {
-                            handleDriveTokenExpired();
-                            return;
+                // If Switchblade, also fetch momentum_data.json & full chart
+                if (scriptDef.id === 'switchblade') {
+                    let momFile = filesList.find(f => f.name === 'momentum_data.json');
+                    if (momFile && momFile.id) {
+                        try {
+                            const mRes = await fetch(`https://www.googleapis.com/drive/v3/files/${momFile.id}?alt=media&t=${Date.now()}`, {
+                                headers: authHeaders,
+                                cache: 'no-store'
+                            });
+                            if (mRes.ok) {
+                                momentumData = await mRes.json();
+                                renderMomentumData(momentumData, momFile.modifiedTime);
+                            }
+                        } catch (e) {
+                            console.warn("Could not fetch momentum data:", e);
                         }
-                        if (mRes.ok) {
-                            momentumData = await mRes.json();
-                            renderMomentumData(momentumData, momDataFile.modifiedTime);
-                            driveSuccess = true;
-                        }
-                    } catch (e) {
-                        console.warn("Could not fetch momentum from Drive:", e);
                     }
                 }
 
-                // 5a. Fetch Zoomed 200-day chart
+                // Stream Chart Image
                 if (chartFile && chartFile.id) {
                     try {
                         const cRes = await fetch(`https://www.googleapis.com/drive/v3/files/${chartFile.id}?alt=media&t=${Date.now()}`, {
@@ -1026,45 +1750,13 @@
                             const linkEl = document.getElementById('btn-open-chart');
                             if (imgEl) imgEl.src = blobUrl;
                             if (linkEl) linkEl.href = blobUrl;
-                            driveSuccess = true;
-                        } else {
-                            const imgEl = document.getElementById('drive-zoomed-img');
-                            if (imgEl) imgEl.src = `zoomed_chart.png?t=${Date.now()}`;
                         }
                     } catch (e) {
-                        console.warn("Could not stream chart blob from Drive:", e);
-                        const imgEl = document.getElementById('drive-zoomed-img');
-                        if (imgEl) imgEl.src = `zoomed_chart.png?t=${Date.now()}`;
+                        console.warn("Chart stream failed:", e);
                     }
                 }
 
-                // 5b. Fetch All-Time Full Backtest chart (2012 - Present)
-                if (fullChartFile && fullChartFile.id) {
-                    try {
-                        const fcRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fullChartFile.id}?alt=media&t=${Date.now()}`, {
-                            headers: authHeaders,
-                            cache: 'no-store'
-                        });
-                        if (fcRes.ok) {
-                            const blob = await fcRes.blob();
-                            const blobUrl = URL.createObjectURL(blob);
-                            const fullImgEl = document.getElementById('drive-full-img');
-                            const fullLinkEl = document.getElementById('btn-open-full-chart');
-                            if (fullImgEl) fullImgEl.src = blobUrl;
-                            if (fullLinkEl) fullLinkEl.href = blobUrl;
-                            driveSuccess = true;
-                        } else {
-                            const fullImgEl = document.getElementById('drive-full-img');
-                            if (fullImgEl) fullImgEl.src = `full_backtest_chart.png?t=${Date.now()}`;
-                        }
-                    } catch (e) {
-                        console.warn("Could not stream full chart blob from Drive:", e);
-                        const fullImgEl = document.getElementById('drive-full-img');
-                        if (fullImgEl) fullImgEl.src = `full_backtest_chart.png?t=${Date.now()}`;
-                    }
-                }
-
-                // 6. Fetch Raw Execution Log
+                // Stream Execution Log
                 if (logFile && logFile.id) {
                     try {
                         const lRes = await fetch(`https://www.googleapis.com/drive/v3/files/${logFile.id}?alt=media&t=${Date.now()}`, {
@@ -1074,12 +1766,8 @@
                         if (lRes.ok) {
                             const logText = await lRes.text();
                             loadExecutionLog(logText);
-                            driveSuccess = true;
-                        } else {
-                            loadExecutionLog();
                         }
                     } catch (e) {
-                        console.warn("Could not fetch log text from Drive:", e);
                         loadExecutionLog();
                     }
                 } else {
@@ -1087,17 +1775,15 @@
                 }
 
                 if (driveSuccess) {
-                    // Update UI badges
                     document.getElementById('sync-source-pill').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-accent-emerald mr-1.5"></span> Google Drive Live`;
-                    document.getElementById('banner-title').textContent = "Google Drive Live Stream Active";
-                    document.getElementById('banner-subtext').innerHTML = `Colab Run artifacts connected live from <span class="font-mono text-accent-blue">MyDrive/Switchblade_Live</span>`;
+                    document.getElementById('banner-title').textContent = `${scriptDef.name} Live Stream Active`;
+                    document.getElementById('banner-subtext').innerHTML = `Colab Run artifacts connected live from <span class="font-mono text-accent-blue">MyDrive/${scriptDef.folderName}</span>`;
                     document.getElementById('status-indicator-dot').className = "w-3 h-3 rounded-full bg-accent-emerald animate-pulse";
-                    document.getElementById('settings-sync-status').textContent = "Connected & Active (Switchblade_Live)";
+                    document.getElementById('settings-sync-status').textContent = `Connected & Active (${scriptDef.folderName})`;
                     document.getElementById('settings-sync-status').className = "text-accent-emerald font-bold";
                 } else {
                     handleDriveTokenExpired();
                 }
-
             } catch (err) {
                 console.warn("Drive sync fallback:", err);
                 handleDriveTokenExpired();
@@ -1121,49 +1807,38 @@
         async function loadBundledData() {
             try {
                 const ts = Date.now();
-                const [rRes, mRes] = await Promise.all([
-                    fetch(`run_data.json?t=${ts}`).catch(() => fetch(`data.json?t=${ts}`)),
-                    fetch(`momentum_data.json?t=${ts}`)
-                ]);
+                const scriptDef = REGISTERED_SCRIPTS.find(s => s.id === currentScriptId) || REGISTERED_SCRIPTS[0];
+                const res = await fetch(`${scriptDef.fallbackData}?t=${ts}`).catch(() => fetch(`run_data.json?t=${ts}`));
+                if (res.ok) {
+                    const data = await res.json();
+                    currentScriptData = data;
+                    renderActiveScriptData(data);
+                }
 
-                if (rRes && rRes.ok) {
-                    runData = await rRes.json();
-                    renderRunData(runData);
-                } else {
-                    const fallbackRes = await fetch(`data.json?t=${ts}`);
-                    if (fallbackRes.ok) {
-                        runData = await fallbackRes.json();
-                        renderRunData(runData);
+                if (scriptDef.id === 'switchblade') {
+                    const mRes = await fetch(`momentum_data.json?t=${ts}`);
+                    if (mRes.ok) {
+                        momentumData = await mRes.json();
+                        renderMomentumData(momentumData);
                     }
                 }
 
-                if (mRes && mRes.ok) {
-                    momentumData = await mRes.json();
-                    renderMomentumData(momentumData);
-                }
-
-                // Update charts images and links with cache-buster
+                // Update chart fallback
                 const chartImg = document.getElementById('drive-zoomed-img');
                 const chartBtn = document.getElementById('btn-open-chart');
-                if (chartImg) chartImg.src = `zoomed_chart.png?t=${ts}`;
-                if (chartBtn) chartBtn.href = `zoomed_chart.png?t=${ts}`;
+                const cPath = scriptDef.chartFile || 'zoomed_chart.png';
+                if (chartImg) chartImg.src = `${cPath}?t=${ts}`;
+                if (chartBtn) chartBtn.href = `${cPath}?t=${ts}`;
 
-                const fullImg = document.getElementById('drive-full-img');
-                const fullBtn = document.getElementById('btn-open-full-chart');
-                if (fullImg) fullImg.src = `full_backtest_chart.png?t=${ts}`;
-                if (fullBtn) fullBtn.href = `full_backtest_chart.png?t=${ts}`;
-
-                // Populate execution log iframe via srcdoc to prevent X-Frame-Options denial
                 loadExecutionLog();
 
-                // Update UI badges if not in active live mode
                 if (!googleAccessToken) {
                     const pill = document.getElementById('sync-source-pill');
                     if (pill) pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span> Bundled Cache`;
                     const bTitle = document.getElementById('banner-title');
-                    if (bTitle) bTitle.textContent = "Omni-X Execution Snapshot";
+                    if (bTitle) bTitle.textContent = `${scriptDef.name} Snapshot`;
                     const bSub = document.getElementById('banner-subtext');
-                    if (bSub) bSub.innerHTML = `Showing bundled run data. <button onclick="signInWithGoogle()" class="underline font-bold text-accent-blue ml-1">Connect Google Drive</button> for real-time live streaming.`;
+                    if (bSub) bSub.innerHTML = `Showing bundled ${scriptDef.name} data. <button onclick="signInWithGoogle()" class="underline font-bold text-accent-blue ml-1">Connect Google Drive</button> for real-time live streaming.`;
                     const dot = document.getElementById('status-indicator-dot');
                     if (dot) dot.className = "w-3 h-3 rounded-full bg-amber-400";
                     const sStatus = document.getElementById('settings-sync-status');
@@ -1176,6 +1851,7 @@
                 console.error("Error loading bundled data:", e);
             }
         }
+
 
         // View toggle for Performance Charts (both, full, zoomed)
         function setChartView(view) {
@@ -1715,6 +2391,399 @@
         } else {
             loadBundledData();
         }
+
+        // ==============================================================
+        // OMNI-X SPECIALIZED SCRIPT RENDERERS
+        // ==============================================================
+
+        function renderCitadelData(data) {
+            if (!data) return;
+            const rDate = data.report_date || 'Latest';
+            const repEl = document.getElementById('citadel-report-date');
+            if (repEl) repEl.textContent = `Report Date: ${rDate}`;
+
+            const dir = data.regime_directives || {};
+            const rTitle = document.getElementById('citadel-regime-title');
+            if (rTitle) rTitle.textContent = dir.current_macro_regime || 'Macro Directive';
+
+            const rDisp = document.getElementById('citadel-regime-display');
+            if (rDisp) rDisp.textContent = dir.current_macro_regime || 'GOLDILOCKS';
+
+            const pDisp = document.getElementById('citadel-posture-display');
+            if (pDisp) pDisp.textContent = dir.suggested_market_posture || 'RISK-ON';
+
+            const vTerm = document.getElementById('citadel-vix-term');
+            if (vTerm) vTerm.textContent = dir.vix_term_structure || 'CONTANGO';
+
+            const liq = document.getElementById('citadel-liquidity');
+            if (liq) liq.textContent = dir.liquidity_environment || 'EXPANSIVE';
+
+            const dix = document.getElementById('citadel-dix');
+            if (dix) dix.textContent = dir.dark_pool_dix ? `${(dir.dark_pool_dix * 100).toFixed(1)}%` : 'N/A';
+
+            const env = data.macro_environment || {};
+            const yCurve = document.getElementById('citadel-yield-curve');
+            if (yCurve) yCurve.textContent = env.yield_curve_10y_2y !== undefined ? `${env.yield_curve_10y_2y > 0 ? '+' : ''}${env.yield_curve_10y_2y}%` : 'N/A';
+
+            const spxDist = document.getElementById('citadel-spx-dist');
+            if (spxDist) spxDist.textContent = env.spx_200dma_dist_pct !== undefined ? `${env.spx_200dma_dist_pct > 0 ? '+' : ''}${env.spx_200dma_dist_pct}%` : 'N/A';
+
+            const bTally = document.getElementById('citadel-breadth-tally');
+            const tally = data.breadth_summary || {};
+            if (bTally) bTally.textContent = `${tally.BULLISH || 0} Bull / ${tally.BEARISH || 0} Bear`;
+
+            // Trend Matrix Rows
+            const tbody = document.getElementById('citadel-trend-matrix-tbody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                const matrix = data.trend_matrix || {};
+                Object.keys(matrix).forEach(category => {
+                    const catObj = matrix[category] || {};
+                    Object.keys(catObj).forEach(ticker => {
+                        const item = catObj[ticker];
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-dark-hover/50 transition';
+                        const isBull = item.trend_status === 'BULLISH';
+                        const isBear = item.trend_status === 'BEARISH';
+                        const badgeClass = isBull ? 'bg-accent-emerald/20 text-accent-emerald border-accent-emerald/40' : (isBear ? 'bg-accent-rose/20 text-accent-rose border-accent-rose/40' : 'bg-dark-elevated text-slate-300 border-dark-border');
+                        tr.innerHTML = `
+                            <td class="py-2 px-3 text-slate-400 capitalize">${category.replace('_', ' ')}</td>
+                            <td class="py-2 px-3 font-bold text-white">${ticker}</td>
+                            <td class="py-2 px-3 text-white">$${item.current_price?.toFixed(2) || 'N/A'}</td>
+                            <td class="py-2 px-3 text-slate-400">$${item['50_dma']?.toFixed(2) || 'N/A'}</td>
+                            <td class="py-2 px-3 text-slate-400">$${item['200_dma']?.toFixed(2) || 'N/A'}</td>
+                            <td class="py-2 px-3 ${item.momentum_20d_pct >= 0 ? 'text-accent-emerald' : 'text-accent-rose'} font-semibold">${item.momentum_20d_pct >= 0 ? '+' : ''}${item.momentum_20d_pct?.toFixed(2)}%</td>
+                            <td class="py-2 px-3 text-right">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">${item.trend_status}</span>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+            }
+        }
+
+        function renderChronosData(data) {
+            if (!data) return;
+            const meta = data.metadata || {};
+            const eDate = document.getElementById('chronos-eval-date');
+            if (eDate) eDate.textContent = `Forecast Horizon: ${meta.timestamp || 'T+0'}`;
+
+            const cProxy = document.getElementById('chronos-current-proxy');
+            if (cProxy) cProxy.textContent = `$${meta.current_proxy_price?.toFixed(2) || '592.50'}`;
+
+            const tTarget = document.getElementById('chronos-t100-target');
+            if (tTarget) tTarget.textContent = `$${meta.ultimate_t100_target?.toFixed(2) || '638.40'} (+${meta.projected_return_t100_pct || 7.75}%)`;
+
+            // Horizons Table
+            const tbody = document.getElementById('chronos-horizons-tbody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                (data.horizons || []).forEach(h => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-dark-hover/50 transition';
+                    tr.innerHTML = `
+                        <td class="py-2 px-3 font-bold text-white">${h.horizon}</td>
+                        <td class="py-2 px-3 text-slate-300">$${h.lstm_1999?.toFixed(2)}</td>
+                        <td class="py-2 px-3 text-slate-300">$${h.lear_1999?.toFixed(2)}</td>
+                        <td class="py-2 px-3 text-slate-300">$${h.lstm_modern?.toFixed(2)}</td>
+                        <td class="py-2 px-3 text-slate-300">$${h.lear_modern?.toFixed(2)}</td>
+                        <td class="py-2 px-3 font-bold text-accent-cyan">$${h.ultimate_blend?.toFixed(2)}</td>
+                        <td class="py-2 px-3 text-right text-accent-emerald font-semibold">+${h.return_pct?.toFixed(2)}%</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Drivers Container
+            const dContainer = document.getElementById('chronos-drivers-container');
+            if (dContainer) {
+                dContainer.innerHTML = '';
+                (data.top_drivers || []).forEach(d => {
+                    const isUp = d.impact === 'UP';
+                    const card = document.createElement('div');
+                    card.className = `p-3 rounded-xl border flex items-center justify-between text-xs font-mono ${
+                        isUp ? 'bg-accent-emerald/10 border-accent-emerald/30' : 'bg-accent-rose/10 border-accent-rose/30'
+                    }`;
+                    card.innerHTML = `
+                        <div>
+                            <span class="font-bold text-white block">${d.feature}</span>
+                            <span class="text-[10px] text-slate-400">${d.model}</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isUp ? 'bg-accent-emerald/20 text-accent-emerald' : 'bg-accent-rose/20 text-accent-rose'}">
+                            ${isUp ? '▲ Pushing UP' : '▼ Pulling DOWN'} (${Math.abs(d.score).toFixed(3)})
+                        </span>
+                    `;
+                    dContainer.appendChild(card);
+                });
+            }
+        }
+
+        function renderSynapseEarningsData(data) {
+            if (!data) return;
+            const macro = data.macro || {};
+            const vixEl = document.getElementById('synapse-earnings-vix');
+            if (vixEl) vixEl.textContent = macro.VIX || '14.82';
+
+            const trades = data.upcoming_trades || [];
+            const countEl = document.getElementById('synapse-earnings-count');
+            if (countEl) countEl.textContent = `${trades.length} Setups`;
+
+            const tbody = document.getElementById('synapse-earnings-tbody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                trades.forEach(t => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-dark-hover/50 transition';
+                    const isBull = (t.predicted_direction || '').includes('BULL');
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-3">
+                            <span class="font-bold text-white block">${t.ticker}</span>
+                            <span class="text-[10px] text-slate-400">${t.company || ''}</span>
+                        </td>
+                        <td class="py-2.5 px-3 text-slate-300">${t.earnings_date} <span class="text-[10px] text-slate-500">(${t.timing})</span></td>
+                        <td class="py-2.5 px-3 font-semibold text-accent-amber">±${t.implied_move_pct}%</td>
+                        <td class="py-2.5 px-3 font-bold ${isBull ? 'text-accent-emerald' : 'text-accent-rose'}">${t.predicted_direction}</td>
+                        <td class="py-2.5 px-3 text-slate-300">${(t.massive_prob * 100).toFixed(0)}% / ${(t.up_prob * 100).toFixed(0)}%</td>
+                        <td class="py-2.5 px-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-accent-blue/20 text-accent-blue border border-accent-blue/30">${t.conviction}</span>
+                        </td>
+                        <td class="py-2.5 px-3 text-slate-300">
+                            <span class="font-semibold text-white block">${t.strategy}</span>
+                            <span class="text-[10px] text-accent-cyan">${t.strike_setup || ''}</span>
+                        </td>
+                        <td class="py-2.5 px-3 text-right">
+                            <span class="text-slate-400 block">${t.max_risk}</span>
+                            <span class="text-accent-emerald font-bold">${t.target_gain}</span>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function renderSynapseMassiveRunsData(data) {
+            if (!data) return;
+            const meta = data.meta || {};
+            const threshEl = document.getElementById('synapse-massive-threshold');
+            if (threshEl) threshEl.textContent = meta.applied_threshold || '0.65';
+
+            const runners = data.massive_run_candidates || [];
+            const countEl = document.getElementById('synapse-massive-count');
+            if (countEl) countEl.textContent = `${runners.length} Runners`;
+
+            const tbody = document.getElementById('synapse-massive-tbody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                runners.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-dark-hover/50 transition';
+                    const probPct = (r.massive_run_probability * 100).toFixed(0);
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-3 font-bold text-white">${r.ticker}</td>
+                        <td class="py-2.5 px-3 text-slate-400">${r.sector}</td>
+                        <td class="py-2.5 px-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-16 bg-dark-base rounded-full h-1.5 overflow-hidden border border-dark-border">
+                                    <div class="bg-accent-amber h-full" style="width: ${probPct}%"></div>
+                                </div>
+                                <span class="font-bold text-accent-amber">${probPct}%</span>
+                            </div>
+                        </td>
+                        <td class="py-2.5 px-3 text-white">$${r.current_price?.toFixed(2)}</td>
+                        <td class="py-2.5 px-3 text-accent-cyan font-semibold">$${r.breakout_trigger?.toFixed(2)}</td>
+                        <td class="py-2.5 px-3 text-accent-rose">$${r.stop_loss?.toFixed(2)}</td>
+                        <td class="py-2.5 px-3 text-accent-emerald font-bold">+${r.target_gain_pct}%</td>
+                        <td class="py-2.5 px-3 text-right text-accent-cyan font-mono">+${r.volume_surge_pct}%</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function renderMapleCarryData(data) {
+            if (!data) return;
+            const gMeta = data.Global_Metadata || {};
+            const mRate = document.getElementById('maple-margin-rate');
+            if (mRate) mRate.textContent = `${(gMeta.Broker_Margin_Rate * 100).toFixed(2)}%`;
+
+            const phases = data.Phases || {};
+            const phaseKey = Object.keys(phases)[0] || 'Phase_1_Core_Carry';
+            const phase = phases[phaseKey] || {};
+            const pMeta = phase.Metadata || {};
+
+            const nEq = document.getElementById('maple-net-equity');
+            if (nEq) nEq.textContent = `$${Number(pMeta.Net_Equity || 0).toLocaleString()}`;
+
+            const tLev = document.getElementById('maple-target-lev');
+            if (tLev) tLev.textContent = `${pMeta.Target_Leverage || 1.65}x`;
+
+            const tAssets = document.getElementById('maple-target-assets');
+            if (tAssets) tAssets.textContent = `$${Number(pMeta.Target_Gross_Assets || 0).toLocaleString()}`;
+
+            const bPower = document.getElementById('maple-buying-power');
+            if (bPower) bPower.textContent = `$${Number(pMeta.Total_Buying_Power_For_New_Trades || 0).toLocaleString()}`;
+
+            const cSlot = document.getElementById('maple-capital-slot');
+            if (cSlot) cSlot.textContent = `$${Number(pMeta.Capital_Per_Position || 0).toLocaleString()}`;
+
+            const tbody = document.getElementById('maple-holdings-tbody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                (phase.Current_Holdings_Audit || []).forEach(h => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-dark-hover/50 transition';
+                    const isSafe = h.Math_Verdict === 'SAFE';
+                    tr.innerHTML = `
+                        <td class="py-2 px-3 font-bold text-white">${h.Ticker}</td>
+                        <td class="py-2 px-3 text-slate-300">${h.Shares}</td>
+                        <td class="py-2 px-3 text-white">$${Number(h.Market_Value).toLocaleString()}</td>
+                        <td class="py-2 px-3 text-accent-emerald font-semibold">${h.Div_Yield_Pct?.toFixed(2)}%</td>
+                        <td class="py-2 px-3 text-slate-400">${h.Margin_Cost_Pct?.toFixed(2)}%</td>
+                        <td class="py-2 px-3 font-bold text-accent-cyan">+${h.Net_Carry_Pct?.toFixed(2)}%</td>
+                        <td class="py-2 px-3 text-right">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${isSafe ? 'bg-accent-emerald/20 text-accent-emerald border-accent-emerald/40' : 'bg-accent-rose/20 text-accent-rose border-accent-rose/40'}">
+                                ${h.Math_Verdict}
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function renderCorporateClassData(data) {
+            if (!data) return;
+            const metrics = data.metrics || {};
+            const sMode = metrics.sortino_mode || {};
+            const ddMode = metrics.min_downside_mode || {};
+
+            const sRatio = document.getElementById('corp-sortino-ratio');
+            if (sRatio) sRatio.textContent = sMode.sortino_ratio || '2.77';
+
+            const eRet = document.getElementById('corp-expected-return');
+            if (eRet) eRet.textContent = `${sMode.expected_return_pct}%`;
+
+            const sRet = document.getElementById('corp-sortino-ret');
+            if (sRet) sRet.textContent = `${sMode.expected_return_pct}%`;
+            const sDd = document.getElementById('corp-sortino-dd');
+            if (sDd) sDd.textContent = `${sMode.downside_dev_pct}%`;
+            const sS = document.getElementById('corp-sortino-s');
+            if (sS) sS.textContent = sMode.sortino_ratio;
+
+            const mRet = document.getElementById('corp-mindd-ret');
+            if (mRet) mRet.textContent = `${ddMode.expected_return_pct}%`;
+            const mDd = document.getElementById('corp-mindd-dd');
+            if (mDd) mDd.textContent = `${ddMode.downside_dev_pct}%`;
+            const mS = document.getElementById('corp-mindd-s');
+            if (mS) mS.textContent = ddMode.sortino_ratio;
+
+            const tbody = document.getElementById('corp-allocations-tbody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                (data.allocations || []).forEach(a => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-dark-hover/50 transition';
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-3 font-bold text-white">${a.Ticker}</td>
+                        <td class="py-2.5 px-3 text-slate-400">${a.Name || ''}</td>
+                        <td class="py-2.5 px-3 font-bold text-accent-emerald">${a['Weight Sortino (%)']?.toFixed(1)}%</td>
+                        <td class="py-2.5 px-3 text-right font-bold text-accent-blue">${a['Weight Min DD (%)']?.toFixed(1)}%</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function renderSequoiaData(data) {
+            if (!data) return;
+            const meta = data.metadata || {};
+            const tsEl = document.getElementById('sequoia-timestamp');
+            if (tsEl) tsEl.textContent = `Scanned: ${meta.timestamp || 'T+1'}`;
+
+            const regEl = document.getElementById('sequoia-macro-regime');
+            if (regEl) regEl.textContent = meta.macro_regime || 'STANDARD';
+
+            const countEl = document.getElementById('sequoia-open-count');
+            if (countEl) countEl.textContent = `${(data.open_trades || []).length} Open`;
+
+            // Open Positions Table
+            const oTbody = document.getElementById('sequoia-open-tbody');
+            if (oTbody) {
+                oTbody.innerHTML = '';
+                (data.open_trades || []).forEach(pos => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-dark-hover/50 transition';
+                    const isProfit = (pos.floating_pnl || 0) >= 0;
+                    tr.innerHTML = `
+                        <td class="py-2 px-3 font-bold text-white">${pos.ticker}</td>
+                        <td class="py-2 px-3 text-slate-400">${pos.entry_date}</td>
+                        <td class="py-2 px-3 text-slate-300">$${pos.entry_p?.toFixed(2)}</td>
+                        <td class="py-2 px-3 text-white font-semibold">$${pos.current_p?.toFixed(2)}</td>
+                        <td class="py-2 px-3 font-bold ${isProfit ? 'text-accent-emerald' : 'text-accent-rose'}">${isProfit ? '+' : ''}${pos.floating_pnl?.toFixed(2)}%</td>
+                        <td class="py-2 px-3 text-accent-rose">$${pos.sl_price?.toFixed(2)}</td>
+                        <td class="py-2 px-3 text-right text-accent-emerald font-semibold">$${pos.tp_price?.toFixed(2)}</td>
+                    `;
+                    oTbody.appendChild(tr);
+                });
+            }
+
+            // Candidates Table
+            const cTbody = document.getElementById('sequoia-candidates-tbody');
+            if (cTbody) {
+                cTbody.innerHTML = '';
+                (data.candidates || []).forEach(c => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-dark-hover/50 transition';
+                    tr.innerHTML = `
+                        <td class="py-2 px-3 font-bold text-white">${c.ticker}</td>
+                        <td class="py-2 px-3 text-accent-cyan font-semibold">$${c.entry_p?.toFixed(2)}</td>
+                        <td class="py-2 px-3 text-slate-300">$${c.current_p?.toFixed(2)}</td>
+                        <td class="py-2 px-3 font-bold text-accent-emerald">${((c.conf || 0.8) * 100).toFixed(0)}%</td>
+                        <td class="py-2 px-3 text-accent-rose">$${c.sl_price?.toFixed(2)}</td>
+                        <td class="py-2 px-3 text-accent-emerald">$${c.tp_price?.toFixed(2)}</td>
+                        <td class="py-2 px-3 text-right text-slate-400">${c.time_stop_date || 'T+10'}</td>
+                    `;
+                    cTbody.appendChild(tr);
+                });
+            }
+        }
+
+        // ==============================================================
+        // UNIVERSAL SCRIPT DATA DISPATCHER
+        // ==============================================================
+        function renderActiveScriptData(data, modifiedTime) {
+            if (!data) return;
+
+            // Sync Raw State Inspector
+            const rawViewer = document.getElementById('state-json-viewer');
+            if (rawViewer) {
+                rawViewer.textContent = JSON.stringify(data, null, 2);
+            }
+
+            const vanTime = formatVancouverTime(modifiedTime || data.timestamp || data.report_date || data.metadata?.timestamp);
+            const bTime = document.getElementById('banner-timestamp');
+            if (bTime) bTime.innerHTML = `Run Date: <span class="text-white font-semibold">${vanTime}</span> <span class="text-[10px] text-accent-cyan font-mono">(Vancouver, BC)</span>`;
+
+            if (currentScriptId === 'switchblade') {
+                renderRunData(data, modifiedTime);
+            } else if (currentScriptId === 'citadel') {
+                renderCitadelData(data);
+            } else if (currentScriptId === 'chronos') {
+                renderChronosData(data);
+            } else if (currentScriptId === 'synapse_earnings') {
+                renderSynapseEarningsData(data);
+            } else if (currentScriptId === 'synapse_massive_runs') {
+                renderSynapseMassiveRunsData(data);
+            } else if (currentScriptId === 'maple_carry') {
+                renderMapleCarryData(data);
+            } else if (currentScriptId === 'corporate_class') {
+                renderCorporateClassData(data);
+            } else if (currentScriptId === 'sequoia') {
+                renderSequoiaData(data);
+            }
+        }
+
     </script>
 </body>
 </html>
