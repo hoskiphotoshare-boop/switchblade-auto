@@ -1712,7 +1712,7 @@
         }
 
         // Google Sign In with Google Drive Scope
-        window.signInWithGoogle = async function() {
+        async function signInWithGoogle() {
             const errBox = document.getElementById('login-error-msg');
             if (errBox) errBox.classList.add('hidden');
 
@@ -1783,9 +1783,10 @@
                     btn.innerHTML = originalBtnHtml;
                 }
             }
-        };
+        }
+        window.signInWithGoogle = signInWithGoogle;
 
-        window.signOutUser = async function() {
+        async function signOutUser() {
             if (!auth) return;
             await signOut(auth);
             localStorage.removeItem('sb_drive_token');
@@ -1796,7 +1797,8 @@
             if (mainContent) mainContent.classList.add('hidden');
             if (loginGate) loginGate.classList.remove('hidden');
             location.reload();
-        };
+        }
+        window.signOutUser = signOutUser;
 
         // ==============================================================
         // OMNI-X SCRIPT REGISTRY & STATE MANAGEMENT
@@ -2037,7 +2039,7 @@
             }
         }
 
-        window.toggleScriptMenu = function(e) {
+        function toggleScriptMenu(e) {
             if (e) e.stopPropagation();
             const menu = document.getElementById('script-dropdown-menu');
             const arrow = document.getElementById('script-dropdown-arrow');
@@ -2051,7 +2053,8 @@
                 menu.classList.add('hidden');
                 if (arrow) arrow.style.transform = 'rotate(0deg)';
             }
-        };
+        }
+        window.toggleScriptMenu = toggleScriptMenu;
 
         document.addEventListener('click', (e) => {
             const container = document.getElementById('script-selector-container');
@@ -2063,7 +2066,7 @@
             }
         });
 
-        window.selectScript = async function(scriptId) {
+        async function selectScript(scriptId) {
             currentScriptId = scriptId;
             localStorage.setItem('omni_x_active_script', scriptId);
 
@@ -2173,7 +2176,8 @@
             }
 
             loadExecutionLog();
-        };
+        }
+        window.selectScript = selectScript;
 
         // Execution Log Loader & Synthesizer
         async function loadExecutionLog(htmlContent) {
@@ -2539,7 +2543,7 @@
             }
         }
 
-        window.refreshDriveData = function() {
+        function refreshDriveData() {
             const btn = document.getElementById('btn-refresh-drive');
             const icon = document.getElementById('refresh-icon');
             if (icon) icon.classList.add('animate-spin');
@@ -2553,11 +2557,13 @@
             } else {
                 loadBundledData().finally(onComplete);
             }
-        };
+        }
+        window.refreshDriveData = refreshDriveData;
 
-        window.reconnectDrive = function() {
+        function reconnectDrive() {
             signInWithGoogle();
-        };
+        }
+        window.reconnectDrive = reconnectDrive;
 
         async function loadBundledData() {
             try {
@@ -2908,7 +2914,7 @@
         // ==============================================================
         // UNIVERSAL TAB SWITCHING (Desktop + Mobile)
         // ==============================================================
-        window.switchTab = function(tabId) {
+        function switchTab(tabId) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active', 'bg-accent-blue', 'text-white');
@@ -2974,14 +2980,15 @@
                     }
                 }
             }
-        };
+        }
+        window.switchTab = switchTab;
 
         // ==============================================================
         // OMNI-X SPECIALIZED SCRIPT RENDERERS
         // ==============================================================
 
         // 1. CITADEL MACRO ENGINE
-        function renderCitadelData(data) {
+                function renderCitadelData(data) {
             if (!data) return;
             const rDate = data.report_date || 'Latest';
             const repEl = document.getElementById('citadel-report-date');
@@ -3033,8 +3040,7 @@
                             </td>
                         `;
                         tbody.appendChild(tr);
-                        });
-                    }
+                    });
                 }
             });
 
@@ -3055,8 +3061,9 @@
             }
         }
 
+
         // 2. PROJECT CHRONOS
-        window.switchChronosChart = function(type) {
+        function switchChronosChart(type) {
             const btnEns = document.getElementById('btn-chronos-view-ensemble');
             const btnZoom = document.getElementById('btn-chronos-view-zoomed');
             const img = document.getElementById('chronos-chart-img');
@@ -3083,7 +3090,8 @@
                 if (img) img.src = url;
                 if (link) link.href = url;
             }
-        };
+        }
+        window.switchChronosChart = switchChronosChart;
 
         function renderChronosDrivers(featData) {
             if (!featData) return;
@@ -3132,6 +3140,8 @@
                 }
             });
         }
+        window.switchChronosChart = switchChronosChart;
+
 
         function renderChronosData(data) {
             if (!data) return;
@@ -3193,8 +3203,7 @@
                             </td>
                         `;
                         tbody.appendChild(tr);
-                        });
-                    }
+                    });
                 }
             });
 
@@ -3221,7 +3230,7 @@
         }
 
         // 3. SYNAPSE EARNINGS TRADER
-        function renderSynapseEarningsData(data) {
+                function renderSynapseEarningsData(data) {
             if (!data) return;
             const macro = data.macro || {};
             const vixEl = document.getElementById('synapse-earnings-vix');
@@ -3240,22 +3249,23 @@
                         tbody.innerHTML = '<tr><td colspan="7" class="py-4 text-center text-slate-500 font-mono italic">No upcoming catalyst setups currently staged. Scanner monitoring live options chains.</td></tr>';
                     } else {
                         trades.forEach(t => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'hover:bg-dark-hover/50 transition border-b border-dark-border/40';
-                        const isBull = t.predicted_direction === 'BULLISH';
-                        tr.innerHTML = `
-                            <td class="py-2.5 px-3 font-bold text-white">${t.ticker}</td>
-                            <td class="py-2.5 px-3 text-slate-300">${t.earnings_date}</td>
-                            <td class="py-2.5 px-3 text-slate-400 font-mono">${t.timing}</td>
-                            <td class="py-2.5 px-3 font-mono font-bold ${isBull ? 'text-accent-emerald' : 'text-accent-rose'}">±${t.implied_move_pct}%</td>
-                            <td class="py-2.5 px-3 font-mono text-accent-cyan font-bold">${t.strategy || 'Diagonal'}</td>
-                            <td class="py-2.5 px-3 font-mono text-slate-300">${t.strike_setup || 'OTM'}</td>
-                            <td class="py-2.5 px-3 text-right">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.conviction === 'VERY HIGH' ? 'bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40' : 'bg-accent-blue/20 text-accent-blue border border-accent-blue/40'}">${t.conviction || 'HIGH'}</span>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
+                            const tr = document.createElement('tr');
+                            tr.className = 'hover:bg-dark-hover/50 transition border-b border-dark-border/40';
+                            const isBull = t.predicted_direction === 'BULLISH';
+                            tr.innerHTML = `
+                                <td class="py-2.5 px-3 font-bold text-white">${t.ticker}</td>
+                                <td class="py-2.5 px-3 text-slate-300">${t.earnings_date}</td>
+                                <td class="py-2.5 px-3 text-slate-400 font-mono">${t.timing}</td>
+                                <td class="py-2.5 px-3 font-mono font-bold ${isBull ? 'text-accent-emerald' : 'text-accent-rose'}">±${t.implied_move_pct}%</td>
+                                <td class="py-2.5 px-3 font-mono text-accent-cyan font-bold">${t.strategy || 'Diagonal'}</td>
+                                <td class="py-2.5 px-3 font-mono text-slate-300">${t.strike_setup || 'OTM'}</td>
+                                <td class="py-2.5 px-3 text-right">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.conviction === 'VERY HIGH' ? 'bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40' : 'bg-accent-blue/20 text-accent-blue border border-accent-blue/40'}">${t.conviction || 'HIGH'}</span>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
                 }
             });
 
@@ -3271,7 +3281,7 @@
         }
 
         // 4. SYNAPSE MASSIVE RUNS
-        function renderSynapseMassiveRunsData(data) {
+                function renderSynapseMassiveRunsData(data) {
             if (!data) return;
             const meta = data.meta || {};
             const threshEl = document.getElementById('synapse-massive-threshold');
@@ -3290,21 +3300,22 @@
                         tbody.innerHTML = '<tr><td colspan="7" class="py-4 text-center text-slate-500 font-mono italic">No massive breakout runners currently active. Scanner monitoring float rotation.</td></tr>';
                     } else {
                         runners.forEach(r => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'hover:bg-dark-hover/50 transition border-b border-dark-border/40';
-                        tr.innerHTML = `
-                            <td class="py-2.5 px-3 font-bold text-white">${r.ticker}</td>
-                            <td class="py-2.5 px-3 text-slate-300">${r.company || r.sector || ''}</td>
-                            <td class="py-2.5 px-3 text-slate-300 font-mono">$${r.current_price?.toFixed(2)}</td>
-                            <td class="py-2.5 px-3 font-mono text-accent-cyan font-bold">$${r.breakout_trigger?.toFixed(2)}</td>
-                            <td class="py-2.5 px-3 font-mono text-accent-emerald font-bold">+${r.volume_surge_pct}%</td>
-                            <td class="py-2.5 px-3 font-mono font-bold text-white">${((r.massive_run_probability || 0.8) * 100).toFixed(0)}%</td>
-                            <td class="py-2.5 px-3 text-right">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-accent-amber/20 text-accent-amber border border-accent-amber/40">+${r.target_gain_pct}% Target</span>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
+                            const tr = document.createElement('tr');
+                            tr.className = 'hover:bg-dark-hover/50 transition border-b border-dark-border/40';
+                            tr.innerHTML = `
+                                <td class="py-2.5 px-3 font-bold text-white">${r.ticker}</td>
+                                <td class="py-2.5 px-3 text-slate-300">${r.company || r.sector || ''}</td>
+                                <td class="py-2.5 px-3 text-slate-300 font-mono">$${r.current_price?.toFixed(2)}</td>
+                                <td class="py-2.5 px-3 font-mono text-accent-cyan font-bold">$${r.breakout_trigger?.toFixed(2)}</td>
+                                <td class="py-2.5 px-3 font-mono text-accent-emerald font-bold">+${r.volume_surge_pct}%</td>
+                                <td class="py-2.5 px-3 font-mono font-bold text-white">${((r.massive_run_probability || 0.8) * 100).toFixed(0)}%</td>
+                                <td class="py-2.5 px-3 text-right">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-accent-amber/20 text-accent-amber border border-accent-amber/40">+${r.target_gain_pct}% Target</span>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
                 }
             });
 
