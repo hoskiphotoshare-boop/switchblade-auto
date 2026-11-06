@@ -5,6 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Omni-X | Master Quantitative & Strategy Execution Portal</title>
     
+    <!-- Security Headers for GitHub Pages & Defense-in-Depth -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.googleusercontent.com https://*.googleapis.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseapp.com; frame-src 'self' blob: data: https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self';">
+
+    <script>
+        // Anti-clickjacking frame protection for static GitHub Pages environments
+        if (window.top !== window.self) {
+            try {
+                const topOrigin = window.top.location.origin;
+                const allowedOrigins = [
+                    window.location.origin,
+                    'https://switchblade-app.web.app',
+                    'https://switchblade-app.firebaseapp.com',
+                    'https://hoskiphotoshare-boop.github.io'
+                ];
+                if (!allowedOrigins.includes(topOrigin)) {
+                    window.top.location = window.self.location;
+                }
+            } catch (e) {
+                window.top.location = window.self.location;
+            }
+        }
+    </script>
+
     <!-- Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -225,7 +250,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <a id="btn-enable-api" href="https://console.cloud.google.com/apis/library/drive.googleapis.com?project=hokkaido-2027" target="_blank" class="hidden px-3.5 py-1.5 rounded-lg bg-accent-blue hover:bg-blue-600 text-white font-bold text-xs shadow-md transition flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                    <a id="btn-enable-api" href="https://console.cloud.google.com/apis/library/drive.googleapis.com?project=hokkaido-2027" target="_blank" rel="noopener noreferrer" class="hidden px-3.5 py-1.5 rounded-lg bg-accent-blue hover:bg-blue-600 text-white font-bold text-xs shadow-md transition flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
                         <span>1-Click Enable Drive API in GCP ↗</span>
                     </a>
                     <button onclick="reconnectDrive()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-dark-base font-bold text-xs shadow-md transition flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
@@ -552,10 +577,10 @@
                         <div class="flex flex-wrap items-center gap-2">
                             <button id="btn-chronos-ensemble" onclick="window.switchChronosChart('ensemble')" class="px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-accent-purple/20 text-accent-purple border border-accent-purple/40">Ensemble Chart</button>
                             <button id="btn-chronos-zoomed" onclick="window.switchChronosChart('zoomed')" class="px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-dark-surface text-slate-400 hover:text-white border border-dark-border">Zoomed Chart</button>
-                            <a id="btn-chronos-chart-link" href="chronos_ensemble_chart.png" target="_blank" class="px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-dark-surface text-slate-300 hover:text-white border border-dark-border flex items-center space-x-1">
+                            <a id="btn-chronos-chart-link" href="chronos_ensemble_chart.png" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-dark-surface text-slate-300 hover:text-white border border-dark-border flex items-center space-x-1">
                                 <span>Full Res ↗</span>
                             </a>
-                            <a id="btn-chronos-html" href="#" target="_blank" class="hidden px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-accent-blue/20 text-accent-blue border border-accent-blue/40 flex items-center space-x-1">
+                            <a id="btn-chronos-html" href="#" target="_blank" rel="noopener noreferrer" class="hidden px-3 py-1.5 rounded-lg text-xs font-mono font-medium bg-accent-blue/20 text-accent-blue border border-accent-blue/40 flex items-center space-x-1">
                                 <span>Colab HTML Report ↗</span>
                             </a>
                         </div>
@@ -1375,7 +1400,7 @@
                             </div>
                             <h3 class="text-base font-bold text-white mt-1">Full Backtest Log-Scale Equity Curve & Historical Drawdowns</h3>
                         </div>
-                        <a id="btn-open-full-chart" href="full_backtest_chart.png" target="_blank" class="text-xs text-accent-blue hover:underline font-mono flex items-center">
+                        <a id="btn-open-full-chart" href="full_backtest_chart.png" target="_blank" rel="noopener noreferrer" class="text-xs text-accent-blue hover:underline font-mono flex items-center">
                             <span>Open High-Res</span>
                             <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                         </a>
@@ -1395,7 +1420,7 @@
                             </div>
                             <h3 class="text-base font-bold text-white mt-1">200-Day Zoom Lens (Rebased to 100) & Regime Transitions</h3>
                         </div>
-                        <a id="btn-open-chart" href="zoomed_chart.png" target="_blank" class="text-xs text-accent-blue hover:underline font-mono flex items-center">
+                        <a id="btn-open-chart" href="zoomed_chart.png" target="_blank" rel="noopener noreferrer" class="text-xs text-accent-blue hover:underline font-mono flex items-center">
                             <span>Open High-Res</span>
                             <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                         </a>
@@ -1419,7 +1444,7 @@
                             <h3 class="text-base font-bold text-white mt-1">Deep Ensemble Trajectory Projections & Multi-Horizon Forward Curves</h3>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <a id="btn-charts-chronos-link" href="chronos_ensemble_chart.png" target="_blank" class="text-xs text-accent-purple hover:underline font-mono flex items-center">
+                            <a id="btn-charts-chronos-link" href="chronos_ensemble_chart.png" target="_blank" rel="noopener noreferrer" class="text-xs text-accent-purple hover:underline font-mono flex items-center">
                                 <span>Open Full Res</span>
                                 <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                             </a>
@@ -1440,7 +1465,7 @@
                             </div>
                             <h3 class="text-base font-bold text-white mt-1">Tactical Zoom Forecast & Model Dispersion Bands</h3>
                         </div>
-                        <a id="btn-charts-chronos-zoom-link" href="chronos_zoomed_chart.png" target="_blank" class="text-xs text-accent-blue hover:underline font-mono flex items-center">
+                        <a id="btn-charts-chronos-zoom-link" href="chronos_zoomed_chart.png" target="_blank" rel="noopener noreferrer" class="text-xs text-accent-blue hover:underline font-mono flex items-center">
                             <span>Open High-Res</span>
                             <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                         </a>
@@ -1460,7 +1485,7 @@
                             </div>
                             <h3 class="text-base font-bold text-white mt-1">Neural Network Global Importance & Local Saliency Matrix</h3>
                         </div>
-                        <a id="btn-charts-chronos-feat-link" href="chronos_feature_importance.png" target="_blank" class="text-xs text-accent-emerald hover:underline font-mono flex items-center">
+                        <a id="btn-charts-chronos-feat-link" href="chronos_feature_importance.png" target="_blank" rel="noopener noreferrer" class="text-xs text-accent-emerald hover:underline font-mono flex items-center">
                             <span>Open Full Res</span>
                             <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                         </a>
@@ -1518,7 +1543,7 @@
                             </div>
                             <h3 class="text-base font-bold text-white mt-1">Corporate Class ETF Optimization & Downside Deviation Frontier</h3>
                         </div>
-                        <a id="btn-charts-corp-link" href="corporate_class_performance.png" target="_blank" class="text-xs text-accent-blue hover:underline font-mono flex items-center">
+                        <a id="btn-charts-corp-link" href="corporate_class_performance.png" target="_blank" rel="noopener noreferrer" class="text-xs text-accent-blue hover:underline font-mono flex items-center">
                             <span>Open High-Res</span>
                             <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                         </a>
@@ -1585,11 +1610,11 @@
                     </h2>
                     <p class="text-xs text-slate-400 font-mono" id="tab6-main-subtitle">Complete console HTML stream from latest execution run</p>
                 </div>
-                <a id="btn-open-raw-log" href="latest_run.html" target="_blank" class="text-xs text-accent-blue hover:underline font-mono">Open Raw Log ↗</a>
+                <a id="btn-open-raw-log" href="latest_run.html" target="_blank" rel="noopener noreferrer" class="text-xs text-accent-blue hover:underline font-mono">Open Raw Log ↗</a>
             </div>
 
             <div class="bg-dark-card border border-dark-border rounded-xl overflow-hidden">
-                <iframe id="raw-log-iframe" class="w-full h-[650px] border-0 bg-[#121212]"></iframe>
+                <iframe id="raw-log-iframe" sandbox="allow-same-origin" class="w-full h-[650px] border-0 bg-[#121212]"></iframe>
             </div>
         </section>
 
@@ -1695,6 +1720,18 @@
 
         const AUTHORIZED_EMAIL = "michael.y.ho@gmail.com";
 
+        // HTML Sanitization Utility for defense-in-depth DOM rendering
+        function escapeHtml(val) {
+            if (val === null || val === undefined) return '';
+            return String(val)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+        window.escapeHtml = escapeHtml;
+
         let app = null, auth = null;
         let authInitError = null;
         let currentUser = null;
@@ -1738,7 +1775,10 @@
                     const userProfile = document.getElementById('auth-user-profile');
                     if (userProfile) userProfile.classList.remove('hidden');
                     const userAvatar = document.getElementById('user-avatar');
-                    if (userAvatar) userAvatar.src = user.photoURL || '';
+                    if (userAvatar) {
+                        const photo = user.photoURL || '';
+                        userAvatar.src = photo.startsWith('https://') ? photo : '';
+                    }
                     const settingsEmail = document.getElementById('settings-user-email');
                     if (settingsEmail) settingsEmail.textContent = user.email || 'Authenticated';
                     
@@ -1870,6 +1910,8 @@
             if (!auth) return;
             await signOut(auth);
             localStorage.removeItem('sb_drive_token');
+            localStorage.removeItem('sb_drive_token_time');
+            sessionStorage.clear();
             googleAccessToken = null;
             currentUser = null;
             const mainContent = document.getElementById('portal-main-content');
@@ -3202,9 +3244,9 @@
                             item.innerHTML = `
                                 <div class="flex items-center space-x-2">
                                     <span class="w-1.5 h-1.5 rounded-full bg-accent-emerald"></span>
-                                    <span class="font-bold text-white">${k}</span>
+                                    <span class="font-bold text-white">${escapeHtml(k)}</span>
                                 </div>
-                                <span class="text-accent-cyan font-bold">${holdings[k]}%</span>
+                                <span class="text-accent-cyan font-bold">${escapeHtml(holdings[k])}%</span>
                             `;
                             sContainer.appendChild(item);
                         });
@@ -3247,9 +3289,9 @@
                             item.innerHTML = `
                                 <div class="flex items-center space-x-2">
                                     <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
-                                    <span class="font-bold text-white">${k}</span>
+                                    <span class="font-bold text-white">${escapeHtml(k)}</span>
                                 </div>
-                                <span class="px-2 py-0.5 rounded text-[11px] font-bold border ${colorClass}">${holdings[k]}%</span>
+                                <span class="px-2 py-0.5 rounded text-[11px] font-bold border ${colorClass}">${escapeHtml(holdings[k])}%</span>
                             `;
                             tContainer.appendChild(item);
                         });
@@ -4255,15 +4297,15 @@
                                 <h3 class="text-base font-bold text-white">${isS1 ? 'Strategy 1: Standard Universe (213/10)' : 'Strategy 2: TQQQ Strategy (205/20)'}</h3>
                             </div>
                             <div class="flex items-center space-x-2 text-xs font-mono">
-                                <span class="px-2.5 py-1 rounded bg-dark-base ${isS1 ? 'text-accent-emerald' : 'text-accent-blue'} border border-dark-border">Mode: ${s.current_mode}</span>
-                                <span class="px-2.5 py-1 rounded bg-dark-base text-slate-300 border border-dark-border">Graduated: ${s.graduated_state || 'N/A'}</span>
+                                <span class="px-2.5 py-1 rounded bg-dark-base ${isS1 ? 'text-accent-emerald' : 'text-accent-blue'} border border-dark-border">Mode: ${escapeHtml(s.current_mode)}</span>
+                                <span class="px-2.5 py-1 rounded bg-dark-base text-slate-300 border border-dark-border">Graduated: ${escapeHtml(s.graduated_state || 'N/A')}</span>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-                            <div><span class="text-slate-400">Confirm Counter:</span> <span class="text-white font-bold">${s.confirm_counter ?? 0} / 5</span></div>
-                            <div><span class="text-slate-400">Rebalance Timer:</span> <span class="text-white font-bold">${s.timer ?? 0} / 21</span></div>
-                            <div><span class="text-slate-400">Pending Mode:</span> <span class="text-white font-bold">${s.pending_mode || 'None'}</span></div>
-                            <div><span class="text-slate-400">Last Rebalanced:</span> <span class="text-white font-bold">${s.last_rebal_date || 'N/A'}</span></div>
+                            <div><span class="text-slate-400">Confirm Counter:</span> <span class="text-white font-bold">${escapeHtml(s.confirm_counter ?? 0)} / 5</span></div>
+                            <div><span class="text-slate-400">Rebalance Timer:</span> <span class="text-white font-bold">${escapeHtml(s.timer ?? 0)} / 21</span></div>
+                            <div><span class="text-slate-400">Pending Mode:</span> <span class="text-white font-bold">${escapeHtml(s.pending_mode || 'None')}</span></div>
+                            <div><span class="text-slate-400">Last Rebalanced:</span> <span class="text-white font-bold">${escapeHtml(s.last_rebal_date || 'N/A')}</span></div>
                         </div>
                     `;
                     container.appendChild(card);
