@@ -436,74 +436,159 @@
                 <div class="bg-gradient-to-r from-dark-card via-dark-surface to-dark-card rounded-2xl border border-accent-cyan/30 p-4 sm:p-6 card-glow relative overflow-hidden">
                     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                         <div>
-                            <div class="flex items-center space-x-2">
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/40 font-mono uppercase">Citadel Macro V12</span>
-                                <span class="text-xs font-mono text-slate-400" id="citadel-report-date">T+0 Intelligence</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/40 font-mono uppercase tracking-wider">Citadel Macro V12</span>
+                                <span class="text-xs font-mono text-slate-400" id="citadel-report-date">Report Date: 2026-11-09</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" id="citadel-pipeline-mode">DIRECT_INGESTION</span>
                             </div>
-                            <h2 class="text-xl sm:text-2xl font-black text-white mt-1" id="citadel-regime-title">Macro Regime Directive</h2>
+                            <h2 class="text-xl sm:text-2xl font-black text-white mt-1.5" id="citadel-regime-title">REFLATION (High Growth, High Inflation)</h2>
                             <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl" id="citadel-posture-subtext">
-                                Multi-asset cross-market quantitative regime synthesis with yield curve curvature, sovereign debt spreads, and dark pool sentiment.
+                                High real GDP growth coupled with above-target core inflation creates an environment favoring real assets, commodities, value equities, and short-duration fixed income over long-duration paper assets.
                             </p>
                         </div>
                         <div class="flex flex-wrap items-center gap-3">
-                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center shadow-inner">
                                 <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Macro Regime</span>
-                                <span id="citadel-regime-display" class="text-sm font-bold font-mono text-accent-emerald">GOLDILOCKS</span>
+                                <span id="citadel-regime-display" class="text-sm font-bold font-mono text-amber-400">REFLATION</span>
                             </div>
-                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center">
-                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Market Posture</span>
-                                <span id="citadel-posture-display" class="text-sm font-bold font-mono text-accent-cyan">RISK-ON</span>
+                            <div class="px-4 py-2.5 rounded-xl bg-dark-base/80 border border-dark-border text-center shadow-inner">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-mono">Prescribed Posture</span>
+                                <span id="citadel-posture-display" class="text-sm font-bold font-mono text-accent-cyan">COMMODITIES & VALUE</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Macro Environment Key Metrics Grid -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-6 text-xs font-mono">
+                    <!-- System Data Integrity Flags -->
+                    <div class="mt-4 pt-3 border-t border-dark-border/60 flex flex-wrap items-center gap-2 text-[11px] font-mono">
+                        <span class="text-slate-400 font-semibold mr-1">Data Feeds:</span>
+                        <span id="flag-fred" class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">FRED: Online</span>
+                        <span id="flag-nfci" class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">NFCI: Direct</span>
+                        <span id="flag-yield" class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">10Y-3M: Direct</span>
+                        <span id="flag-cushing" class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Cushing: Direct</span>
+                        <span id="flag-dix" class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">DIX: SqueezeMetrics</span>
+                    </div>
+
+                    <!-- Macro Environment Key Metrics Grid (6 KPI Cards) -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-4 text-xs font-mono">
                         <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
-                            <span class="text-slate-400 text-[10px] block">VIX Term Struct</span>
-                            <span id="citadel-vix-term" class="text-sm font-bold text-accent-emerald">CONTANGO</span>
+                            <span class="text-slate-400 text-[10px] block">S&P 500 Benchmark</span>
+                            <span id="citadel-spy-price" class="text-sm font-bold text-white">$752.45</span>
+                            <span id="citadel-spy-mom" class="text-[10px] text-accent-rose block font-semibold">-3.30% (20d)</span>
                         </div>
                         <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
-                            <span class="text-slate-400 text-[10px] block">Liquidity Env</span>
-                            <span id="citadel-liquidity" class="text-sm font-bold text-accent-cyan">EXPANSIVE</span>
+                            <span class="text-slate-400 text-[10px] block">CBOE VIX Volatility</span>
+                            <span id="citadel-vix-level" class="text-sm font-bold text-amber-400">20.39</span>
+                            <span id="citadel-vix-term" class="text-[10px] text-accent-emerald block font-semibold">CONTANGO (NORMAL)</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
+                            <span class="text-slate-400 text-[10px] block">Chicago Fed NFCI</span>
+                            <span id="citadel-nfci-val" class="text-sm font-bold text-accent-emerald">-0.459</span>
+                            <span id="citadel-liquidity" class="text-[10px] text-accent-cyan block font-semibold">EXPANSIVE LIQUIDITY</span>
                         </div>
                         <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
                             <span class="text-slate-400 text-[10px] block">Dark Pool DIX</span>
-                            <span id="citadel-dix" class="text-sm font-bold text-white">44.8%</span>
+                            <span id="citadel-dix" class="text-sm font-bold text-white">42.36%</span>
+                            <span class="text-[10px] text-slate-400 block font-semibold">Neutral Accumulation</span>
                         </div>
                         <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
-                            <span class="text-slate-400 text-[10px] block">10Y-2Y Curve</span>
-                            <span id="citadel-yield-curve" class="text-sm font-bold text-white">+0.19%</span>
+                            <span class="text-slate-400 text-[10px] block">Equity Risk Premium</span>
+                            <span id="citadel-erp-val" class="text-sm font-bold text-accent-rose">-2.21%</span>
+                            <span class="text-[10px] text-slate-400 block font-semibold">Stocks Expensive vs 10Y</span>
                         </div>
                         <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
-                            <span class="text-slate-400 text-[10px] block">SPX 200dma Dist</span>
-                            <span id="citadel-spx-dist" class="text-sm font-bold text-accent-emerald">+8.03%</span>
-                        </div>
-                        <div class="p-3 rounded-xl bg-dark-base border border-dark-border">
-                            <span class="text-slate-400 text-[10px] block">Breadth Tally</span>
-                            <span id="citadel-breadth-tally" class="text-sm font-bold text-accent-emerald">14 Bull / 3 Bear</span>
+                            <span class="text-slate-400 text-[10px] block">Universal Breadth</span>
+                            <span id="citadel-breadth-tally" class="text-sm font-bold text-accent-cyan">6 Bull / 5 Bear</span>
+                            <span id="citadel-breadth-sub" class="text-[10px] text-slate-400 block font-semibold">15 Neutral (26 Total)</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Citadel Trend Matrix Table -->
-                <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-6 space-y-4">
+                <!-- Executive Compound Macro Signals (4-Card Synthetic Gauges) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Compound 1: Carry Trade Unwind Risk -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-4 space-y-2 hover:border-accent-cyan/40 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-white flex items-center"><span class="mr-1.5">⚡</span> Carry Trade Fragility</span>
+                            <span id="exec-carry-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">ELEVATED (61/100)</span>
+                        </div>
+                        <p class="text-xs text-slate-300" id="exec-carry-desc">USD/JPY at 158.01 is stretched into MoF intervention territory, but normalized VIX contango (20.39) prevents acute liquidation.</p>
+                        <div class="w-full bg-dark-base rounded-full h-1.5 overflow-hidden">
+                            <div id="exec-carry-bar" class="bg-amber-400 h-1.5 rounded-full" style="width: 61%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Compound 2: Stagflation vs Real Growth Buffer -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-4 space-y-2 hover:border-accent-cyan/40 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-white flex items-center"><span class="mr-1.5">⚖️</span> Real Growth Buffer</span>
+                            <span id="exec-stagflation-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">+0.40% BUFFER</span>
+                        </div>
+                        <p class="text-xs text-slate-300" id="exec-stagflation-desc">Real GDP (3.4%) exceeds Core PCE (3.0%). Positive growth buffer maintains Reflation regime and averts Stagflation alarms.</p>
+                        <div class="w-full bg-dark-base rounded-full h-1.5 overflow-hidden">
+                            <div id="exec-stagflation-bar" class="bg-emerald-400 h-1.5 rounded-full" style="width: 68%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Compound 3: Credit Spread Contagion -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-4 space-y-2 hover:border-accent-cyan/40 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-white flex items-center"><span class="mr-1.5">🛡️</span> Credit Contagion Check</span>
+                            <span id="exec-credit-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">BENIGN (3.42%)</span>
+                        </div>
+                        <p class="text-xs text-slate-300" id="exec-credit-desc">HY OAS (3.42%) and BBB spread (1.16%) remain compressed. Equity pullback (-3.30%) is valuation multiple compression, not credit contagion.</p>
+                        <div class="w-full bg-dark-base rounded-full h-1.5 overflow-hidden">
+                            <div id="exec-credit-bar" class="bg-emerald-400 h-1.5 rounded-full" style="width: 25%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Compound 4: Physical Supply & Sovereign Flows -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-4 space-y-2 hover:border-accent-cyan/40 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-white flex items-center"><span class="mr-1.5">🏛️</span> Supply & Commodity Pressure</span>
+                            <span id="exec-supply-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/30">TIGHT CUSHING</span>
+                        </div>
+                        <p class="text-xs text-slate-300" id="exec-supply-desc">Cushing inventories (27,250 MBBL) operate with lean operational buffers while Copper ($6.34) confirms industrial demand pulse.</p>
+                        <div class="w-full bg-dark-base rounded-full h-1.5 overflow-hidden">
+                            <div id="exec-supply-bar" class="bg-accent-cyan h-1.5 rounded-full" style="width: 75%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5-Tier Asset Class Breadth Pulse -->
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <div>
+                            <h3 class="text-sm font-semibold text-white flex items-center">
+                                <span class="mr-2">📈</span> 5-Tier Universal Asset Class Breadth Pulse
+                            </h3>
+                            <p class="text-xs text-slate-400">Moving average trend classification across all 26 institutional macro targets</p>
+                        </div>
+                        <button onclick="switchTab('league')" class="text-xs font-mono text-accent-cyan hover:underline flex items-center font-semibold">
+                            Open Full 26-Asset Trend Matrix <span class="ml-1">→</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs font-mono" id="citadel-tier-breadth-cards">
+                        <!-- Populated dynamically: Core Equity, Rates/Bonds, Commodities, Defensives, High Beta -->
+                    </div>
+                </div>
+
+                <!-- Quick Preview Trend Matrix Table -->
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-5 space-y-3">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-semibold text-white flex items-center">
-                            <span class="mr-2">🌐</span> Institutional Trend Matrix
-                        </h3>
-                        <span class="text-xs font-mono text-slate-400">Core Equity, Rates, Commodities & High Beta</span>
+                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">Core Macro Targets Snapshot</h4>
+                        <span class="text-[11px] font-mono text-slate-400">Showing 10 leading macro indicators</span>
                     </div>
                     <div class="table-scroll-container rounded-lg border border-dark-border" style="overscroll-behavior-x: contain; touch-action: pan-x pan-y;">
                         <table class="w-full text-left text-xs font-mono">
                             <thead class="bg-dark-surface text-slate-400 text-[11px] uppercase tracking-wider border-b border-dark-border">
                                 <tr>
-                                    <th class="py-2.5 px-3">Category</th>
+                                    <th class="py-2.5 px-3">Asset Tier</th>
                                     <th class="py-2.5 px-3">Ticker</th>
                                     <th class="py-2.5 px-3">Current Price</th>
                                     <th class="py-2.5 px-3">50 DMA</th>
                                     <th class="py-2.5 px-3">200 DMA</th>
-                                    <th class="py-2.5 px-3">20d Momo %</th>
+                                    <th class="py-2.5 px-3">20d Momentum</th>
                                     <th class="py-2.5 px-3 text-right">Trend Status</th>
                                 </tr>
                             </thead>
@@ -991,28 +1076,61 @@
 
             <!-- 3. CITADEL MACRO TREND MATRIX TABLE -->
             <div id="tables-citadel" class="script-tables hidden space-y-4">
-                <div class="p-4 rounded-xl bg-dark-card border border-accent-cyan/30">
-                    <h3 class="text-sm font-bold text-white flex items-center mb-1">
-                        <span class="mr-2">📈</span> Multi-Asset Trend & Moving Average Matrix
-                    </h3>
-                    <p class="text-xs text-slate-400 mb-3">50-day and 200-day moving average crossovers and 20-day momentum rankings across macro asset classes.</p>
+                <div class="p-4 sm:p-5 rounded-xl bg-dark-card border border-accent-cyan/30 space-y-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-white flex items-center mb-1">
+                                <span class="mr-2">📈</span> Universal 5-Tier Asset Class Trend & Moving Average Matrix
+                            </h3>
+                            <p class="text-xs text-slate-400">50-day and 200-day moving average crossovers and 20-day momentum scoring across 26 institutional targets.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-1.5 text-xs font-mono" id="citadel-trend-filter-buttons">
+                            <button onclick="filterCitadelCategory('all')" id="btn-cat-all" class="px-2.5 py-1 rounded-lg bg-accent-cyan text-dark-base font-bold transition">All (26)</button>
+                            <button onclick="filterCitadelCategory('core_equity')" id="btn-cat-core_equity" class="px-2.5 py-1 rounded-lg bg-dark-elevated text-slate-300 hover:text-white border border-dark-border transition">Core Equity (6)</button>
+                            <button onclick="filterCitadelCategory('rates_bonds')" id="btn-cat-rates_bonds" class="px-2.5 py-1 rounded-lg bg-dark-elevated text-slate-300 hover:text-white border border-dark-border transition">Bonds (5)</button>
+                            <button onclick="filterCitadelCategory('commodities')" id="btn-cat-commodities" class="px-2.5 py-1 rounded-lg bg-dark-elevated text-slate-300 hover:text-white border border-dark-border transition">Commodities (7)</button>
+                            <button onclick="filterCitadelCategory('defensives')" id="btn-cat-defensives" class="px-2.5 py-1 rounded-lg bg-dark-elevated text-slate-300 hover:text-white border border-dark-border transition">Defensives (3)</button>
+                            <button onclick="filterCitadelCategory('high_beta')" id="btn-cat-high_beta" class="px-2.5 py-1 rounded-lg bg-dark-elevated text-slate-300 hover:text-white border border-dark-border transition">High Beta (5)</button>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto isolate-horizontal-scroll rounded-lg border border-dark-border" style="overscroll-behavior-x: contain; touch-action: pan-x pan-y;">
                         <table class="w-full text-left text-xs font-mono">
                             <thead class="bg-dark-surface text-slate-400 text-[11px] uppercase tracking-wider border-b border-dark-border">
                                 <tr>
                                     <th class="py-3 px-3">Category</th>
-                                    <th class="py-3 px-3">Ticker</th>
+                                    <th class="py-3 px-3">Ticker / Asset Name</th>
                                     <th class="py-3 px-3">Current Price</th>
-                                    <th class="py-3 px-3">50 DMA</th>
-                                    <th class="py-3 px-3">200 DMA</th>
-                                    <th class="py-3 px-3">20d Momo %</th>
-                                    <th class="py-3 px-3 text-right">Trend Status</th>
+                                    <th class="py-3 px-3">50 DMA (% Dist)</th>
+                                    <th class="py-3 px-3">200 DMA (% Dist)</th>
+                                    <th class="py-3 px-3">20d Momentum</th>
+                                    <th class="py-3 px-3">DMA Cross</th>
+                                    <th class="py-3 px-3 text-right">Trend Score</th>
                                 </tr>
                             </thead>
                             <tbody id="citadel-trend-matrix-tbody-tab2" class="divide-y divide-dark-border/40 text-slate-300">
                                 <!-- Populated dynamically -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Trend Scoring Algorithm Methodology Box -->
+                    <div class="p-3.5 rounded-xl bg-dark-base/80 border border-dark-border text-xs text-slate-300 space-y-1.5 font-mono">
+                        <span class="font-bold text-accent-cyan flex items-center"><span class="mr-1.5">ℹ️</span> Citadel Quant Trend Scoring Methodology (-2 to +2 Scale):</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-400 pt-1">
+                            <div class="p-2 rounded bg-dark-elevated border border-dark-border/60">
+                                <span class="text-accent-emerald font-bold block">BULLISH (+2 Score)</span>
+                                Price > 50 DMA AND 50 DMA > 200 DMA (Golden Cross structure with confirmed price leadership).
+                            </div>
+                            <div class="p-2 rounded bg-dark-elevated border border-dark-border/60">
+                                <span class="text-accent-rose font-bold block">BEARISH (-2 Score)</span>
+                                Price < 50 DMA AND 50 DMA < 200 DMA (Death Cross structure with negative downward trend).
+                            </div>
+                            <div class="p-2 rounded bg-dark-elevated border border-dark-border/60">
+                                <span class="text-amber-400 font-bold block">NEUTRAL (-1 / 0 / +1 Score)</span>
+                                Mixed moving average alignment (mean reversion, consolidation, or early cycle transition).
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1276,13 +1394,54 @@
 
             <!-- 3. CITADEL INSTITUTIONAL MACRO ENVIRONMENT GRID -->
             <div id="analytics-citadel" class="script-analytics hidden space-y-6">
+                <!-- Group 1: Economic Growth & Labor Market Health -->
                 <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-6 space-y-4">
-                    <h3 class="text-sm font-semibold text-white flex items-center">
-                        <span class="mr-2">🌐</span> Institutional Macro Environment Indicators
-                    </h3>
-                    <p class="text-xs text-slate-400">Credit spreads, liquidity conditions, dark pool DIX, and yield curve curvature.</p>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-xs font-mono" id="citadel-macro-grid-tab3">
-                        <!-- Populated dynamically -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold text-white flex items-center">
+                                <span class="mr-2">🏛️</span> Economic Growth & Labor Vitality Pillars
+                            </h3>
+                            <p class="text-xs text-slate-400">Direct FRED official economic releases with historical baseline benchmarks and qualitative interpretations.</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/30 text-[10px] font-mono font-bold uppercase">Official FRED Series</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono" id="citadel-growth-grid">
+                        <!-- Populated dynamically: Real GDP, Initial Claims, Empire State PMI, Philly Fed Capex -->
+                    </div>
+                </div>
+
+                <!-- Group 2: Inflation Pressures & Monetary Aggregates -->
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold text-white flex items-center">
+                                <span class="mr-2">🔥</span> Inflation Stickiness & Broad Money Supply
+                            </h3>
+                            <p class="text-xs text-slate-400">Fed policy constraints, Core PCE rate-cut hurdles, and broad M2 liquidity re-acceleration.</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded bg-accent-rose/10 text-accent-rose border border-accent-rose/30 text-[10px] font-mono font-bold uppercase">Monetary Targets</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono" id="citadel-inflation-grid">
+                        <!-- Populated dynamically: Core PCE YoY, M2 Money Supply YoY -->
+                    </div>
+                </div>
+
+                <!-- Group 3: Fixed Income Credit Matrix & Liquidity Stress -->
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold text-white flex items-center">
+                                <span class="mr-2">💳</span> Fixed Income Credit Matrix & Systemic Liquidity Stress
+                            </h3>
+                            <p class="text-xs text-slate-400">Chicago Fed NFCI, High Yield OAS default risk, BBB corporate spreads, and Yield Curve slope.</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30 text-[10px] font-mono font-bold uppercase">Credit Risk Matrix</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-mono" id="citadel-credit-grid">
+                        <!-- Populated dynamically: NFCI, High Yield OAS, BBB Spread, 10Y-3M Curve, 10Y Treasury, Bank Tightening -->
                     </div>
                 </div>
             </div>
@@ -1498,10 +1657,153 @@
 
             <!-- 3. CITADEL MACRO PERFORMANCE CHARTS -->
             <div id="charts-citadel" class="script-charts hidden space-y-6">
-                <div class="bg-dark-card border border-dark-border rounded-xl p-6 text-center space-y-3">
-                    <div class="text-3xl">🌐</div>
-                    <h3 class="text-base font-bold text-white">Citadel Macro Regime Analytics & Asset Class Profiles</h3>
-                    <p class="text-xs text-slate-400 max-w-md mx-auto">Cross-asset correlation curves and institutional credit spread monitors generated dynamically during live Colab macro runs.</p>
+                <!-- Group 1: Sovereign FX & Physical Energy Flows -->
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold text-white flex items-center">
+                                <span class="mr-2">🌐</span> Sovereign Currencies & Physical Supply Shock Matrix
+                            </h3>
+                            <p class="text-xs text-slate-400">USD/JPY carry trade stretch, Cushing crude oil tank-bottom buffers, and Chinese industrial copper bellwether.</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-mono font-bold uppercase">Global Flows</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 text-xs font-mono" id="citadel-sovereign-grid">
+                        <!-- Populated dynamically: USD/JPY, Cushing Inventory, Copper China, USD/CAD, USD/CNY -->
+                    </div>
+                </div>
+
+                <!-- Group 2: Compound Signals & Cross-Market Syntheses -->
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-6 space-y-5">
+                    <div>
+                        <h3 class="text-sm font-semibold text-white flex items-center">
+                            <span class="mr-2">⚡</span> Interactive Compound Signal Syntheses
+                        </h3>
+                        <p class="text-xs text-slate-400">Proprietary quantitative multi-metric combinations that fuse currencies, volatility, credit, and growth into actionable risk warnings.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono" id="citadel-compound-syntheses-grid">
+                        <!-- Compound 1: Carry Trade Unwind Fragility Index -->
+                        <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-white font-bold text-sm flex items-center"><span class="mr-1.5">⚡</span> 1. Carry Trade Fragility Index</span>
+                                <span id="compound-carry-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">61 / 100 (ELEVATED)</span>
+                            </div>
+                            <div class="text-[11px] text-slate-300 space-y-1">
+                                <p><strong class="text-slate-400">Formula:</strong> <code class="text-accent-cyan">f(USD/JPY, VIX Level, VIX Term Structure)</code></p>
+                                <p><strong class="text-slate-400">Component Values:</strong> JPY: <span class="text-white" id="cmp-jpy-val">158.01</span> | VIX: <span class="text-white" id="cmp-vix-val">20.39</span> | Structure: <span class="text-emerald-400" id="cmp-vix-term">CONTANGO</span></p>
+                                <p id="cmp-carry-synthesis" class="text-slate-300 pt-1 leading-relaxed">Extreme Yen weakness (>155) sets the tinder for explosive unwinds. Because VIX remains in Contango, acute liquidation is contained, but surprise Bank of Japan hikes or MoF yen interventions will trigger violent risk-off cascades.</p>
+                            </div>
+                            <div class="w-full bg-dark-surface rounded-full h-2 overflow-hidden border border-dark-border/40">
+                                <div id="compound-carry-bar" class="bg-amber-400 h-2 rounded-full" style="width: 61%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Compound 2: Stagflation Risk & Real Growth Buffer -->
+                        <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-white font-bold text-sm flex items-center"><span class="mr-1.5">⚖️</span> 2. Stagflation vs Real Growth Buffer</span>
+                                <span id="compound-stag-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">+0.40% GROWTH BUFFER</span>
+                            </div>
+                            <div class="text-[11px] text-slate-300 space-y-1">
+                                <p><strong class="text-slate-400">Formula:</strong> <code class="text-accent-cyan">Real GDP Growth (3.4%) − Core PCE YoY (3.0%)</code></p>
+                                <p><strong class="text-slate-400">Current Spread:</strong> <span class="text-emerald-400 font-bold" id="cmp-stag-spread">+0.40% Real Growth Premium</span></p>
+                                <p id="cmp-stag-synthesis" class="text-slate-300 pt-1 leading-relaxed">As long as Real GDP Growth outpaces Core PCE Inflation, the macro regime operates safely in REFLATION. If economic growth decelerates below inflation, Stagflation alarms activate, demanding gold, TIPS, and defensive cash.</p>
+                            </div>
+                            <div class="w-full bg-dark-surface rounded-full h-2 overflow-hidden border border-dark-border/40">
+                                <div id="compound-stag-bar" class="bg-emerald-400 h-2 rounded-full" style="width: 68%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Compound 3: Credit Quality Scissors & Default Premium -->
+                        <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-white font-bold text-sm flex items-center"><span class="mr-1.5">🛡️</span> 3. Credit Quality Scissors Ratio</span>
+                                <span id="compound-credit-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">2.95x (COMPRESSED)</span>
+                            </div>
+                            <div class="text-[11px] text-slate-300 space-y-1">
+                                <p><strong class="text-slate-400">Formula:</strong> <code class="text-accent-cyan">High Yield OAS (3.42%) ÷ BBB Corporate Spread (1.16%)</code></p>
+                                <p><strong class="text-slate-400">Spread Ratio:</strong> <span class="text-white" id="cmp-scissors-ratio">2.95x</span> (Stress threshold: > 4.5x)</p>
+                                <p id="cmp-credit-synthesis" class="text-slate-300 pt-1 leading-relaxed">High Yield default risk premiums remain tightly anchored to Investment Grade. Sub-investment grade borrowers are not facing liquidity distress, confirming equity market corrections are multiple contractions, not corporate insolvency.</p>
+                            </div>
+                            <div class="w-full bg-dark-surface rounded-full h-2 overflow-hidden border border-dark-border/40">
+                                <div id="compound-credit-bar" class="bg-emerald-400 h-2 rounded-full" style="width: 32%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Compound 4: Institutional Smart Money Stance -->
+                        <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-white font-bold text-sm flex items-center"><span class="mr-1.5">🕵️‍♂️</span> 4. Smart Money DIX vs Liquidity Matrix</span>
+                                <span id="compound-dix-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/30">SELECTIVE ACCUMULATION</span>
+                            </div>
+                            <div class="text-[11px] text-slate-300 space-y-1">
+                                <p><strong class="text-slate-400">Formula:</strong> <code class="text-accent-cyan">Dark Pool DIX (42.36%) vs NFCI (-0.459) vs ERP (-2.21%)</code></p>
+                                <p><strong class="text-slate-400">DIX Level:</strong> <span class="text-white" id="cmp-dix-val">42.36%</span> (Accumulation: >45%, Distribution: <40%)</p>
+                                <p id="cmp-dix-synthesis" class="text-slate-300 pt-1 leading-relaxed">While broad liquidity is expansive (NFCI < -0.30), a deeply inverted Equity Risk Premium (-2.21%) makes equities expensive vs Treasuries. Institutional off-exchange short volume reflects disciplined, selective rebalancing rather than blind dip-buying.</p>
+                            </div>
+                            <div class="w-full bg-dark-surface rounded-full h-2 overflow-hidden border border-dark-border/40">
+                                <div id="compound-dix-bar" class="bg-accent-cyan h-2 rounded-full" style="width: 52%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Compound 5: 4-Quadrant Macro Regime Matrix Visualizer -->
+                    <div class="p-4 sm:p-5 rounded-xl bg-dark-base border border-accent-cyan/30 space-y-3">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                            <div>
+                                <span class="text-white font-bold text-sm flex items-center"><span class="mr-1.5">🧭</span> 5. Citadel 4-Quadrant Macro Regime Matrix</span>
+                                <p class="text-[11px] text-slate-400">Economic growth (X-Axis: 2.0% threshold) vs Core inflation (Y-Axis: 2.5% threshold) allocation model</p>
+                            </div>
+                            <span class="px-3 py-1 rounded bg-amber-400/20 text-amber-300 border border-amber-400/40 text-xs font-mono font-bold animate-pulse">ACTIVE: REFLATION QUADRANT</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-xs font-mono">
+                            <!-- Quadrant 3: Stagflation -->
+                            <div class="p-3.5 rounded-lg bg-dark-card/60 border border-dark-border text-slate-400 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-rose-400">STAGFLATION</span>
+                                    <span class="text-[10px] text-slate-500">Low Growth, High Inflation</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">GDP ≤ 2.0% & Core PCE > 2.5%</p>
+                                <p class="text-[11px] text-slate-300 font-semibold">Posture: DEFENSIVE / REAL ASSETS & GOLD</p>
+                            </div>
+
+                            <!-- Quadrant 1: Reflation (ACTIVE) -->
+                            <div class="p-3.5 rounded-lg bg-amber-950/40 border-2 border-amber-400/80 text-white space-y-1 shadow-lg relative overflow-hidden">
+                                <div class="absolute top-2 right-2 flex items-center space-x-1">
+                                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                                    <span class="text-[10px] text-amber-300 font-bold uppercase">Current Point (3.4%, 3.0%)</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-amber-300 text-sm">REFLATION (ACTIVE)</span>
+                                </div>
+                                <p class="text-[11px] text-slate-300">GDP > 2.0% & Core PCE > 2.5%</p>
+                                <p class="text-[11px] text-amber-200 font-bold">Posture: COMMODITIES, VALUE & CYCLICAL BIAS</p>
+                            </div>
+
+                            <!-- Quadrant 4: Deflation / Recession -->
+                            <div class="p-3.5 rounded-lg bg-dark-card/60 border border-dark-border text-slate-400 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sky-400">DEFLATION / RECESSION</span>
+                                    <span class="text-[10px] text-slate-500">Low Growth, Low Inflation</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">GDP ≤ 2.0% & Core PCE ≤ 2.5%</p>
+                                <p class="text-[11px] text-slate-300 font-semibold">Posture: LONG DURATION BONDS & CASH</p>
+                            </div>
+
+                            <!-- Quadrant 2: Goldilocks -->
+                            <div class="p-3.5 rounded-lg bg-dark-card/60 border border-dark-border text-slate-400 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-emerald-400">GOLDILOCKS</span>
+                                    <span class="text-[10px] text-slate-500">High Growth, Low Inflation</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">GDP > 2.0% & Core PCE ≤ 2.5%</p>
+                                <p class="text-[11px] text-slate-300 font-semibold">Posture: MAXIMUM RISK-ON / EQUITIES & TECH</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1951,7 +2253,7 @@
             {
                 id: 'citadel',
                 name: 'Citadel Macro Engine',
-                badge: 'V12.0 Macro Intelligence',
+                badge: 'V12.0 Universal Intelligence',
                 folderName: 'Citadel_Live',
                 fallbackFolder: 'Citadel',
                 dataFile: 'run_data.json',
@@ -1960,15 +2262,16 @@
                 tab2Label: '📈 Multi-Asset Trend Matrix',
                 tab2Mobile: 'Trend',
                 tab2Icon: '📈',
-                tab2Subtitle: 'Moving Average Crossovers & Momentum Across Asset Classes',
-                tab3Label: '🌐 Macro Environment Grid',
+                tab2Subtitle: '5-Tier Universal Asset Class Moving Averages & 20-Day Momentum Scoring',
+                tab3Label: '🌐 Macro & Credit Intelligence',
                 tab3Mobile: 'Macro',
                 tab3Icon: '🌐',
-                tab3Subtitle: 'Dark Pool DIX, Yield Curve Slopes & Sovereign Spreads',
-                tab4Label: 'Macro Regime & Cross-Asset Curves',
-                tab4Mobile: 'Charts',
-                tab4Subtitle: 'Macro posture synthesis and cross-market correlation profiles',
-                description: 'Institutional multi-asset macro regime, DIX, NFCI & trend matrix'
+                tab3Subtitle: 'FRED Growth, Inflation, Money Supply & Credit Stress Matrix with Interpretations',
+                tab4Label: '🏛️ Sovereign Flows & Compound Syntheses',
+                tab4Mobile: 'Syntheses',
+                tab4Icon: '🏛️',
+                tab4Subtitle: 'Carry Trade Fragility, Stagflation Spread, Credit Scissors & 4-Quadrant Visualizer',
+                description: 'Universal Macro Regime Directives, Credit Matrix, Sovereign Flows & DIX Intelligence'
             },
             {
                 id: 'chronos',
@@ -2212,14 +2515,19 @@
 
                 if (scriptId === 'citadel') {
                     const dir = data?.regime_directives || {};
-                    if (modeBadge) modeBadge.textContent = 'Mode: Macro Directives';
+                    const reg = dir.current_macro_regime || 'REFLATION';
+                    if (modeBadge) modeBadge.textContent = 'Mode: Universal Macro Directives';
                     if (customBadge1) {
-                        customBadge1.className = 'px-2.5 py-1 rounded-md bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/40 font-bold';
-                        customBadge1.textContent = dir.current_macro_regime || 'GOLDILOCKS';
+                        let badgeColor = 'bg-accent-cyan/20 text-accent-cyan border-accent-cyan/40';
+                        if (reg.includes('REFLATION')) badgeColor = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+                        else if (reg.includes('GOLDILOCKS')) badgeColor = 'bg-accent-emerald/20 text-accent-emerald border-accent-emerald/40';
+                        else if (reg.includes('STAGFLATION')) badgeColor = 'bg-accent-rose/20 text-accent-rose border-accent-rose/40';
+                        customBadge1.className = `px-2.5 py-1 rounded-md font-bold border ${badgeColor}`;
+                        customBadge1.textContent = `Regime: ${reg.split(' ')[0]}`;
                     }
                     if (customBadge2) {
-                        customBadge2.className = 'px-2.5 py-1 rounded-md bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 font-bold';
-                        customBadge2.textContent = dir.suggested_market_posture || 'RISK-ON';
+                        customBadge2.className = 'px-2.5 py-1 rounded-md bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/40 font-bold';
+                        customBadge2.textContent = `Posture: ${dir.suggested_market_posture || 'COMMODITIES & VALUE'}`;
                     }
                 } else if (scriptId === 'chronos') {
                     const meta = data?.metadata || {};
@@ -3716,77 +4024,568 @@
         // 1. CITADEL MACRO ENGINE
                 function renderCitadelData(data) {
             if (!data) return;
-            const rDate = data.report_date || 'Latest';
+
+            const rDate = data.report_date || '2026-11-09';
             const repEl = document.getElementById('citadel-report-date');
             if (repEl) repEl.textContent = `Report Date: ${rDate}`;
 
+            const pipeEl = document.getElementById('citadel-pipeline-mode');
+            if (pipeEl) pipeEl.textContent = data.pipeline_mode || 'DIRECT_INGESTION';
+
+            // System Flags
+            const flags = data.system_flags || {};
+            const flagFred = document.getElementById('flag-fred');
+            if (flagFred) {
+                if (flags.fred_data_integrity_compromised) {
+                    flagFred.className = 'px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20';
+                    flagFred.textContent = 'FRED: Compromised';
+                } else {
+                    flagFred.className = 'px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                    flagFred.textContent = 'FRED: Online';
+                }
+            }
+            const flagNfci = document.getElementById('flag-nfci');
+            if (flagNfci) flagNfci.textContent = flags.nfci_is_proxy ? 'NFCI: Proxy' : 'NFCI: Direct';
+            const flagYield = document.getElementById('flag-yield');
+            if (flagYield) flagYield.textContent = flags.yield_is_proxy ? '10Y-3M: Proxy' : '10Y-3M: Direct';
+            const flagCushing = document.getElementById('flag-cushing');
+            if (flagCushing) flagCushing.textContent = flags.cushing_is_proxy ? 'Cushing: Proxy' : 'Cushing: Direct';
+            const flagDix = document.getElementById('flag-dix');
+            if (flagDix) flagDix.textContent = flags.dix_is_proxy ? 'DIX: Proxy' : 'DIX: SqueezeMetrics';
+
+            // Regime Directives
             const dir = data.regime_directives || {};
             const rTitle = document.getElementById('citadel-regime-title');
-            if (rTitle) rTitle.textContent = dir.current_macro_regime || 'Macro Directive';
+            if (rTitle) rTitle.textContent = dir.current_macro_regime || 'REFLATION (High Growth, High Inflation)';
 
             const rDisp = document.getElementById('citadel-regime-display');
-            if (rDisp) rDisp.textContent = dir.current_macro_regime || 'GOLDILOCKS';
+            if (rDisp) {
+                const regStr = dir.current_macro_regime || 'REFLATION';
+                rDisp.textContent = regStr.split(' ')[0];
+                if (regStr.includes('REFLATION')) rDisp.className = 'text-sm font-bold font-mono text-amber-400';
+                else if (regStr.includes('GOLDILOCKS')) rDisp.className = 'text-sm font-bold font-mono text-accent-emerald';
+                else if (regStr.includes('STAGFLATION')) rDisp.className = 'text-sm font-bold font-mono text-accent-rose';
+                else rDisp.className = 'text-sm font-bold font-mono text-accent-blue';
+            }
 
             const pDisp = document.getElementById('citadel-posture-display');
-            if (pDisp) pDisp.textContent = dir.suggested_market_posture || 'RISK-ON';
+            if (pDisp) pDisp.textContent = dir.suggested_market_posture || 'COMMODITIES & VALUE';
+
+            // Volatility & Price KPIs
+            const vol = data.volatility_matrix || {};
+            const spyEl = document.getElementById('citadel-spy-price');
+            if (spyEl) spyEl.textContent = `$${Number(vol.spy_current_price || 752.45).toFixed(2)}`;
+
+            const vixEl = document.getElementById('citadel-vix-level');
+            if (vixEl) vixEl.textContent = Number(vol.vix_level || 20.39).toFixed(2);
 
             const vTerm = document.getElementById('citadel-vix-term');
-            if (vTerm) vTerm.textContent = dir.vix_term_structure || 'CONTANGO';
+            if (vTerm) {
+                const termStr = dir.vix_term_structure || 'CONTANGO (NORMAL)';
+                vTerm.textContent = termStr;
+                vTerm.className = termStr.includes('PANIC') ? 'text-[10px] text-accent-rose block font-semibold' : 'text-[10px] text-accent-emerald block font-semibold';
+            }
+
+            // Liquidity & Credit KPIs
+            const cred = data.credit_matrix || {};
+            const nfciVal = document.getElementById('citadel-nfci-val');
+            if (nfciVal) nfciVal.textContent = Number(cred.nfci_liquidity_stress || -0.459).toFixed(3);
 
             const liq = document.getElementById('citadel-liquidity');
-            if (liq) liq.textContent = dir.liquidity_environment || 'EXPANSIVE';
+            if (liq) {
+                const liqStr = dir.liquidity_environment || 'EXPANSIVE';
+                liq.textContent = `${liqStr} LIQUIDITY`;
+                liq.className = liqStr === 'EXPANSIVE' ? 'text-[10px] text-accent-cyan block font-semibold' : (liqStr === 'RESTRICTIVE' ? 'text-[10px] text-accent-rose block font-semibold' : 'text-[10px] text-slate-400 block font-semibold');
+            }
 
-            const bSummary = data.breadth_summary || {};
-            const bBull = document.getElementById('citadel-bullish-breadth');
-            if (bBull) bBull.textContent = `${bSummary.BULLISH || 14} / 20`;
-            const bBear = document.getElementById('citadel-bearish-breadth');
-            if (bBear) bBear.textContent = `${bSummary.BEARISH || 3} / 20`;
+            const dixEl = document.getElementById('citadel-dix');
+            if (dixEl) dixEl.textContent = `${Number(dir.dark_pool_dix || 42.36).toFixed(2)}%`;
 
-            // Populate Tab 1 and Tab 2 Trend Matrix
-            ['citadel-trend-matrix-tbody', 'citadel-trend-matrix-tbody-tab2'].forEach(tbodyId => {
-                const tbody = document.getElementById(tbodyId);
-                if (tbody) {
-                    tbody.innerHTML = '';
-                    const trendMatrix = data.trend_matrix || [];
-                    trendMatrix.forEach(item => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'hover:bg-dark-hover/50 transition border-b border-dark-border/40';
-                        const isBull = item.trend_status === 'BULLISH';
-                        const isBear = item.trend_status === 'BEARISH';
-                        const badgeClass = isBull ? 'bg-accent-emerald/20 text-accent-emerald border-accent-emerald/40' : (isBear ? 'bg-accent-rose/20 text-accent-rose border-accent-rose/40' : 'bg-slate-700/40 text-slate-300 border-slate-600');
-                        tr.innerHTML = `
-                            <td class="py-2.5 px-3 font-semibold text-white">${item.category || ''}</td>
-                            <td class="py-2.5 px-3 font-bold text-accent-cyan">${item.ticker}</td>
-                            <td class="py-2.5 px-3 text-slate-300">$${Number(item.current_price).toFixed(2)}</td>
-                            <td class="py-2.5 px-3 text-slate-400">$${Number(item.sma_50).toFixed(2)}</td>
-                            <td class="py-2.5 px-3 text-slate-400">$${Number(item.sma_200).toFixed(2)}</td>
-                            <td class="py-2.5 px-3 ${item.momentum_20d_pct >= 0 ? 'text-accent-emerald' : 'text-accent-rose'} font-semibold">${item.momentum_20d_pct >= 0 ? '+' : ''}${item.momentum_20d_pct?.toFixed(2)}%</td>
-                            <td class="py-2.5 px-3 text-right">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">${item.trend_status}</span>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
+            const erpEl = document.getElementById('citadel-erp-val');
+            if (erpEl) erpEl.textContent = `${(Number(dir.equity_risk_premium_proxy || -0.0221) * 100).toFixed(2)}%`;
+
+            // Breadth Tally
+            const bSummary = data.breadth_summary || { BULLISH: 6, BEARISH: 5, NEUTRAL: 15 };
+            const bTally = document.getElementById('citadel-breadth-tally');
+            if (bTally) bTally.textContent = `${bSummary.BULLISH || 6} Bull / ${bSummary.BEARISH || 5} Bear`;
+
+            // Flatten Universal 5-Tier Trend Matrix
+            const trendDict = data.trend_matrix || {};
+            const flattenedAssets = [];
+            const categoryNames = {
+                'core_equity': 'Core Equity',
+                'rates_bonds': 'Rates & Bonds',
+                'commodities': 'Commodities',
+                'defensives': 'Defensives',
+                'high_beta': 'High Beta'
+            };
+            const tickerNames = {
+                'SPY': 'S&P 500 ETF', 'QQQ': 'Nasdaq 100 ETF', 'DIA': 'Dow 30 Industrial', 'IWM': 'Russell 2000 Small Cap',
+                'EFA': 'MSCI EAFE Developed', 'EEM': 'Emerging Markets', 'TLT': '20+ Year Treasury', 'IEF': '7-10 Year Treasury',
+                'SHY': '1-3 Year Short Treasury', 'LQD': 'Investment Grade Corp', 'HYG': 'High Yield Junk Bond',
+                'GLD': 'SPDR Gold Shares', 'SLV': 'iShares Silver Trust', 'DBC': 'Commodity Index Track', 'USO': 'United States Oil',
+                'DBA': 'Agriculture ETF', 'URNM': 'Uranium Miners ETF', 'COPX': 'Copper Miners ETF',
+                'XLU': 'Utilities Sector SPDR', 'XLP': 'Consumer Staples SPDR', 'XLV': 'Health Care Sector SPDR',
+                'SMH': 'Semiconductors ETF', 'XLY': 'Consumer Discretionary', 'ARKK': 'ARK Innovation ETF',
+                'MSTR': 'MicroStrategy Inc', 'IBIT': 'iShares Bitcoin Trust'
+            };
+
+            for (const [cat, tickers] of Object.entries(trendDict)) {
+                for (const [sym, vals] of Object.entries(tickers)) {
+                    flattenedAssets.push({
+                        category: cat,
+                        categoryLabel: categoryNames[cat] || cat,
+                        ticker: sym,
+                        name: tickerNames[sym] || sym,
+                        current_price: vals.current_price,
+                        sma_50: vals['50_dma'] || vals.sma_50,
+                        sma_200: vals['200_dma'] || vals.sma_200,
+                        momentum_20d_pct: vals.momentum_20d_pct,
+                        trend_status: vals.trend_status
                     });
                 }
-            });
+            }
+            window.allCitadelAssets = flattenedAssets;
 
-            // Populate Tab 3 Macro Grid
-            const macroGrid = document.getElementById('citadel-macro-grid-tab3');
-            if (macroGrid) {
-                const env = data.macro_environment || {};
-                macroGrid.innerHTML = `
-                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border"><span class="text-slate-400 block text-[10px]">S&P 500 Index</span><span class="text-white font-bold text-sm">$${env.spx_close?.toLocaleString() || '5,920.40'}</span></div>
-                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border"><span class="text-slate-400 block text-[10px]">Dark Pool DIX</span><span class="text-accent-emerald font-bold text-sm">${((dir.dark_pool_dix || 0.448) * 100).toFixed(1)}%</span></div>
-                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border"><span class="text-slate-400 block text-[10px]">Chicago Fed NFCI</span><span class="text-accent-cyan font-bold text-sm">${env.nfci || '-0.52'}</span></div>
-                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border"><span class="text-slate-400 block text-[10px]">10Y-2Y Curve Slope</span><span class="text-white font-bold text-sm">${env.yield_curve_slope || '+18 bps'}</span></div>
-                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border"><span class="text-slate-400 block text-[10px]">HY Credit Spread</span><span class="text-accent-emerald font-bold text-sm">${env.hy_spread || '312 bps'}</span></div>
-                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border"><span class="text-slate-400 block text-[10px]">ERP Proxy</span><span class="text-white font-bold text-sm">${((dir.equity_risk_premium_proxy || 0.0245) * 100).toFixed(2)}%</span></div>
-                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border"><span class="text-slate-400 block text-[10px]">VIX Term Structure</span><span class="text-accent-emerald font-bold text-sm">${dir.vix_term_structure || 'CONTANGO'}</span></div>
-                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border"><span class="text-slate-400 block text-[10px]">Macro Posture</span><span class="text-accent-cyan font-bold text-sm">${dir.suggested_market_posture || 'RISK-ON'}</span></div>
+            // Render 5-Tier Breadth Pulse in Tab 1
+            const pulseGrid = document.getElementById('citadel-tier-breadth-cards');
+            if (pulseGrid) {
+                pulseGrid.innerHTML = '';
+                const tiers = ['core_equity', 'rates_bonds', 'commodities', 'defensives', 'high_beta'];
+                tiers.forEach(cat => {
+                    const group = flattenedAssets.filter(a => a.category === cat);
+                    const bull = group.filter(a => a.trend_status === 'BULLISH').length;
+                    const bear = group.filter(a => a.trend_status === 'BEARISH').length;
+                    const neut = group.length - bull - bear;
+                    const card = document.createElement('div');
+                    card.className = 'p-3 rounded-xl bg-dark-base border border-dark-border space-y-1.5';
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-300 font-bold text-[11px]">${categoryNames[cat]}</span>
+                            <span class="text-[10px] text-slate-400 font-mono">(${group.length})</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-[10px]">
+                            <span class="text-accent-emerald font-bold">${bull} Bull</span>
+                            <span class="text-slate-500">/</span>
+                            <span class="text-accent-rose font-bold">${bear} Bear</span>
+                            <span class="text-slate-500">/</span>
+                            <span class="text-slate-400 font-semibold">${neut} Neu</span>
+                        </div>
+                    `;
+                    pulseGrid.appendChild(card);
+                });
+            }
+
+            // Populate Tab 1 Quick Table (10 Leading Assets)
+            const tbodyTab1 = document.getElementById('citadel-trend-matrix-tbody');
+            if (tbodyTab1) {
+                tbodyTab1.innerHTML = '';
+                const sampleTickers = ['SPY', 'QQQ', 'DIA', 'TLT', 'HYG', 'GLD', 'COPX', 'XLP', 'SMH', 'IBIT'];
+                const sampleAssets = flattenedAssets.filter(a => sampleTickers.includes(a.ticker));
+                sampleAssets.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-dark-hover/50 transition border-b border-dark-border/40';
+                    const isBull = item.trend_status === 'BULLISH';
+                    const isBear = item.trend_status === 'BEARISH';
+                    const badgeClass = isBull ? 'bg-accent-emerald/20 text-accent-emerald border-accent-emerald/40' : (isBear ? 'bg-accent-rose/20 text-accent-rose border-accent-rose/40' : 'bg-slate-700/40 text-slate-300 border-slate-600');
+                    tr.innerHTML = `
+                        <td class="py-2 px-3 font-semibold text-slate-400 text-[11px]">${item.categoryLabel}</td>
+                        <td class="py-2 px-3 font-bold text-accent-cyan">${item.ticker} <span class="text-slate-400 text-[10px] hidden sm:inline">(${item.name})</span></td>
+                        <td class="py-2 px-3 text-white font-semibold">$${Number(item.current_price).toFixed(2)}</td>
+                        <td class="py-2 px-3 text-slate-300">$${Number(item.sma_50).toFixed(2)}</td>
+                        <td class="py-2 px-3 text-slate-300">$${Number(item.sma_200).toFixed(2)}</td>
+                        <td class="py-2 px-3 ${item.momentum_20d_pct >= 0 ? 'text-accent-emerald' : 'text-accent-rose'} font-semibold">${item.momentum_20d_pct >= 0 ? '+' : ''}${item.momentum_20d_pct?.toFixed(2)}%</td>
+                        <td class="py-2 px-3 text-right">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">${item.trend_status}</span>
+                        </td>
+                    `;
+                    tbodyTab1.appendChild(tr);
+                });
+            }
+
+            // Populate Tab 2 Full 26-Asset Trend Matrix
+            renderCitadelTab2Table('all');
+
+            // Populate Tab 3 Macro & Credit Intelligence Grid
+            renderCitadelTab3Intelligence(data);
+
+            // Populate Tab 4 Sovereign & Compound Syntheses
+            renderCitadelTab4Syntheses(data);
+        }
+
+        // Filter function for Tab 2
+        function filterCitadelCategory(cat) {
+            document.querySelectorAll('#citadel-trend-filter-buttons button').forEach(btn => {
+                btn.className = 'px-2.5 py-1 rounded-lg bg-dark-elevated text-slate-300 hover:text-white border border-dark-border transition';
+            });
+            const activeBtn = document.getElementById(`btn-cat-${cat}`);
+            if (activeBtn) {
+                activeBtn.className = 'px-2.5 py-1 rounded-lg bg-accent-cyan text-dark-base font-bold transition';
+            }
+            renderCitadelTab2Table(cat);
+        }
+        window.filterCitadelCategory = filterCitadelCategory;
+
+        function renderCitadelTab2Table(filterCat) {
+            const tbodyTab2 = document.getElementById('citadel-trend-matrix-tbody-tab2');
+            if (!tbodyTab2 || !window.allCitadelAssets) return;
+            tbodyTab2.innerHTML = '';
+
+            const assetsToRender = filterCat === 'all' ? window.allCitadelAssets : window.allCitadelAssets.filter(a => a.category === filterCat);
+
+            assetsToRender.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-dark-hover/50 transition border-b border-dark-border/40';
+
+                const dist50 = ((item.current_price - item.sma_50) / item.sma_50 * 100);
+                const dist200 = ((item.current_price - item.sma_200) / item.sma_200 * 100);
+                const goldenCross = item.sma_50 > item.sma_200;
+
+                const isBull = item.trend_status === 'BULLISH';
+                const isBear = item.trend_status === 'BEARISH';
+                const badgeClass = isBull ? 'bg-accent-emerald/20 text-accent-emerald border-accent-emerald/40' : (isBear ? 'bg-accent-rose/20 text-accent-rose border-accent-rose/40' : 'bg-slate-700/40 text-slate-300 border-slate-600');
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-dark-base border border-dark-border text-slate-300">${item.categoryLabel}</span>
+                    </td>
+                    <td class="py-2.5 px-3">
+                        <span class="font-bold text-accent-cyan text-sm">${item.ticker}</span>
+                        <span class="block text-[10px] text-slate-400 font-sans">${item.name}</span>
+                    </td>
+                    <td class="py-2.5 px-3 font-bold text-white text-sm">$${Number(item.current_price).toFixed(2)}</td>
+                    <td class="py-2.5 px-3">
+                        <span class="text-slate-300">$${Number(item.sma_50).toFixed(2)}</span>
+                        <span class="block text-[10px] ${dist50 >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${dist50 >= 0 ? '+' : ''}${dist50.toFixed(1)}%</span>
+                    </td>
+                    <td class="py-2.5 px-3">
+                        <span class="text-slate-300">$${Number(item.sma_200).toFixed(2)}</span>
+                        <span class="block text-[10px] ${dist200 >= 0 ? 'text-accent-emerald' : 'text-accent-rose'}">${dist200 >= 0 ? '+' : ''}${dist200.toFixed(1)}%</span>
+                    </td>
+                    <td class="py-2.5 px-3">
+                        <span class="px-2 py-0.5 rounded text-xs font-bold ${item.momentum_20d_pct >= 0 ? 'bg-accent-emerald/20 text-accent-emerald' : 'bg-accent-rose/20 text-accent-rose'}">
+                            ${item.momentum_20d_pct >= 0 ? '+' : ''}${item.momentum_20d_pct?.toFixed(2)}%
+                        </span>
+                    </td>
+                    <td class="py-2.5 px-3">
+                        <span class="text-[11px] ${goldenCross ? 'text-accent-emerald font-semibold' : 'text-accent-rose font-semibold'}">
+                            ${goldenCross ? 'Golden (50>200)' : 'Death (50<200)'}
+                        </span>
+                    </td>
+                    <td class="py-2.5 px-3 text-right">
+                        <span class="px-2.5 py-1 rounded text-xs font-bold border ${badgeClass}">${item.trend_status}</span>
+                    </td>
+                `;
+                tbodyTab2.appendChild(tr);
+            });
+        }
+
+        // Render Tab 3 Macro & Credit Intelligence Grid
+        function renderCitadelTab3Intelligence(data) {
+            const env = data.macro_environment || {};
+            const cred = data.credit_matrix || {};
+
+            // Group 1: Growth Grid
+            const growthGrid = document.getElementById('citadel-growth-grid');
+            if (growthGrid) {
+                growthGrid.innerHTML = `
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">Real GDP Growth (QoQ Ann)</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-emerald/20 text-accent-emerald font-bold">EXPANSION</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-xl font-bold text-white">${Number(env.real_gdp_growth_pct || 3.4).toFixed(1)}%</span>
+                            <span class="text-xs text-slate-400">vs 2.0% Trend</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> Real GDP expanding strongly at 3.4% disproves near-term recession risks, supporting corporate earnings and cyclical demand.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">Initial Jobless Claims</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-emerald/20 text-accent-emerald font-bold">HISTORIC LOW</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-xl font-bold text-white">${Number(env.initial_jobless_claims || 189000).toLocaleString()}</span>
+                            <span class="text-xs text-slate-400">Stress: >260k</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> Rock-bottom claims under 200,000 signify minimal corporate layoffs, maintaining tight labor conditions and firm consumer spending.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">Empire State PMI Proxy</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-cyan/20 text-accent-cyan font-bold">SURGING</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-xl font-bold text-accent-cyan">+${Number(env.empire_state_pmi_proxy || 25.5).toFixed(1)}</span>
+                            <span class="text-xs text-slate-400">Zero-Line: 0.0</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> NY Fed manufacturing proxy rebound (+25.5) indicates robust regional industrial acceleration and factory floor order books.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">Philly Fed Capex Proxy</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-cyan/20 text-accent-cyan font-bold">CAPEX BOOM</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-xl font-bold text-accent-cyan">+${Number(env.philly_fed_capex_proxy || 34.9).toFixed(1)}</span>
+                            <span class="text-xs text-slate-400">Neutral: 0.0</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> Corporate forward capital spending intentions are heavily positive (+34.9), signaling multi-quarter business investment confidence.
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Group 2: Inflation Grid
+            const inflGrid = document.getElementById('citadel-inflation-grid');
+            if (inflGrid) {
+                inflGrid.innerHTML = `
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">Core PCE Inflation (YoY)</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-amber-500/20 text-amber-400 font-bold">FED OVERTARGET</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-2xl font-bold text-amber-400">${Number(env.core_pce_pct_yoy || 3.0).toFixed(1)}%</span>
+                            <span class="text-xs text-slate-400">Target: 2.0%</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> The Fed's preferred inflation gauge sits 100 bps above target (3.0%), constraining aggressive interest rate cuts and anchoring terminal policy yields.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">M2 Money Supply (YoY)</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-cyan/20 text-accent-cyan font-bold">EXPANDING</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-2xl font-bold text-accent-cyan">+${Number(env.m2_money_supply_yoy_pct || 5.71).toFixed(2)}%</span>
+                            <span class="text-xs text-slate-400">Historical Avg: 5.5%</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> Re-acceleration in broad money supply to +5.71% completely reverses the historic 2022-2023 contraction, refueling liquidity and nominal asset prices.
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Group 3: Credit Grid
+            const credGrid = document.getElementById('citadel-credit-grid');
+            if (credGrid) {
+                credGrid.innerHTML = `
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">Chicago Fed NFCI</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-emerald/20 text-accent-emerald font-bold">EASY CONDITIONS</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-xl font-bold text-accent-emerald">${Number(cred.nfci_liquidity_stress || -0.459).toFixed(3)}</span>
+                            <span class="text-xs text-slate-400">Stress: > 0.0</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> Negative NFCI (-0.459 < -0.30) confirms expansive conditions across debt markets, risk premiums, and banking shadow liquidity.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">High Yield OAS Stress</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-emerald/20 text-accent-emerald font-bold">BENIGN DEFAULT RISK</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-xl font-bold text-white">${Number(cred.high_yield_oas_stress || 3.42).toFixed(2)}%</span>
+                            <span class="text-xs text-slate-400">Distress: > 5.50%</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> Junk bond spreads compressed at 342 bps signify that fixed income institutional investors perceive negligible default risk in corporate debt.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">BBB Corporate Spread</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-emerald/20 text-accent-emerald font-bold">TIGHT SPREAD</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-xl font-bold text-white">${Number(cred.bbb_corporate_spread || 1.16).toFixed(2)}%</span>
+                            <span class="text-xs text-slate-400">116 bps over US10Y</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> Investment grade credit access is frictionless, shielding corporate balance sheets from refinancing wall panics.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">Yield Curve Slope (10Y - 3M)</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-cyan/20 text-accent-cyan font-bold">UN-INVERTED</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-xl font-bold text-accent-cyan">+${Number(cred.yield_curve_10y_3m || 0.67).toFixed(2)}%</span>
+                            <span class="text-xs text-slate-400">Inversion: < 0%</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> The curve has completely dis-inverted (+67 bps), progressing into late-cycle steepening as short-term policy easing meets growth resilience.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">10Y Treasury Benchmark</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-amber-500/20 text-amber-400 font-bold">HIGH DISCOUNT RATE</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-xl font-bold text-amber-400">${Number(cred.treasury_10y_proxy || 4.87).toFixed(2)}%</span>
+                            <span class="text-xs text-slate-400">Risk-Free Benchmark</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> An elevated 10Y yield (4.87%) acts as a gravitational drag on equity multiples, enforcing valuation discipline on speculative tech.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-dark-base border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">Bank Lending Tightening %</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-emerald/20 text-accent-emerald font-bold">NORMAL STANDARDS</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-xl font-bold text-white">${Number(cred.bank_lending_tightening_pct || 1.7).toFixed(1)}%</span>
+                            <span class="text-xs text-slate-400">Crisis: > 50%</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 leading-relaxed pt-1 border-t border-dark-border/40">
+                            <strong>Interpretation:</strong> Federal Reserve SLOOS survey shows commercial bank lending standards are flat (1.7%), maintaining steady commercial loan pipelines.
+                        </p>
+                    </div>
                 `;
             }
         }
 
+        // Render Tab 4 Sovereign Flows & Compound Syntheses
+        function renderCitadelTab4Syntheses(data) {
+            const sov = data.sovereign_and_supply || {};
+            const vol = data.volatility_matrix || {};
+            const dir = data.regime_directives || {};
+            const env = data.macro_environment || {};
+            const cred = data.credit_matrix || {};
+
+            // Group 1: Sovereign Grid
+            const sovGrid = document.getElementById('citadel-sovereign-grid');
+            if (sovGrid) {
+                sovGrid.innerHTML = `
+                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">USD/JPY Carry Proxy</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-amber-500/20 text-amber-400 font-bold">WATCH > 155</span>
+                        </div>
+                        <div class="text-lg font-bold text-white">${Number(sov.usd_jpy_carry_trade_proxy || 158.01).toFixed(2)}</div>
+                        <p class="text-[10px] text-slate-300 leading-normal border-t border-dark-border/40 pt-1">
+                            Elevated Yen weakness triggers MoF FX intervention risks.
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">Cushing Crude Inventory</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-cyan/20 text-accent-cyan font-bold">LEAN BUFFER</span>
+                        </div>
+                        <div class="text-lg font-bold text-accent-cyan">${Number(sov.cushing_physical_inventory || 27250).toLocaleString()} <span class="text-xs font-normal text-slate-400">MBBL</span></div>
+                        <p class="text-[10px] text-slate-300 leading-normal border-t border-dark-border/40 pt-1">
+                            Physical storage buffer below 30M bbl increases oil upside volatility.
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">Copper China Stimulus</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-accent-emerald/20 text-accent-emerald font-bold">INDUSTRIAL SURGE</span>
+                        </div>
+                        <div class="text-lg font-bold text-accent-emerald">$${Number(sov.copper_china_stimulus || 6.34).toFixed(2)} <span class="text-xs font-normal text-slate-400">/lb</span></div>
+                        <p class="text-[10px] text-slate-300 leading-normal border-t border-dark-border/40 pt-1">
+                            Dr. Copper at highs confirms global infrastructure capex transmission.
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">USD/CAD FX Rate</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-dark-card text-slate-300 border border-dark-border font-bold">COMMODITY FX</span>
+                        </div>
+                        <div class="text-lg font-bold text-white">${Number(sov.usd_cad_fx_rate || 1.4129).toFixed(4)}</div>
+                        <p class="text-[10px] text-slate-300 leading-normal border-t border-dark-border/40 pt-1">
+                            Strong USD vs Loonie reflects North American terms of trade spread.
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-dark-base border border-dark-border space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px]">USD/CNY PBOC Proxy</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] bg-dark-card text-slate-300 border border-dark-border font-bold">PBOC FIXING</span>
+                        </div>
+                        <div class="text-lg font-bold text-white">${Number(sov.usd_cny_pbOC_proxy || sov.usd_cny_pboc_proxy || 6.6722).toFixed(4)}</div>
+                        <p class="text-[10px] text-slate-300 leading-normal border-t border-dark-border/40 pt-1">
+                            PBOC managed fixing signals Beijing currency stability commitment.
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Calculations for Compound Syntheses
+            const jpy = sov.usd_jpy_carry_trade_proxy || 158.01;
+            const vix = vol.vix_level || 20.39;
+            const term = dir.vix_term_structure || 'CONTANGO';
+            const jpyScore = Math.max(0, Math.min(50, (jpy - 140) / 20 * 50));
+            const vixScore = Math.max(0, Math.min(30, (vix - 12) / 23 * 30));
+            const termScore = term.includes('BACKWARDATION') ? 20 : 5;
+            const carryScore = Math.round(jpyScore + vixScore + termScore);
+
+            const cCarryBadge = document.getElementById('compound-carry-badge');
+            const cCarryBar = document.getElementById('compound-carry-bar');
+            if (cCarryBadge) {
+                cCarryBadge.textContent = `${carryScore} / 100 (ELEVATED)`;
+                if (carryScore >= 70) cCarryBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-accent-rose/20 text-accent-rose border border-accent-rose/30';
+                else if (carryScore >= 50) cCarryBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+                else cCarryBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/30';
+            }
+            if (cCarryBar) cCarryBar.style.width = `${carryScore}%`;
+
+            const cmpJpy = document.getElementById('cmp-jpy-val');
+            if (cmpJpy) cmpJpy.textContent = jpy.toFixed(2);
+            const cmpVix = document.getElementById('cmp-vix-val');
+            if (cmpVix) cmpVix.textContent = vix.toFixed(2);
+            const cmpTerm = document.getElementById('cmp-vix-term');
+            if (cmpTerm) cmpTerm.textContent = term.includes('BACKWARDATION') ? 'BACKWARDATION (PANIC)' : 'CONTANGO (NORMAL)';
+
+            // Stagflation Buffer
+            const gdp = env.real_gdp_growth_pct || 3.4;
+            const pce = env.core_pce_pct_yoy || 3.0;
+            const buffer = (gdp - pce).toFixed(2);
+            const cmpStagSpread = document.getElementById('cmp-stag-spread');
+            if (cmpStagSpread) cmpStagSpread.textContent = `${buffer >= 0 ? '+' : ''}${buffer}% Growth Buffer`;
+
+            // Credit Scissors
+            const hy = cred.high_yield_oas_stress || 3.42;
+            const bbb = cred.bbb_corporate_spread || 1.16;
+            const scissors = (hy / (bbb || 1)).toFixed(2);
+            const cmpScissors = document.getElementById('cmp-scissors-ratio');
+            if (cmpScissors) cmpScissors.textContent = `${scissors}x`;
+
+            // DIX Stance
+            const dix = dir.dark_pool_dix || 42.36;
+            const cmpDix = document.getElementById('cmp-dix-val');
+            if (cmpDix) cmpDix.textContent = `${dix.toFixed(2)}%`;
+        }
 
         // 2. PROJECT CHRONOS
         function switchChronosChart(type) {
@@ -4339,21 +5138,34 @@
             } else if (scriptId === 'citadel') {
                 const dir = (data && data.regime_directives) || {};
                 const env = (data && data.macro_environment) || {};
+                const cred = (data && data.credit_matrix) || {};
+                const sov = (data && data.sovereign_and_supply) || {};
+                const vol = (data && data.volatility_matrix) || {};
+                const dixVal = dir.dark_pool_dix > 1 ? dir.dark_pool_dix : (dir.dark_pool_dix || 0.4236) * 100;
+
                 const c1 = document.createElement('div');
-                c1.className = 'bg-dark-card border border-dark-border rounded-xl p-4 sm:p-5 space-y-3';
+                c1.className = 'bg-dark-card border border-dark-border rounded-xl p-4 sm:p-5 space-y-4';
                 c1.innerHTML = `
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 border-b border-dark-border gap-2">
                         <div>
                             <span class="text-xs font-mono text-accent-cyan font-semibold uppercase tracking-wider">Citadel Macro Telemetry</span>
-                            <h3 class="text-base font-bold text-white">Institutional Macro Directives & Market Posture</h3>
+                            <h3 class="text-base font-bold text-white">Universal Macro Regime Directives & System Directives</h3>
                         </div>
-                        <span class="px-2.5 py-1 rounded bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/30 text-xs font-mono font-bold">${dir.suggested_market_posture || 'RISK-ON'}</span>
+                        <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold">${dir.suggested_market_posture || 'COMMODITIES & VALUE'}</span>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-                        <div><span class="text-slate-400">Macro Regime:</span> <span class="text-white font-bold">${dir.current_macro_regime || 'GOLDILOCKS'}</span></div>
+                        <div><span class="text-slate-400">Macro Regime:</span> <span class="text-amber-400 font-bold">${dir.current_macro_regime || 'REFLATION'}</span></div>
                         <div><span class="text-slate-400">VIX Term:</span> <span class="text-accent-emerald font-bold">${dir.vix_term_structure || 'CONTANGO'}</span></div>
-                        <div><span class="text-slate-400">US Liquidity:</span> <span class="text-white font-bold">${dir.liquidity_environment || 'EXPANSIVE'}</span></div>
-                        <div><span class="text-slate-400">Dark Pool DIX:</span> <span class="text-accent-cyan font-bold">${((dir.dark_pool_dix || 0.448) * 100).toFixed(1)}%</span></div>
+                        <div><span class="text-slate-400">US Liquidity:</span> <span class="text-accent-cyan font-bold">${dir.liquidity_environment || 'EXPANSIVE'}</span></div>
+                        <div><span class="text-slate-400">Dark Pool DIX:</span> <span class="text-white font-bold">${Number(dixVal).toFixed(2)}%</span></div>
+                        <div><span class="text-slate-400">Real GDP Growth:</span> <span class="text-white font-bold">${env.real_gdp_growth_pct || 3.4}%</span></div>
+                        <div><span class="text-slate-400">Core PCE YoY:</span> <span class="text-amber-400 font-bold">${env.core_pce_pct_yoy || 3.0}%</span></div>
+                        <div><span class="text-slate-400">Chicago NFCI:</span> <span class="text-accent-emerald font-bold">${cred.nfci_liquidity_stress || -0.459}</span></div>
+                        <div><span class="text-slate-400">High Yield OAS:</span> <span class="text-white font-bold">${cred.high_yield_oas_stress || 3.42}%</span></div>
+                        <div><span class="text-slate-400">USD/JPY Carry:</span> <span class="text-amber-400 font-bold">${sov.usd_jpy_carry_trade_proxy || 158.01}</span></div>
+                        <div><span class="text-slate-400">Cushing Crude:</span> <span class="text-accent-cyan font-bold">${sov.cushing_physical_inventory || 27250} MBBL</span></div>
+                        <div><span class="text-slate-400">Copper China:</span> <span class="text-accent-emerald font-bold">$${sov.copper_china_stimulus || 6.34}</span></div>
+                        <div><span class="text-slate-400">Equity Risk Prem:</span> <span class="text-accent-rose font-bold">${(Number(dir.equity_risk_premium_proxy || -0.0221) * 100).toFixed(2)}%</span></div>
                     </div>
                 `;
                 container.appendChild(c1);
