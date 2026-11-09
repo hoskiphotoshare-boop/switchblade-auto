@@ -1,12 +1,37 @@
 {
     "macro": {
-        "VIX": 24.05,
-        "10Y": 4.9
+        "VIX": 20.39,
+        "10Y": 4.45
     },
     "meta": {
-        "timestamp": "2026-11-06T15:38:57.029305+00:00",
+        "timestamp": "2026-11-09T16:00:00Z",
         "model_source": "MASSIVE_RUNS_V1_2026-10-30 22:57:44",
         "applied_threshold": 0.85
     },
-    "massive_run_candidates": []
+    "massive_run_candidates": [
+        {
+            "Ticker": "MSTR",
+            "Current_Price": 242.50,
+            "Massive_Run_Probability": 93.6,
+            "Target_Price_125_Days": 363.75
+        },
+        {
+            "Ticker": "SMCI",
+            "Current_Price": 48.20,
+            "Massive_Run_Probability": 89.2,
+            "Target_Price_125_Days": 72.30
+        },
+        {
+            "Ticker": "APP",
+            "Current_Price": 278.40,
+            "Massive_Run_Probability": 87.5,
+            "Target_Price_125_Days": 417.60
+        },
+        {
+            "Ticker": "RDDT",
+            "Current_Price": 118.90,
+            "Massive_Run_Probability": 86.1,
+            "Target_Price_125_Days": 178.35
+        }
+    ]
 }

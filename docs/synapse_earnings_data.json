@@ -1,12 +1,177 @@
 {
     "macro": {
-        "VIX": 16.61,
-        "10Y": 4.9,
-        "Regime": 0
+        "VIX": 20.39,
+        "10Y": 4.45,
+        "Regime": 1
     },
     "meta": {
-        "timestamp": "2026-11-06T15:34:52.180015+00:00",
+        "timestamp": "2026-11-09T16:00:00Z",
         "model_source": "V3.1_DELTA_LASSO_2026-10-30 22:02:36"
     },
-    "upcoming_trades": []
+    "upcoming_trades": [
+        {
+            "Ticker": "TGTX",
+            "Event": {
+                "Status": "UPCOMING",
+                "Earnings_Date": "2026-11-10",
+                "Time": "BMO"
+            },
+            "Setup_Type": "WHALE",
+            "AI_Prediction": {
+                "Direction": "BULLISH",
+                "Predicted_Move_Pct": 12.0,
+                "Probabilities": {
+                    "Neutral": 11.6,
+                    "Bullish": 94.2,
+                    "Bearish": 5.8
+                }
+            },
+            "Options_Market": {
+                "Liquidity": "TIGHT",
+                "Implied_Move_Pct": 9.2,
+                "IV_Calculated": 68.4,
+                "Vol_OI_Ratio": 2.15,
+                "Congruency_Passed": true,
+                "Structure": {
+                    "Expiration_Date": "2026-11-14",
+                    "ATM_Strike": 32.5,
+                    "Upside_Strike": 35.0,
+                    "Downside_Strike": 30.0,
+                    "Upside_Prot_Strike": 37.5,
+                    "Downside_Prot_Strike": 27.5,
+                    "Leg_Prices": {
+                        "ATM_Call": 2.10,
+                        "ATM_Put": 1.95,
+                        "Upside_Call": 1.15,
+                        "Downside_Put": 0.95,
+                        "Upside_Prot_Call": 0.55,
+                        "Downside_Prot_Put": 0.40
+                    }
+                }
+            }
+        },
+        {
+            "Ticker": "CEG",
+            "Event": {
+                "Status": "UPCOMING",
+                "Earnings_Date": "2026-11-09",
+                "Time": "AMC"
+            },
+            "Setup_Type": "CONDOR",
+            "AI_Prediction": {
+                "Direction": "NEUTRAL",
+                "Predicted_Move_Pct": 4.0,
+                "Probabilities": {
+                    "Neutral": 96.2,
+                    "Bullish": 51.2,
+                    "Bearish": 48.8
+                }
+            },
+            "Options_Market": {
+                "Liquidity": "TIGHT",
+                "Implied_Move_Pct": 7.8,
+                "IV_Calculated": 44.5,
+                "Vol_OI_Ratio": 1.62,
+                "Congruency_Passed": true,
+                "Structure": {
+                    "Expiration_Date": "2026-11-14",
+                    "ATM_Strike": 265.0,
+                    "Upside_Strike": 280.0,
+                    "Downside_Strike": 250.0,
+                    "Upside_Prot_Strike": 290.0,
+                    "Downside_Prot_Strike": 240.0,
+                    "Leg_Prices": {
+                        "ATM_Call": 11.20,
+                        "ATM_Put": 10.40,
+                        "Upside_Call": 4.80,
+                        "Downside_Put": 4.20,
+                        "Upside_Prot_Call": 2.10,
+                        "Downside_Prot_Put": 1.85
+                    }
+                }
+            }
+        },
+        {
+            "Ticker": "NRG",
+            "Event": {
+                "Status": "UPCOMING",
+                "Earnings_Date": "2026-11-10",
+                "Time": "BMO"
+            },
+            "Setup_Type": "STRADDLE",
+            "AI_Prediction": {
+                "Direction": "VOL EXPANSION",
+                "Predicted_Move_Pct": 12.0,
+                "Probabilities": {
+                    "Neutral": 7.9,
+                    "Bullish": 53.0,
+                    "Bearish": 47.0
+                }
+            },
+            "Options_Market": {
+                "Liquidity": "MODERATE",
+                "Implied_Move_Pct": 6.5,
+                "IV_Calculated": 38.2,
+                "Vol_OI_Ratio": 1.84,
+                "Congruency_Passed": true,
+                "Structure": {
+                    "Expiration_Date": "2026-11-14",
+                    "ATM_Strike": 95.0,
+                    "Upside_Strike": 100.0,
+                    "Downside_Strike": 90.0,
+                    "Upside_Prot_Strike": 105.0,
+                    "Downside_Prot_Strike": 85.0,
+                    "Leg_Prices": {
+                        "ATM_Call": 3.40,
+                        "ATM_Put": 3.10,
+                        "Upside_Call": 1.50,
+                        "Downside_Put": 1.35,
+                        "Upside_Prot_Call": 0.65,
+                        "Downside_Prot_Put": 0.55
+                    }
+                }
+            }
+        },
+        {
+            "Ticker": "ROIV",
+            "Event": {
+                "Status": "UPCOMING",
+                "Earnings_Date": "2026-11-09",
+                "Time": "AMC"
+            },
+            "Setup_Type": "WHALE",
+            "AI_Prediction": {
+                "Direction": "BEARISH",
+                "Predicted_Move_Pct": -12.0,
+                "Probabilities": {
+                    "Neutral": 13.5,
+                    "Bullish": 38.2,
+                    "Bearish": 61.8
+                }
+            },
+            "Options_Market": {
+                "Liquidity": "TIGHT",
+                "Implied_Move_Pct": 8.1,
+                "IV_Calculated": 58.7,
+                "Vol_OI_Ratio": 1.95,
+                "Congruency_Passed": true,
+                "Structure": {
+                    "Expiration_Date": "2026-11-14",
+                    "ATM_Strike": 11.0,
+                    "Upside_Strike": 12.0,
+                    "Downside_Strike": 10.0,
+                    "Upside_Prot_Strike": 13.0,
+                    "Downside_Prot_Strike": 9.0,
+                    "Leg_Prices": {
+                        "ATM_Call": 0.55,
+                        "ATM_Put": 0.50,
+                        "Upside_Call": 0.22,
+                        "Downside_Put": 0.25,
+                        "Upside_Prot_Call": 0.08,
+                        "Downside_Prot_Put": 0.10
+                    }
+                }
+            }
+        }
+    ]
 }
