@@ -3417,7 +3417,7 @@
 
             // Plain date string "YYYY-MM-DD"
             if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-                d = new Date(`${s}T16:00:00Z`);
+                let d = new Date(`${s}T16:00:00Z`);
                 if (!isNaN(d.getTime())) return d;
             }
 
@@ -4130,19 +4130,25 @@
                 'MSTR': 'MicroStrategy Inc', 'IBIT': 'iShares Bitcoin Trust'
             };
 
-            for (const [cat, tickers] of Object.entries(trendDict)) {
-                for (const [sym, vals] of Object.entries(tickers)) {
-                    flattenedAssets.push({
-                        category: cat,
-                        categoryLabel: categoryNames[cat] || cat,
-                        ticker: sym,
-                        name: tickerNames[sym] || sym,
-                        current_price: vals.current_price,
-                        sma_50: vals['50_dma'] || vals.sma_50,
-                        sma_200: vals['200_dma'] || vals.sma_200,
-                        momentum_20d_pct: vals.momentum_20d_pct,
-                        trend_status: vals.trend_status
-                    });
+            if (Array.isArray(trendDict)) {
+                trendDict.forEach(item => flattenedAssets.push(item));
+            } else if (trendDict && typeof trendDict === 'object') {
+                for (const [cat, tickers] of Object.entries(trendDict)) {
+                    if (!tickers || typeof tickers !== 'object') continue;
+                    for (const [sym, vals] of Object.entries(tickers)) {
+                        if (!vals || typeof vals !== 'object') continue;
+                        flattenedAssets.push({
+                            category: cat,
+                            categoryLabel: categoryNames[cat] || cat,
+                            ticker: sym,
+                            name: tickerNames[sym] || sym,
+                            current_price: vals.current_price,
+                            sma_50: vals['50_dma'] || vals.sma_50,
+                            sma_200: vals['200_dma'] || vals.sma_200,
+                            momentum_20d_pct: vals.momentum_20d_pct,
+                            trend_status: vals.trend_status
+                        });
+                    }
                 }
             }
             window.allCitadelAssets = flattenedAssets;
